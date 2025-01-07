@@ -26,6 +26,7 @@ export const DATATYPE_COLOR = {
 export const NODE_STATUS_COLOR = {
   white: '#fff',
   pending: '#ff0', // yellow
+  waiting: '#ffa500', // orange
   current: '#3b82f6', // blue
   done: '#0f0', // green
   error: '#f00' // red

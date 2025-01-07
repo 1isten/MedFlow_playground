@@ -910,12 +910,12 @@ async function save() {
             })
           }
           */
-          isValid = true
         }
       }
     } catch (err) {
       console.error(err)
     }
+    isValid = true
     if (isValid) {
       json.nodes = json.nodes.map((node) => {
         delete node.pmt_fields

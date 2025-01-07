@@ -730,6 +730,25 @@
     "output_node": false
   },
 
+  "plugin.get_nifti.get_nifti": {
+    "name": "plugin.get_nifti.get_nifti",
+    "category": "plugins/get_nifti",
+    "display_name": "Get NIFTI",
+    "description": "生成nifti并存入缓存,返回这个序列的nifti地址",
+    "python_module": "custom_nodes.get_nifti.get_nifti",
+    "input": {
+      "required": {
+        "series": ["3D"]
+      }
+    },
+    "input_order": {
+      "required": ["series"]
+    },
+    "output": ["3D"],
+    "output_name": ["nifti"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "plugin.head_deident.execution": {
     "name": "plugin.head_deident.execution",
     "category": "plugins/head_deident",
@@ -922,23 +941,481 @@
     "output_is_list": [false, false],
     "output_node": false
   },
-  "plugin.get_nifti.get_nifti": {
-    "name": "plugin.get_nifti.get_nifti",
-    "category": "plugins/get_nifti",
-    "display_name": "Get NIFTI",
-    "description": "生成nifti并存入缓存,返回这个序列的nifti地址",
-    "python_module": "custom_nodes.get_nifti.get_nifti",
+  "plugin.multi_input_test.add_two2Ddata_together": {
+    "name": "plugin.multi_input_test.add_two2Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Two 2D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_two2Ddata_together",
     "input": {
       "required": {
-        "series": ["3D"]
+        "data1": [
+          "2D"
+        ],
+        "data2": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
       }
     },
     "input_order": {
-      "required": ["series"]
+      "required": [
+        "data1",
+        "data2"
+      ],
+      "optional": [
+        "ratioA"
+      ]
     },
-    "output": ["3D"],
-    "output_name": ["nifti"],
-    "output_is_list": [false],
+    "output": [
+      "2D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_two3Ddata_together": {
+    "name": "plugin.multi_input_test.add_two3Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Two 3D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_two3Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "3D"
+        ],
+        "data2": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2"
+      ],
+      "optional": [
+        "ratioA"
+      ]
+    },
+    "output": [
+      "3D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_three2Ddata_together": {
+    "name": "plugin.multi_input_test.add_three2Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Three 2D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_three2Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "2D"
+        ],
+        "data2": [
+          "2D"
+        ],
+        "data3": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ],
+        "ratioB": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2",
+        "data3"
+      ],
+      "optional": [
+        "ratioA",
+        "ratioB"
+      ]
+    },
+    "output": [
+      "2D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_three3Ddata_together": {
+    "name": "plugin.multi_input_test.add_three3Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Three 3D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_three3Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "3D"
+        ],
+        "data2": [
+          "3D"
+        ],
+        "data3": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ],
+        "ratioB": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2",
+        "data3"
+      ],
+      "optional": [
+        "ratioA",
+        "ratioB"
+      ]
+    },
+    "output": [
+      "3D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_two2Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_two2Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Two 2D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_two2Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "2D",
+      "2D"
+    ],
+    "output_name": [
+      "data1",
+      "data2"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_two3Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_two3Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Two 3D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_two3Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "3D",
+      "3D"
+    ],
+    "output_name": [
+      "data1",
+      "data2"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_three2Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_three2Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Three 2D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_three2Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "2D",
+      "2D",
+      "2D"
+    ],
+    "output_name": [
+      "data1",
+      "data2",
+      "data3"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_three3Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_three3Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Three 3D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_three3Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "3D",
+      "3D",
+      "3D"
+    ],
+    "output_name": [
+      "data1",
+      "data2",
+      "data3"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_in_multi_out_test.m_in_m_output": {
+    "name": "plugin.multi_in_multi_out_test.m_in_m_output",
+    "category": "plugins/multi_in_multi_out_test",
+    "display_name": "Multi in Multi out",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_in_multi_out_test.m_in_m_output",
+    "input": {
+      "required": {
+        "data_2d": [
+          "2D"
+        ],
+        "data_3d": [
+          "3D"
+        ],
+        "data_dict": [
+          "DICT"
+        ],
+        "data_string": [
+          "STRING"
+        ],
+        "data_int": [
+          "INT"
+        ],
+        "data_float": [
+          "FLOAT"
+        ],
+        "data_bool": [
+          "BOOLEAN"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data_2d",
+        "data_3d",
+        "data_dict",
+        "data_string",
+        "data_int",
+        "data_float",
+        "data_bool"
+      ]
+    },
+    "output": [
+      "2D",
+      "3D",
+      "DICT",
+      "STRING",
+      "INT",
+      "FLOAT",
+      "BOOLEAN"
+    ],
+    "output_name": [
+      "data_2d",
+      "data_3d",
+      "data_dict",
+      "data_string",
+      "data_int",
+      "data_float",
+      "data_bool"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
     "output_node": false
   },
 

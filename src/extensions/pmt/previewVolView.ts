@@ -16,7 +16,6 @@ useExtensionService().registerExtension({
       } else {
         if (port) {
           origin = origin.replace(port, `${+port - 1}`)
-          // origin = origin.replace(port, `${+port - 3}`)
         }
         // pathname = pathname.replace('comfyui/', '') + 'volview/'
       }

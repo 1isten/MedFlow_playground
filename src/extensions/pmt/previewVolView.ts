@@ -157,9 +157,9 @@ useExtensionService().registerExtension({
         const iframe = widget?.element?.querySelector('iframe')
         if (iframe) {
           let ext = 'nii.gz'
-          if (imagePath.endsWith('.nii')) {
+          if (niftiPath.endsWith('.nii')) {
             ext = 'nii'
-          } else if (imagePath.endsWith('.nii.gz')) {
+          } else if (niftiPath.endsWith('.nii.gz')) {
             ext = 'nii.gz'
           }
           let imageUrl = `${VOLVIEW_URL}&layoutName=${'Quad View'}&names=[file.${ext}]&urls=[connect-file://localhost/${niftiPath}]`

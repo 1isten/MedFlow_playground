@@ -100,6 +100,7 @@ useExtensionService().registerExtension({
       const pmt_fields = node.pmt_fields as any
       const isWaiting = pmt_fields?.status === 'waiting'
       const isCurrent = pmt_fields?.status === 'current'
+      const isDone = pmt_fields?.status === 'done'
 
       if (isWaiting) {
         const inputs = node['getInputs_']()
@@ -124,7 +125,8 @@ useExtensionService().registerExtension({
           if (outputCount === inputCount) {
             continueEl.style.visibility = 'visible'
             continueEl.onclick = (e) => {
-              pmt_fields.status = 'current'
+              // pmt_fields.status = 'current'
+              pmt_fields.status = 'done'
               return document
                 .querySelector('#pmt-action-panel .btn-run')
                 ?.['click']?.()
@@ -135,7 +137,7 @@ useExtensionService().registerExtension({
           countEl.style.visibility = 'hidden'
           continueEl.style.visibility = 'hidden'
         }
-      } else if (isCurrent) {
+      } else if (isCurrent || isDone) {
         toggleEl.style.visibility = 'hidden'
         countEl.style.visibility = 'visible'
         continueEl.classList.remove('hover:cursor-pointer')

@@ -95,6 +95,7 @@ useExtensionService().registerExtension({
       // @ts-expect-error custom pmt_fields
       const pmt_fields = node.pmt_fields as any
       const isWaiting = pmt_fields?.status === 'waiting'
+      const isCurrent = pmt_fields?.status === 'current'
 
       if (isWaiting) {
         const inputs = node['getInputs_']()
@@ -114,10 +115,15 @@ useExtensionService().registerExtension({
           }
           toggleEl.style.visibility = 'visible'
           countEl.style.visibility = 'visible'
+          continueEl.classList.add('hover:cursor-pointer')
+          continueEl.disabled = false
           if (outputCount === inputCount) {
             continueEl.style.visibility = 'visible'
             continueEl.onclick = (e) => {
-              console.log('continue run...')
+              pmt_fields.status = 'current'
+              return document
+                .querySelector('#pmt-action-panel .btn-run')
+                ?.['click']?.()
             }
           }
         } else {
@@ -125,6 +131,11 @@ useExtensionService().registerExtension({
           countEl.style.visibility = 'hidden'
           continueEl.style.visibility = 'hidden'
         }
+      } else if (isCurrent) {
+        toggleEl.style.visibility = 'hidden'
+        countEl.style.visibility = 'visible'
+        continueEl.classList.remove('hover:cursor-pointer')
+        continueEl.disabled = true
       } else {
         toggleEl.style.visibility = 'hidden'
         countEl.style.visibility = 'hidden'

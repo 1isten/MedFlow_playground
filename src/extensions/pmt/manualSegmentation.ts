@@ -12,14 +12,18 @@ useExtensionService().registerExtension({
       // eslint-disable-next-line prefer-const
       let { origin, port, pathname } = document.location
       if (origin === 'file://') {
-        pathname = pathname.replace('comfyui/', 'volview/')
+        pathname = pathname.replace('comfyui/', '') + '#volview/'
       } else {
         if (port) {
           origin = origin.replace(port, `${+port - 1 - 2}`)
         }
         pathname += '#/volview/'
       }
-      const query = new URLSearchParams(document.location.search)
+      const query = new URLSearchParams(
+        origin === 'file://'
+          ? document.location.hash.split('?')[1] || ''
+          : document.location.search
+      )
       let search = `?defaultTool=Paint&drawer=permanent`
       const pipelineId = query.get('pipelineId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''

@@ -1219,7 +1219,7 @@ watch(ws.data, async (data) => {
     }
   }
   if (message?.to === _wsId) {
-    const { type, payload } = message
+    const { type, payload, from: to } = message
     if (type === 'got-pipeline') {
       return handleGetPipeline(payload)
     }
@@ -1231,6 +1231,12 @@ watch(ws.data, async (data) => {
     }
     if (type === 'deleted-pipeline') {
       return handleDeletePipeline(payload)
+    }
+    if (type === 'get-manual-list') {
+      return handleGetManualList(payload, to)
+    }
+    if (type === 'create-segmentation') {
+      return handleCreateManualSegmentation(payload)
     }
   }
   // console.log('[ws] message', message);
@@ -1340,6 +1346,73 @@ function handleDeletePipeline(payload) {
     return
   }
   deleting.value = false
+}
+
+// ---
+
+function handleGetManualList(payload, to) {
+  const manualList = []
+  const manualNodeId = payload?.manualNodeId
+  const manualNode = comfyApp.graph.getNodeById(manualNodeId)
+  if (manualNode) {
+    if (
+      typeof manualNode['getInputs_'] === 'function' &&
+      typeof manualNode['getOutputs_'] === 'function'
+    ) {
+      const inputs = manualNode['getInputs_']()
+      const outputs = manualNode['getOutputs_']()
+      inputs.forEach((input, i) => {
+        const output = outputs[i]
+        const item = {
+          oid: input.oid || null,
+          path: input.path || null,
+          labelmap: output?.path || null
+        }
+        manualList.push(item)
+      })
+    }
+  }
+  return ws.send(
+    JSON.stringify({
+      type: 'got-manual-list',
+      payload: manualList,
+      from: _wsId,
+      to
+    })
+  )
+}
+
+function handleCreateManualSegmentation(payload) {
+  if (payload?.pipelineId === pipeline.value.id) {
+    console.log('manual segmentation:', payload)
+  } else {
+    return
+  }
+  const manualNodeId = payload?.manualNodeId
+  const manualNode = comfyApp.graph.getNodeById(manualNodeId)
+  if (manualNode) {
+    if (
+      typeof manualNode['getInputs_'] === 'function' &&
+      typeof manualNode['getOutputs_'] === 'function'
+    ) {
+      const inputs = manualNode['getInputs_']()
+      const outputs = manualNode['getOutputs_']()
+      inputs.forEach((input, i) => {
+        const output = outputs[i]
+        if (output) {
+          const { oid, labelmap } = payload
+          if (input.oid === oid && labelmap) {
+            output.path = labelmap
+            manualNode.setDirtyCanvas(true)
+          }
+        }
+      })
+    }
+  }
+  return handleGetManualList(
+    { manualNodeId },
+    `tab-volview-${payload.pipelineId}-manual-${manualNodeId}`
+  )
 }
 
 // ---

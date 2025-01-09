@@ -872,8 +872,8 @@ async function save() {
   }
   saving.value = true
   if (pipelineId) {
-    const { jsonStr } = exportJson(true, true)
-    const json = JSON.parse(jsonStr)
+    let { json } = exportJson(false, true)
+    json = JSON.parse(JSON.stringify(json))
     let isValid = false
     try {
       const res = await fetch(

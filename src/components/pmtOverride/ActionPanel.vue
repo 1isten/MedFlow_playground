@@ -323,9 +323,7 @@ onMounted(() => {
         null, // inserts a divider
         {
           content: 'Reset All Nodes',
-          callback: async () => {
-            comfyApp.graph.nodes.forEach(resetNodeStatus)
-          }
+          callback: () => resetNodeById(-1)
         },
         {
           content: 'Refresh Node Definitions',
@@ -354,43 +352,7 @@ onMounted(() => {
       if (resetOptionIndex === -1) resetOptionIndex = options.length
       options.splice(resetOptionIndex, 0, {
         content: 'Reset',
-        callback: async () => {
-          try {
-            const { json } = exportJson(false)
-            const formData = {
-              id: pipeline.value.id,
-              workflow: JSON.stringify(json),
-              nodeId: node.id
-            }
-            // console.log(formData)
-            const res = await fetch(
-              'connect://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-              }
-            )
-            if (res.ok) {
-              const { error, message, nodeIds } = await res.json()
-              if (error) {
-                console.error(error, message)
-              } else if (nodeIds) {
-                nodeIds.forEach((nodeId) => {
-                  const node = comfyApp.graph.getNodeById(nodeId)
-                  if (node) {
-                    console.log('reset', node)
-                    resetNodeStatus(node)
-                  }
-                })
-              }
-            }
-          } catch (err) {
-            console.error(err)
-          }
-        }
+        callback: () => resetNodeById(node.id)
       })
       return options
         .filter((o) => {
@@ -734,6 +696,51 @@ function togglePipOver(e) {
   pipOver.value.toggle(e)
 }
 
+async function resetNodeById(nodeId) {
+  try {
+    const { json } = exportJson(false)
+    const formData = {
+      id: pipeline.value.id,
+      workflow: JSON.stringify(json),
+      nodeId
+    }
+    const res = await fetch(
+      'connect://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      }
+    )
+    if (res.ok) {
+      const { error, message, nodeIds } = await res.json()
+      if (error) {
+        console.error(error, message)
+      } else {
+        if (nodeId === -1) {
+          comfyApp.graph.nodes.forEach((node) => {
+            if (node) {
+              console.log('reset', node)
+              resetNodeStatus(node)
+            }
+          })
+        } else if (nodeIds) {
+          nodeIds.forEach((nodeId) => {
+            const node = comfyApp.graph.getNodeById(nodeId)
+            if (node) {
+              console.log('reset', node)
+              resetNodeStatus(node)
+            }
+          })
+        }
+      }
+    }
+  } catch (err) {
+    console.error(err)
+  }
+}
 function resetNodeStatus(node) {
   if (node?.pmt_fields) {
     delete node.pmt_fields
@@ -889,33 +896,31 @@ async function save() {
           const result = JSON.parse(data)
           console.log('validation result:', result)
           // ...
-          /*
-          let pTotal = 0
-          Object.keys(result).forEach((p) => {
-            pTotal++
-            const { nodes, has_output } = result[p]
-            console.log('pipeline:', p, { nodes, has_output })
-            if (pTotal > 1) {
-              // nodes.forEach...
-            }
-          })
-          if (pTotal <= 1) {
-            isValid = true
-          } else {
-            toast.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: `Only 1 pipeline per workflow, got ${pTotal}!`,
-              life: 5000
-            })
-          }
-          */
+          isValid = true // TODO: handle validation result
+          // let pTotal = 0
+          // Object.keys(result).forEach((p) => {
+          //   pTotal++
+          //   const { nodes, has_output } = result[p]
+          //   console.log('pipeline:', p, { nodes, has_output })
+          //   if (pTotal > 1) {
+          //     // nodes.forEach...
+          //   }
+          // })
+          // if (pTotal <= 1) {
+          //   isValid = true
+          // } else {
+          //   toast.add({
+          //     severity: 'error',
+          //     summary: 'Error',
+          //     detail: `Only 1 pipeline per workflow, got ${pTotal}!`,
+          //     life: 5000
+          //   })
+          // }
         }
       }
     } catch (err) {
       console.error(err)
     }
-    isValid = true
     if (isValid) {
       json.nodes = json.nodes.map((node) => {
         delete node.pmt_fields

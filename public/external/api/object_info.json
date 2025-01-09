@@ -1418,6 +1418,35 @@
     ],
     "output_node": false
   },
+  "plugin.error_test.error_test": {
+    "name": "plugin.error_test.error_test",
+    "category": "plugins/error_test",
+    "display_name": "raise error",
+    "description": "It will always raise an error",
+    "python_module": "custom_nodes.error_test.error_test",
+    "input": {
+      "required": {
+        "data": [
+          "2D"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ]
+    },
+    "output": [
+      "2D"
+    ],
+    "output_name": [
+      "None"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
 
   "converter.file_to_data.image_to_2d": {
     "name": "converter.file_to_data.image_to_2d",

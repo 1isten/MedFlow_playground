@@ -1,11 +1,12 @@
 <template>
-  <div class="workflow-tabs-container flex flex-row w-full">
+  <div class="workflow-tabs-container flex flex-row max-w-full">
     <ScrollPanel
-      class="overflow-hidden"
+      class="overflow-hidden no-drag"
       :pt:content="{
         class: 'p-0 w-full',
         onwheel: handleWheel
       }"
+      pt:barX="h-1"
     >
       <SelectButton
         class="workflow-tabs bg-transparent"
@@ -27,7 +28,7 @@
     </ScrollPanel>
     <Button
       v-tooltip="{ value: $t('sideToolbar.newBlankWorkflow'), showDelay: 300 }"
-      class="new-blank-workflow-button flex-shrink-0"
+      class="new-blank-workflow-button flex-shrink-0 no-drag"
       icon="pi pi-plus"
       text
       severity="secondary"
@@ -197,5 +198,11 @@ const handleWheel = (event: WheelEvent) => {
 
 :deep(.p-togglebutton) .close-button {
   @apply invisible;
+}
+
+/* Scrollbar half opacity to avoid blocking the active tab bottom border */
+:deep(.p-scrollpanel:hover .p-scrollpanel-bar),
+:deep(.p-scrollpanel:active .p-scrollpanel-bar) {
+  opacity: 0.5;
 }
 </style>

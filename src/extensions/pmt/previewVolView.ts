@@ -23,7 +23,7 @@ useExtensionService().registerExtension({
       let search = `?uiMode=lite`
       // serach += `&names=[data.png]&urls=[connect-file://localhost/C:\\sample test data\\data.png]`
       // search += `&names=[file.dcm]&urls=[connect-file://localhost/C:\\sample test data\\test2\\IM_0036.dcm]&uid=test2`
-      // search += `&names=[test.zip]&urls=[connect-file://localhost/C:\\sample test data\\test2\\MRI-PROSTATEx-0004.zip]&uid=test&slice=0`
+      // search += `&names=[test.zip]&urls=[connect-file://localhost/C:\\sample test data\\test2\\MRI-PROSTATEx-0004.zip]&uid=test&s=0`
       return new URL(origin + pathname + search).href
     }
     const VOLVIEW_URL = getVolViewUrl()

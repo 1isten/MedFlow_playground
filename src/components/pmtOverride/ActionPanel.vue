@@ -859,10 +859,26 @@ async function stop() {
     return
   }
   pausing.value = true
-  console.log('stop!')
-  // ...
-  pausing.value = false
-  running.value = false
+  return fetch('connect://localhost/api/pipelines/stop-run-once', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ id: pipeline.value.id })
+  })
+    .then(async (res) => {
+      if (res.ok) {
+        const data = await res.json()
+        console.log('[STOP]', data)
+        running.value = false
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+    .finally(() => {
+      pausing.value = false
+    })
 }
 
 const saving = ref(false)

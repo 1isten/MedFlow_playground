@@ -1,6 +1,6 @@
 <template>
   <teleport :to="'.comfyui-body-bottom'">
-    <Panel id="pmt-action-panel">
+    <Panel id="pmt-action-panel" v-show="!readonlyView">
       <ButtonGroup>
         <Button
           v-if="stoppable ? !loading && !running : true"
@@ -221,10 +221,19 @@ const nodeDefStore = useNodeDefStore()
 const route = useRoute()
 const router = useRouter()
 
-const { pipelineId, workflow_name } = route.query
+const {
+  pipelineId,
+  pipelineEmbedded,
+  pipelineReadonly,
+  // ...
+  workflow_name
+} = route.query
 const pipelineName = ref('New Workflow')
 const pipelineDescription = ref('')
 const pipelineColor = ref('#FFFFFF')
+
+const embeddedView = computed(() => pipelineEmbedded === 'embedded')
+const readonlyView = computed(() => pipelineReadonly === 'readonly')
 
 const pipelines = useLocalStorage('pipelines', pipelineId ? [] : null)
 const pipeline = ref({
@@ -312,6 +321,14 @@ onMounted(() => {
       LiteGraph.unregisterNodeType(type)
     }
   })
+
+  if (readonlyView.value) {
+    useCommandStore().execute('Comfy.Canvas.ToggleLock')
+    const graphCanvasMenuEl = document.querySelector('.p-buttongroup-vertical')
+    if (graphCanvasMenuEl) {
+      graphCanvasMenuEl.style.setProperty('visibility', 'hidden')
+    }
+  }
 
   const getCanvasMenuOptions = LGraphCanvas.prototype.getCanvasMenuOptions
   LGraphCanvas.prototype.getCanvasMenuOptions = function () {
@@ -1219,7 +1236,8 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
 
 // ---
 
-const _wsId = `comfyui-${pipelineId || '*'}`
+const _wsId =
+  `comfyui-${pipelineId || '*'}` + (embeddedView.value ? '-embedded' : '')
 const _ws = ref(localStorage.getItem('_ws') || undefined)
 const ws = useWebSocket(_ws, { heartbeat: true })
 watch(ws.data, async (data) => {

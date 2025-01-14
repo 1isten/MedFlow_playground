@@ -132,7 +132,8 @@
     "systemInfo": "시스템 정보",
     "terminal": "터미널",
     "upload": "업로드",
-    "videoFailedToLoad": "비디오를 로드하지 못했습니다."
+    "videoFailedToLoad": "비디오를 로드하지 못했습니다.",
+    "workflow": "워크플로우"
   },
   "graphCanvasMenu": {
     "fitView": "보기 맞춤",
@@ -205,26 +206,41 @@
     "pathValidationFailed": "경로 유효성 검사 실패",
     "selectItemsToMigrate": "마이그레이션 항목 선택",
     "settings": {
-      "allowMetrics": "충돌 보고서",
-      "allowMetricsDescription": "익명의 충돌 보고서를 보내 ComfyUI 개선에 도움을 줍니다. 개인 정보나 워크플로 내용은 수집되지 않습니다. 이는 설정 메뉴에서 언제든지 비활성화할 수 있습니다.",
+      "allowMetrics": "사용 통계",
+      "allowMetricsDescription": "익명의 사용 통계를 보내 ComfyUI를 개선하는 데 도움을 줍니다. 개인 정보나 워크플로우 내용은 수집되지 않습니다.",
       "autoUpdate": "자동 업데이트",
       "autoUpdateDescription": "업데이트가 가능해지면 자동으로 다운로드하고 설치합니다. 업데이트가 설치되기 전에 항상 알림을 받습니다.",
       "dataCollectionDialog": {
-        "customNodeConfigurations": "사용자 정의 노드 설정",
-        "errorReports": "오류 메시지 및 스택 추적",
-        "fileSystemInformation": "파일 시스템 정보",
-        "personalInformation": "개인 정보",
-        "systemInfo": "하드웨어, OS 유형 및 앱 버전",
+        "collect": {
+          "errorReports": "오류 메시지 및 스택 추적",
+          "systemInfo": "하드웨어, OS 유형, 앱 버전",
+          "userJourneyEvents": "사용자 여정 이벤트",
+          "userJourneyTooltip": "사용자 여정 이벤트는 앱 설치 과정을 통한 사용자의 여정을 추적하는 데 사용됩니다. 이벤트 수집은 첫 번째 성공적인 ComfyUI 워크플로우 실행에서 종료됩니다."
+        },
+        "doNotCollect": {
+          "customNodeConfigurations": "사용자 정의 노드 구성",
+          "fileSystemInformation": "파일 시스템 정보",
+          "personalInformation": "개인 정보",
+          "workflowContents": "워크플로우 내용"
+        },
         "title": "데이터 수집 안내",
         "whatWeCollect": "수집하는 정보:",
-        "whatWeDoNotCollect": "수집하지 않는 정보:",
-        "workflowContent": "워크플로 내용",
-        "workflowContents": "워크플로 내용"
+        "whatWeDoNotCollect": "수집하지 않는 정보:"
       },
       "learnMoreAboutData": "데이터 수집에 대해 더 알아보기"
     },
     "systemLocations": "시스템 위치",
     "unhandledError": "알 수 없는 오류"
+  },
+  "issueReport": {
+    "contactFollowUp": "추적 조사를 위해 연락해 주세요",
+    "helpFix": "이 문제 해결에 도움을 주세요",
+    "notifyResolve": "해결되었을 때 알려주세요",
+    "provideAdditionalDetails": "추가 세부 사항 제공 (선택 사항)",
+    "provideEmail": "이메일을 알려주세요 (선택 사항)",
+    "stackTrace": "스택 추적",
+    "submitErrorReport": "오류 보고서 제출 (선택 사항)",
+    "systemStats": "시스템 통계"
   },
   "menu": {
     "autoQueue": "자동 실행 큐",
@@ -623,11 +639,13 @@
     "workflows": "워크플로"
   },
   "tabMenu": {
+    "addToBookmarks": "북마크에 추가",
     "closeOtherTabs": "다른 탭 닫기",
     "closeTab": "탭 닫기",
     "closeTabsToLeft": "왼쪽 탭 닫기",
     "closeTabsToRight": "오른쪽 탭 닫기",
-    "duplicateTab": "탭 복제"
+    "duplicateTab": "탭 복제",
+    "removeFromBookmarks": "북마크에서 제거"
   },
   "templateWorkflows": {
     "template": {

@@ -132,7 +132,8 @@
     "systemInfo": "Informations système",
     "terminal": "Terminal",
     "upload": "Téléverser",
-    "videoFailedToLoad": "Échec du chargement de la vidéo"
+    "videoFailedToLoad": "Échec du chargement de la vidéo",
+    "workflow": "Flux de travail"
   },
   "graphCanvasMenu": {
     "fitView": "Adapter la vue",
@@ -205,26 +206,41 @@
     "pathValidationFailed": "Échec de la validation du chemin",
     "selectItemsToMigrate": "Sélectionnez les éléments à migrer",
     "settings": {
-      "allowMetrics": "Rapports de plantage",
-      "allowMetricsDescription": "Aidez à améliorer ComfyUI en envoyant des rapports de plantage anonymes. Aucune information personnelle ou contenu de flux de travail ne sera collecté. Cela peut être désactivé à tout moment dans le menu des paramètres.",
+      "allowMetrics": "Métriques d'utilisation",
+      "allowMetricsDescription": "Aidez à améliorer ComfyUI en envoyant des métriques d'utilisation anonymes. Aucune information personnelle ou contenu de flux de travail ne sera collecté.",
       "autoUpdate": "Mises à jour automatiques",
       "autoUpdateDescription": "Téléchargez et installez automatiquement les mises à jour lorsqu'elles deviennent disponibles. Vous serez toujours informé avant l'installation des mises à jour.",
       "dataCollectionDialog": {
-        "customNodeConfigurations": "Configurations de nœuds personnalisés",
-        "errorReports": "Message d'erreur et trace de la pile",
-        "fileSystemInformation": "Informations sur le système de fichiers",
-        "personalInformation": "Informations personnelles",
-        "systemInfo": "Matériel, type d'OS et version de l'application",
+        "collect": {
+          "errorReports": "Message d'erreur et trace de la pile",
+          "systemInfo": "Matériel, type de système d'exploitation et version de l'application",
+          "userJourneyEvents": "Événements du parcours utilisateur",
+          "userJourneyTooltip": "Les événements du parcours utilisateur sont utilisés pour suivre le parcours de l'utilisateur lors du processus d'installation de l'application. La collecte d'événements se termine lors de la première exécution réussie du flux de travail ComfyUI."
+        },
+        "doNotCollect": {
+          "customNodeConfigurations": "Configurations de nœud personnalisées",
+          "fileSystemInformation": "Informations sur le système de fichiers",
+          "personalInformation": "Informations personnelles",
+          "workflowContents": "Contenus du flux de travail"
+        },
         "title": "À propos de la collecte de données",
         "whatWeCollect": "Ce que nous collectons :",
-        "whatWeDoNotCollect": "Ce que nous ne collectons pas :",
-        "workflowContent": "Contenu du flux de travail",
-        "workflowContents": "Contenus du flux de travail"
+        "whatWeDoNotCollect": "Ce que nous ne collectons pas :"
       },
       "learnMoreAboutData": "En savoir plus sur la collecte de données"
     },
     "systemLocations": "Emplacements système",
     "unhandledError": "Erreur inconnue"
+  },
+  "issueReport": {
+    "contactFollowUp": "Contactez-moi pour un suivi",
+    "helpFix": "Aidez à résoudre cela",
+    "notifyResolve": "Prévenez-moi lorsque résolu",
+    "provideAdditionalDetails": "Fournir des détails supplémentaires (facultatif)",
+    "provideEmail": "Donnez-nous votre email (Facultatif)",
+    "stackTrace": "Trace de la pile",
+    "submitErrorReport": "Soumettre un rapport d'erreur (Facultatif)",
+    "systemStats": "Statistiques du système"
   },
   "menu": {
     "autoQueue": "File d'attente automatique",
@@ -623,11 +639,13 @@
     "workflows": "Flux de travail"
   },
   "tabMenu": {
+    "addToBookmarks": "Ajouter aux Favoris",
     "closeOtherTabs": "Fermer les autres onglets",
     "closeTab": "Fermer l'onglet",
     "closeTabsToLeft": "Fermer les onglets à gauche",
     "closeTabsToRight": "Fermer les onglets à droite",
-    "duplicateTab": "Dupliquer l'onglet"
+    "duplicateTab": "Dupliquer l'onglet",
+    "removeFromBookmarks": "Retirer des Favoris"
   },
   "templateWorkflows": {
     "template": {

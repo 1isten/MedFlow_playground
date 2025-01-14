@@ -1,5 +1,5 @@
 <template>
-  <div class="workflow-tabs-container flex flex-row max-w-full">
+  <div class="workflow-tabs-container flex flex-row max-w-full h-full">
     <ScrollPanel
       class="overflow-hidden no-drag"
       :pt:content="{
@@ -50,7 +50,7 @@ import { useI18n } from 'vue-i18n'
 import WorkflowTab from '@/components/topbar/WorkflowTab.vue'
 import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
-import { ComfyWorkflow } from '@/stores/workflowStore'
+import { ComfyWorkflow, useWorkflowBookmarkStore } from '@/stores/workflowStore'
 import { useWorkflowStore } from '@/stores/workflowStore'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
 
@@ -67,6 +67,7 @@ const { t } = useI18n()
 const workspaceStore = useWorkspaceStore()
 const workflowStore = useWorkflowStore()
 const workflowService = useWorkflowService()
+const workflowBookmarkStore = useWorkflowBookmarkStore()
 const rightClickedTab = ref<WorkflowOption>(null)
 const menu = ref()
 
@@ -154,6 +155,13 @@ const contextMenuItems = computed(() => {
           ...options.value.slice(0, index)
         ]),
       disabled: options.value.length <= 1
+    },
+    {
+      label: workflowBookmarkStore.isBookmarked(tab.workflow.path)
+        ? t('tabMenu.removeFromBookmarks')
+        : t('tabMenu.addToBookmarks'),
+      command: () => workflowBookmarkStore.toggleBookmarked(tab.workflow.path),
+      disabled: tab.workflow.isTemporary
     }
   ]
 })
@@ -170,21 +178,31 @@ const handleWheel = (event: WheelEvent) => {
 </script>
 
 <style scoped>
+:deep(.p-togglebutton) {
+  @apply p-0 bg-transparent rounded-none flex-shrink-0 relative border-0 border-r border-solid;
+  border-right-color: var(--border-color);
+}
+
 :deep(.p-togglebutton::before) {
   @apply hidden;
 }
 
-:deep(.p-togglebutton) {
-  @apply p-0 bg-transparent rounded-none flex-shrink-0 relative;
+:deep(.p-togglebutton:first-child) {
+  @apply border-l border-solid;
+  border-left-color: var(--border-color);
+}
+
+:deep(.p-togglebutton:not(:first-child)) {
+  @apply border-l-0;
 }
 
 :deep(.p-togglebutton.p-togglebutton-checked) {
-  border-bottom-width: 1px;
+  @apply border-b border-solid h-full;
   border-bottom-color: var(--p-button-text-primary-color);
 }
 
 :deep(.p-togglebutton:not(.p-togglebutton-checked)) {
-  opacity: 0.75;
+  @apply opacity-75;
 }
 
 :deep(.p-togglebutton-checked) .close-button,
@@ -200,9 +218,17 @@ const handleWheel = (event: WheelEvent) => {
   @apply invisible;
 }
 
+:deep(.p-scrollpanel-content) {
+  @apply h-full;
+}
+
 /* Scrollbar half opacity to avoid blocking the active tab bottom border */
 :deep(.p-scrollpanel:hover .p-scrollpanel-bar),
 :deep(.p-scrollpanel:active .p-scrollpanel-bar) {
-  opacity: 0.5;
+  @apply opacity-50;
+}
+
+:deep(.p-selectbutton) {
+  @apply rounded-none h-full;
 }
 </style>

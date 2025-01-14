@@ -30,7 +30,7 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
       {
         id: 'Comfy-Desktop.SendStatistics',
         category: ['Comfy-Desktop', 'General', 'Send Statistics'],
-        name: 'Send anonymous crash reports',
+        name: 'Send anonymous usage metrics',
         type: 'boolean',
         defaultValue: true,
         onChange: onChangeRestartApp
@@ -41,6 +41,7 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
         name: 'Window Style',
         tooltip: 'Choose custom option to hide the system title bar',
         type: 'combo',
+        experimental: true,
         defaultValue: 'default',
         options: ['default', 'custom'],
         onChange: (

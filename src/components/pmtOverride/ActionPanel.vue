@@ -716,11 +716,6 @@ function togglePipOver(e) {
 async function resetNodeById(nodeId) {
   try {
     const { json } = exportJson(false)
-    const formData = {
-      id: pipeline.value.id,
-      workflow: JSON.stringify(json),
-      nodeId
-    }
     const res = await fetch(
       'connect://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',
       {
@@ -728,7 +723,11 @@ async function resetNodeById(nodeId) {
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          id: pipeline.value.id,
+          workflow: JSON.stringify(json),
+          nodeId
+        })
       }
     )
     if (res.ok) {
@@ -785,18 +784,24 @@ async function run(e, mode = 'complete') {
     console.log(answers)
   } else {
     const { json } = exportJson(false)
-    const formData = {
-      id: pipeline.value.id,
-      workflow: JSON.stringify(json),
-      mode: runningMode.value
+    const validationResult = await validatePipelineGraphJson(json)
+    if (validationResult) {
+      // ...
+    } else {
+      running.value = false
+      console.error('validation failed')
+      return
     }
-    // console.log(formData)
     return fetch('connect://localhost/api/pipelines/run-once', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(formData)
+      body: JSON.stringify({
+        id: pipeline.value.id,
+        workflow: JSON.stringify(json),
+        mode: runningMode.value
+      })
     })
       .then(async (res) => {
         for await (const chunk of decodeMultiStream(res.body)) {
@@ -905,57 +910,10 @@ async function save() {
   }
   saving.value = true
   if (pipelineId) {
-    let { json } = exportJson(false, true)
+    let { json } = exportJson(false, false)
     json = JSON.parse(JSON.stringify(json))
-    let isValid = false
-    try {
-      const res = await fetch(
-        'connect://localhost/api/pipelines/validate-pipeline-graph-json',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            id: pipeline.value.id,
-            workflow: JSON.stringify(json)
-          })
-        }
-      )
-      if (res.ok) {
-        const { error, message, result: data } = await res.json()
-        if (error) {
-          console.error(error, message)
-        } else if (data) {
-          const result = JSON.parse(data)
-          console.log('validation result:', result)
-          // ...
-          isValid = true // TODO: handle validation result
-          // let pTotal = 0
-          // Object.keys(result).forEach((p) => {
-          //   pTotal++
-          //   const { nodes, has_output } = result[p]
-          //   console.log('pipeline:', p, { nodes, has_output })
-          //   if (pTotal > 1) {
-          //     // nodes.forEach...
-          //   }
-          // })
-          // if (pTotal <= 1) {
-          //   isValid = true
-          // } else {
-          //   toast.add({
-          //     severity: 'error',
-          //     summary: 'Error',
-          //     detail: `Only 1 pipeline per workflow, got ${pTotal}!`,
-          //     life: 5000
-          //   })
-          // }
-        }
-      }
-    } catch (err) {
-      console.error(err)
-    }
-    if (isValid) {
+    const validationResult = await validatePipelineGraphJson(json)
+    if (validationResult) {
       json.nodes = json.nodes.map((node) => {
         delete node.pmt_fields
         return node
@@ -1232,6 +1190,38 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
     return JSON.stringify(workflow)
   }
   return JSON.parse(JSON.stringify(workflow))
+}
+
+async function validatePipelineGraphJson(json) {
+  let result = null
+  try {
+    const res = await fetch(
+      'connect://localhost/api/pipelines/validate-pipeline-graph-json',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          id: pipeline.value.id,
+          workflow: JSON.stringify(json)
+        })
+      }
+    )
+    if (res.ok) {
+      const { error, message, result: data } = await res.json()
+      if (error) {
+        console.error(error, message)
+      } else if (data) {
+        result = JSON.parse(data)
+        console.log('validation result:', result)
+        // ...
+      }
+    }
+  } catch (err) {
+    console.error(err)
+  }
+  return result
 }
 
 // ---

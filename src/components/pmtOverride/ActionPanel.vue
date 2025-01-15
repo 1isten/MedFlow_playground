@@ -1311,6 +1311,11 @@ function handleGetPipeline(payload) {
   }
   if (pipelineWorkflow.value?.nodes?.length) {
     comfyApp.graph.configure(pipelineWorkflow.value)
+    if (readonlyView.value) {
+      requestAnimationFrame(() => {
+        useCommandStore().execute('Comfy.Canvas.FitView')
+      })
+    }
   }
   loading.value = false
 }

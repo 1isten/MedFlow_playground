@@ -767,6 +767,7 @@ function resetNodeStatus(node) {
   }
 }
 
+let runPipelineOnceAbortController = null
 const running = ref(false)
 const runningMode = ref('complete')
 async function run(e, mode = 'complete') {
@@ -792,6 +793,7 @@ async function run(e, mode = 'complete') {
       console.error('validation failed')
       return
     }
+    runPipelineOnceAbortController = new AbortController()
     return fetch('connect://localhost/api/pipelines/run-once', {
       method: 'POST',
       headers: {
@@ -801,9 +803,13 @@ async function run(e, mode = 'complete') {
         id: pipeline.value.id,
         workflow: JSON.stringify(json),
         mode: runningMode.value
-      })
+      }),
+      signal: runPipelineOnceAbortController.signal
     })
       .then(async (res) => {
+        if (!running.value) {
+          return
+        }
         for await (const chunk of decodeMultiStream(res.body)) {
           if (chunk?.id === pipelineId) {
             const { pythonMsg, graphJson } = chunk
@@ -879,6 +885,9 @@ const pausing = ref(false)
 async function stop() {
   if (pausing.value || !running.value) {
     return
+  } else if (runPipelineOnceAbortController) {
+    runPipelineOnceAbortController.abort()
+    runPipelineOnceAbortController = null
   }
   pausing.value = true
   return fetch('connect://localhost/api/pipelines/stop-run-once', {

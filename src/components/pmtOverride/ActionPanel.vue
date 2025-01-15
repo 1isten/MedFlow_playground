@@ -870,6 +870,9 @@ async function run(e, mode = 'complete') {
         console.log('[DONE]')
       })
       .catch((err) => {
+        if (err?.name === 'AbortError') {
+          return console.warn(err.message)
+        }
         console.error(err)
       })
       .finally(() => {

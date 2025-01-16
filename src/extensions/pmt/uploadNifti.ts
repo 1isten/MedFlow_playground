@@ -17,7 +17,11 @@ useExtensionService().registerExtension({
   },
   nodeCreated(node) {
     if (node?.comfyClass !== 'input.load_nifti') {
-      return
+      if (node?.comfyClass === 'input.load_series') {
+        //
+      } else {
+        return
+      }
     }
 
     // @ts-expect-error override
@@ -60,7 +64,11 @@ useExtensionService().registerExtension({
         const text = e.dataTransfer.getData('text')
         if (text && text.startsWith('{')) {
           const json = JSON.parse(text)
-          if (json && json.oid) {
+          if (
+            json &&
+            json.oid &&
+            json.$typeName?.split('.').pop() === 'Series'
+          ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
             })
@@ -79,7 +87,11 @@ useExtensionService().registerExtension({
         const text = e.dataTransfer.getData('text')
         if (text && text.startsWith('{')) {
           const json = JSON.parse(text)
-          if (json && json.oid) {
+          if (
+            json &&
+            json.oid &&
+            json.$typeName?.split('.').pop() === 'Series'
+          ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
             })

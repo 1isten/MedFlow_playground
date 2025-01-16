@@ -201,6 +201,7 @@ import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
 import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
@@ -309,6 +310,7 @@ const toggleTerminal = (val) => {
 onMounted(() => {
   ;[
     'input.load_image',
+    'input.load_nifti',
     // ...
     ...Object.keys(SYSTEM_NODE_DEFS)
   ].forEach((type) => {
@@ -1131,9 +1133,16 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
     if (pmt_fields.type === 'input') {
       const oid = pmt_fields.args.oid || pmt_fields.args.source
       if (oid) {
+        if (subtype === 'load_dicom') {
+          pmt_fields.outputs[0].level = ParsedLevel.INSTANCE
+        } else if (subtype === 'load_series') {
+          pmt_fields.outputs[0].level = ParsedLevel.SERIES
+        } else {
+          delete pmt_fields.outputs[0].level
+        }
         pmt_fields.outputs[0].oid = oid
-        pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || ''
-        pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || ''
+        pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || null
+        pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || null
       }
       if (subtype === 'boolean') {
         pmt_fields.outputs[0].value =

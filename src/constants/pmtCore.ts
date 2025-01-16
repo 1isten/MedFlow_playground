@@ -34,3 +34,10 @@ export const NODE_STATUS_COLOR = {
   done: '#0f0', // green
   error: '#f00' // red
 }
+
+export enum ParsedLevel {
+  PATIENT = 0,
+  STUDY = 1,
+  SERIES = 2,
+  INSTANCE = 3
+}

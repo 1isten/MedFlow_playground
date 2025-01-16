@@ -681,6 +681,29 @@
     "output_is_list": [false],
     "output_node": false
   },
+  "input.load_series": {
+    "name": "input.load_series",
+    "category": "input",
+    "display_name": "Load Series",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "oid": [
+          [
+            ""
+          ]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["oid"]
+    },
+    "output": ["SERIES_FILE_LIST"],
+    "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "input.load_nifti": {
     "name": "input.load_nifti",
     "category": "input",
@@ -1499,6 +1522,25 @@
     },
     "input_order": {
       "required": ["DICOM_VOLUME_FILE"]
+    },
+    "output": ["3D"],
+    "output_name": ["data"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_data.series_to_3d": {
+    "name": "converter.file_to_data.series_to_3d",
+    "category": "coverters/file_to_data",
+    "display_name": "Series to 3D",
+    "description": "Convert series file list to 3D data.",
+    "python_module": "custom_nodes.file_to_data.series_to_3d",
+    "input": {
+      "required": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["SERIES_FILE_LIST"]
     },
     "output": ["3D"],
     "output_name": ["data"],

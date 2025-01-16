@@ -60,7 +60,11 @@ useExtensionService().registerExtension({
         const text = e.dataTransfer.getData('text')
         if (text && text.startsWith('{')) {
           const json = JSON.parse(text)
-          if (json && json.oid) {
+          if (
+            json &&
+            json.oid &&
+            json.$typeName?.split('.').pop() === 'Instance'
+          ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
             })
@@ -79,7 +83,11 @@ useExtensionService().registerExtension({
         const text = e.dataTransfer.getData('text')
         if (text && text.startsWith('{')) {
           const json = JSON.parse(text)
-          if (json && json.oid) {
+          if (
+            json &&
+            json.oid &&
+            json.$typeName?.split('.').pop() === 'Instance'
+          ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
             })

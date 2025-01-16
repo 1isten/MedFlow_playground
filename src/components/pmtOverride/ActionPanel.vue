@@ -182,12 +182,7 @@
 
 <script setup>
 import { LGraphCanvas, LiteGraph } from '@comfyorg/litegraph'
-import {
-  useElementHover,
-  useLocalStorage,
-  useThrottleFn,
-  useWebSocket
-} from '@vueuse/core'
+import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
 import { merge } from 'lodash'
 import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'
@@ -203,7 +198,7 @@ import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { app as comfyApp } from '@/scripts/app'
@@ -1236,63 +1231,85 @@ async function validatePipelineGraphJson(json) {
   return result
 }
 
-// ---
-
-const _wsId =
+const peerId =
   `comfyui-${pipelineId || '*'}` + (embeddedView.value ? '-embedded' : '')
-const _ws = ref(localStorage.getItem('_ws') || undefined)
-const ws = useWebSocket(_ws, { heartbeat: true })
-watch(ws.data, async (data) => {
-  let message = typeof data === 'string' ? data : await data.text()
-  if (message.startsWith('{')) message = JSON.parse(message)
-  if (message?.type === 'open') {
-    return ws.send(
-      JSON.stringify({
-        type: 'map',
-        payload: { peerUid: _wsId },
-        from: message.to,
-        to: message.from
-      })
-    )
+const ports = Object.create(null)
+onMounted(async () => {
+  // window['__ports__'] = ports;
+  window.addEventListener('message', (e) => {
+    if (e.source === window && e.data?.type === 'response-message-port') {
+      const { peer1, peer2 } = e.data.payload
+      if (peerId === peer1) {
+        ports[peer2] = e.ports[0]
+        const port = ports[peer2]
+        port.onclose = () => {
+          delete ports[peer2]
+        }
+        port.onmessage = (event) => {
+          const { type, payload } = event.data
+          switch (type) {
+            case 'get-manual-list': {
+              handleGetManualList(payload)
+              break
+            }
+            case 'created-segmentation': {
+              handleCreateManualSegmentation(payload)
+              break
+            }
+            // ...
+          }
+        }
+      }
+      if (peerId === peer2) {
+        ports[peer1] = e.ports[0]
+        const port = ports[peer1]
+        port.onclose = () => {
+          delete ports[peer1]
+        }
+        port.onmessage = (event) => {
+          const { type, payload } = event.data
+          switch (type) {
+            case 'got-pipeline': {
+              handleGetPipeline(payload)
+              break
+            }
+            case 'created-pipeline': {
+              handleCreatePipeline(payload)
+              break
+            }
+            case 'updated-pipeline': {
+              handleUpdatePipeline(payload)
+              break
+            }
+            case 'deleted-pipeline': {
+              handleDeletePipeline(payload)
+              break
+            }
+            // ...
+          }
+        }
+        if (loading.value) {
+          getPipeline({ ...pipeline.value }, port)
+        }
+      }
+    }
+  })
+  while (!window.$electron) {
+    await new Promise((r) => setTimeout(r, 1000))
   }
-  if (message?.type === 'mapped') {
-    if (loading.value) {
-      return getPipeline({ ...pipeline.value })
-    }
+  if (window.$electron) {
+    window.$electron.requestMessagePort({
+      peer1: 'mod-pipelines',
+      peer2: peerId
+    })
   }
-  if (message?.to === _wsId) {
-    const { type, payload, from: to } = message
-    if (type === 'got-pipeline') {
-      return handleGetPipeline(payload)
-    }
-    if (type === 'created-pipeline') {
-      return handleCreatePipeline(payload)
-    }
-    if (type === 'updated-pipeline') {
-      return handleUpdatePipeline(payload)
-    }
-    if (type === 'deleted-pipeline') {
-      return handleDeletePipeline(payload)
-    }
-    if (type === 'get-manual-list') {
-      return handleGetManualList(payload, to)
-    }
-    if (type === 'create-segmentation') {
-      return handleCreateManualSegmentation(payload)
-    }
-  }
-  // console.log('[ws] message', message);
 })
 
-function getPipeline(payload) {
-  ws.send(
-    JSON.stringify({
-      type: 'get-pipeline',
-      payload: { ...payload, ts: Date.now() },
-      from: _wsId,
-      to: 'mod-pipelines'
-    })
-  )
+function getPipeline(payload, port) {
+  port.postMessage({
+    type: 'get-pipeline',
+    payload: { ...payload, ts: Date.now() }
+  })
 }
 function handleGetPipeline(payload) {
   if (!loading.value) {
@@ -1323,14 +1340,13 @@ function handleGetPipeline(payload) {
 }
 
 function createPipeline(payload) {
-  ws.send(
-    JSON.stringify({
+  const port = ports['mod-pipelines']
+  if (port) {
+    port.postMessage({
       type: 'create-pipeline',
-      payload: { ...payload, ts: Date.now() },
-      from: _wsId,
-      to: 'mod-pipelines'
+      payload: { ...payload, ts: Date.now() }
     })
-  )
+  }
 }
 function handleCreatePipeline(payload) {
   if (payload.id === pipeline.value.id) {
@@ -1350,14 +1366,13 @@ function handleCreatePipeline(payload) {
 }
 
 function updatePipeline(payload) {
-  ws.send(
-    JSON.stringify({
+  const port = ports['mod-pipelines']
+  if (port) {
+    port.postMessage({
       type: 'update-pipeline',
-      payload: { ...payload, ts: Date.now() },
-      from: _wsId,
-      to: 'mod-pipelines'
+      payload: { ...payload, ts: Date.now() }
     })
-  )
+  }
 }
 function handleUpdatePipeline(payload) {
   if (payload.id === pipeline.value.id) {
@@ -1377,14 +1392,13 @@ function handleUpdatePipeline(payload) {
 }
 
 function deletePipeline(payload) {
-  ws.send(
-    JSON.stringify({
+  const port = ports['mod-pipelines']
+  if (port) {
+    port.postMessage({
       type: 'delete-pipeline',
-      payload: { ...payload, ts: Date.now() },
-      from: _wsId,
-      to: 'mod-pipelines'
+      payload: { ...payload, ts: Date.now() }
     })
-  )
+  }
 }
 function handleDeletePipeline(payload) {
   if (payload.id === pipeline.value.id) {
@@ -1397,9 +1411,14 @@ function handleDeletePipeline(payload) {
 
 // ---
 
-function handleGetManualList(payload, to) {
+function handleGetManualList(payload) {
+  if (payload?.pipelineId === pipeline.value.id) {
+    //
+  } else {
+    return
+  }
   const manualList = []
-  const manualNodeId = payload?.manualNodeId
+  const manualNodeId = payload.manualNodeId
   const manualNode = comfyApp.graph.getNodeById(manualNodeId)
   if (manualNode) {
     if (
@@ -1419,14 +1438,13 @@ function handleGetManualList(payload, to) {
       })
     }
   }
-  return ws.send(
-    JSON.stringify({
+  const port = ports[`tab-volview-${payload.pipelineId}-manual-${manualNodeId}`]
+  if (port) {
+    port.postMessage({
       type: 'got-manual-list',
-      payload: manualList,
-      from: _wsId,
-      to
+      payload: manualList
     })
-  )
+  }
 }
 
 function handleCreateManualSegmentation(payload) {
@@ -1435,7 +1453,7 @@ function handleCreateManualSegmentation(payload) {
   } else {
     return
   }
-  const manualNodeId = payload?.manualNodeId
+  const manualNodeId = payload.manualNodeId
   const manualNode = comfyApp.graph.getNodeById(manualNodeId)
   if (manualNode) {
     if (
@@ -1456,10 +1474,7 @@ function handleCreateManualSegmentation(payload) {
       })
     }
   }
-  return handleGetManualList(
-    { manualNodeId },
-    `tab-volview-${payload.pipelineId}-manual-${manualNodeId}`
-  )
+  return handleGetManualList({ pipelineId: payload.pipelineId, manualNodeId })
 }
 
 // ---

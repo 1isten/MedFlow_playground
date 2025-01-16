@@ -6,7 +6,7 @@
     <Stepper
       class="h-full p-8 2xl:p-16"
       value="0"
-      @update:value="setHighestStep"
+      @update:value="handleStepChange"
     >
       <StepList class="select-none">
         <Step value="0">
@@ -103,6 +103,10 @@
 </template>
 
 <script setup lang="ts">
+import type {
+  InstallOptions,
+  TorchDeviceType
+} from '@comfyorg/comfyui-electron-types'
 import Button from 'primevue/button'
 import Step from 'primevue/step'
 import StepList from 'primevue/steplist'
@@ -116,11 +120,7 @@ import DesktopSettingsConfiguration from '@/components/install/DesktopSettingsCo
 import GpuPicker from '@/components/install/GpuPicker.vue'
 import InstallLocationPicker from '@/components/install/InstallLocationPicker.vue'
 import MigrationPicker from '@/components/install/MigrationPicker.vue'
-import {
-  type InstallOptions,
-  type TorchDeviceType,
-  electronAPI
-} from '@/utils/envUtil'
+import { electronAPI } from '@/utils/envUtil'
 import BaseViewTemplate from '@/views/templates/BaseViewTemplate.vue'
 
 const device = ref<TorchDeviceType>(null)
@@ -136,6 +136,14 @@ const allowMetrics = ref(true)
 
 /** Forces each install step to be visited at least once. */
 const highestStep = ref(0)
+
+const handleStepChange = (value: string | number) => {
+  setHighestStep(value)
+
+  electronAPI().Config.trackEvent('install_stepper_change', {
+    step: value
+  })
+}
 
 const setHighestStep = (value: string | number) => {
   const int = typeof value === 'number' ? value : parseInt(value, 10)
@@ -167,12 +175,18 @@ onMounted(async () => {
   if (!electron) return
 
   const detectedGpu = await electron.Config.getDetectedGpu()
-  if (detectedGpu === 'mps' || detectedGpu === 'nvidia')
+  if (detectedGpu === 'mps' || detectedGpu === 'nvidia') {
     device.value = detectedGpu
+  }
+
+  electronAPI().Config.trackEvent('install_stepper_change', {
+    step: '0',
+    gpu: detectedGpu
+  })
 })
 </script>
 
-<style lang="postcss" scoped>
+<style scoped>
 :deep(.p-steppanel) {
   @apply bg-transparent;
 }

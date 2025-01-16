@@ -36,12 +36,21 @@ export function useTerminal(element: Ref<HTMLElement>) {
 
   return {
     terminal,
-    useAutoSize(
-      root: Ref<HTMLElement>,
-      autoRows: boolean = true,
-      autoCols: boolean = true,
+    useAutoSize({
+      root,
+      autoRows = true,
+      autoCols = true,
+      minCols = Number.NEGATIVE_INFINITY,
+      minRows = Number.NEGATIVE_INFINITY,
+      onResize
+    }: {
+      root: Ref<HTMLElement>
+      autoRows?: boolean
+      autoCols?: boolean
+      minCols?: number
+      minRows?: number
       onResize?: () => void
-    ) {
+    }) {
       const ensureValidRows = (rows: number | undefined) => {
         if (rows == null || isNaN(rows)) {
           return root.value?.clientHeight / 20
@@ -61,8 +70,14 @@ export function useTerminal(element: Ref<HTMLElement>) {
         const dims = fitAddon.proposeDimensions()
         // Sometimes propose returns NaN, so we may need to estimate.
         terminal.resize(
-          autoCols ? ensureValidCols(dims?.cols) : terminal.cols,
-          autoRows ? ensureValidRows(dims?.rows) : terminal.rows
+          Math.max(
+            autoCols ? ensureValidCols(dims?.cols) : terminal.cols,
+            minCols
+          ),
+          Math.max(
+            autoRows ? ensureValidRows(dims?.rows) : terminal.rows,
+            minRows
+          )
         )
         onResize?.()
       }

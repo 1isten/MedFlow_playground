@@ -12,7 +12,10 @@ export const DATATYPE_COLOR = {
   DICOM: '#2dd4bf', // teal
   DICOM_FILE: '#0d9488', // teal
 
-  DICOM_VOLUME_FILE: '#ec4899', // pink
+  DICOM_VOLUME_FILE: '#7d6e91', // teal+pink
+  DICOM_FILE_LIST: '#ec4899', // pink
+  SERIES_FILE_LIST: '#ec4899', // pink
+
   '3D': '#e879f9', // fuchsia
   NIFTI: '#f472b6', // pink
   NIFTI_FILE: '#db2777', // pink

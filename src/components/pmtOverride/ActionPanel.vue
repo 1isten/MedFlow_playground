@@ -758,7 +758,7 @@ function resetNodeStatus(node) {
   if (node?.pmt_fields) {
     delete node.pmt_fields
     if (node.pmt_fields?.status) {
-      node.pmt_fields.status = ''
+      node.pmt_fields.status = null
     }
     node.setDirtyCanvas(true)
   }
@@ -1126,7 +1126,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             value: null
           }
         }),
-        status: ''
+        status: null
       },
       node?.pmt_fields || {}
     )
@@ -1168,7 +1168,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       if (node.pmt_fields?.status) {
         pmt_fields.status = node.pmt_fields.status
       } else {
-        pmt_fields.status = 'pending'
+        // pmt_fields.status = 'pending'
       }
     }
     if (pmt_fields.type === 'manual') {
@@ -1184,7 +1184,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       //
     }
     if (pmt_fields.type === 'output') {
-      pmt_fields.status = ''
+      // pmt_fields.status = null
     }
     if (keepStatus) {
       if (runningMode.value === 'to-node') {
@@ -1195,7 +1195,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         }
       }
     } else {
-      pmt_fields.status = ''
+      pmt_fields.status = null
     }
     nodes[i].pmt_fields = pmt_fields
     node.pmt_fields = nodes[i].pmt_fields

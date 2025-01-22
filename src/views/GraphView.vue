@@ -55,6 +55,7 @@ const toast = useToast()
 const settingStore = useSettingStore()
 const executionStore = useExecutionStore()
 const colorPaletteStore = useColorPaletteStore()
+const queueStore = useQueueStore()
 
 watch(
   () => colorPaletteStore.completedActivePalette,
@@ -75,6 +76,32 @@ watch(
   },
   { immediate: true }
 )
+
+if (isElectron()) {
+  watch(
+    () => queueStore.tasks,
+    (newTasks, oldTasks) => {
+      // Report tasks that previously running but are now completed (i.e. in history)
+      const oldRunningTaskIds = new Set(
+        oldTasks.filter((task) => task.isRunning).map((task) => task.promptId)
+      )
+      newTasks
+        .filter(
+          (task) => oldRunningTaskIds.has(task.promptId) && task.isHistory
+        )
+        .forEach((task) => {
+          electronAPI().Events.incrementUserProperty(
+            `execution:${task.displayStatus.toLowerCase()}`,
+            1
+          )
+          electronAPI().Events.trackEvent('execution', {
+            status: task.displayStatus.toLowerCase()
+          })
+        })
+    },
+    { deep: true }
+  )
+}
 
 watchEffect(() => {
   const fontSize = settingStore.get('Comfy.TextareaWidget.FontSize')
@@ -110,9 +137,7 @@ watchEffect(() => {
 })
 
 watchEffect(() => {
-  useQueueStore().maxHistoryItems = settingStore.get(
-    'Comfy.Queue.MaxHistoryItems'
-  )
+  queueStore.maxHistoryItems = settingStore.get('Comfy.Queue.MaxHistoryItems')
 })
 
 const init = () => {
@@ -126,8 +151,9 @@ const init = () => {
 }
 
 const queuePendingTaskCountStore = useQueuePendingTaskCountStore()
-const onStatus = (e: CustomEvent<StatusWsMessageStatus>) => {
+const onStatus = async (e: CustomEvent<StatusWsMessageStatus>) => {
   queuePendingTaskCountStore.update(e)
+  await queueStore.update()
 }
 
 const reconnectingMessage: ToastMessageOptions = {

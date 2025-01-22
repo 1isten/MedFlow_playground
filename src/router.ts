@@ -92,6 +92,24 @@ const router = createRouter({
           name: 'ManualConfigurationView',
           component: () => import('@/views/ManualConfigurationView.vue'),
           beforeEnter: guardElectronAccess
+        },
+        {
+          path: '/metrics-consent',
+          name: 'MetricsConsentView',
+          component: () => import('@/views/MetricsConsentView.vue'),
+          beforeEnter: guardElectronAccess
+        },
+        {
+          path: 'desktop-start',
+          name: 'DesktopStartView',
+          component: () => import('@/views/DesktopStartView.vue'),
+          beforeEnter: guardElectronAccess
+        },
+        {
+          path: 'maintenance',
+          name: 'MaintenanceView',
+          component: () => import('@/views/MaintenanceView.vue'),
+          beforeEnter: guardElectronAccess
         }
       ]
     }

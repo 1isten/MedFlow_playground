@@ -43,7 +43,9 @@
     "WEBCAM": "ウェブカメラ"
   },
   "desktopMenu": {
+    "confirmQuit": "保存されていないワークフローが開いています。保存されていない変更はすべて失われます。これを無視して終了しますか？",
     "confirmReinstall": "これにより、extra_models_config.yamlファイルがクリアされ、再インストールが開始されます。本当によろしいですか？",
+    "quit": "終了",
     "reinstall": "再インストール"
   },
   "downloadGit": {
@@ -87,6 +89,7 @@
     "experimental": "ベータ",
     "export": "エクスポート",
     "extensionName": "拡張機能名",
+    "feedback": "フィードバック",
     "findIssues": "問題を見つける",
     "firstTimeUIMessage": "新しいUIを初めて使用しています。「メニュー > 新しいメニューを使用 > 無効」を選択して古いUIに戻してください。",
     "goToNode": "ノードに移動",
@@ -107,6 +110,7 @@
     "noTasksFound": "タスクが見つかりません",
     "noTasksFoundMessage": "キューにタスクがありません。",
     "noWorkflowsFound": "ワークフローが見つかりません。",
+    "ok": "OK",
     "openNewIssue": "新しい問題を開く",
     "overwrite": "上書き",
     "reconnected": "再接続されました",
@@ -129,6 +133,7 @@
     "searchWorkflows": "ワークフローを検索",
     "settings": "設定",
     "showReport": "レポートを表示",
+    "success": "成功",
     "systemInfo": "システム情報",
     "terminal": "ターミナル",
     "upload": "アップロード",
@@ -186,6 +191,7 @@
       "selectGpu": "GPUを選択",
       "selectGpuDescription": "所有しているGPUのタイプを選択してください"
     },
+    "helpImprove": "ComfyUIの改善にご協力ください",
     "installLocation": "インストール先",
     "installLocationDescription": "ComfyUIのユーザーデータを保存するディレクトリを選択してください。Python環境が選択した場所にインストールされます。選択したディスクに約15GBの空き容量が必要です。",
     "installLocationTooltip": "ComfyUIのユーザーデータディレクトリ。保存内容:\n- Python環境\n- モデル\n- カスタムノード\n",
@@ -197,13 +203,17 @@
       "title": "マニュアル設定",
       "virtualEnvironmentPath": "仮想環境のパス"
     },
+    "metricsDisabled": "メトリクス無効",
+    "metricsEnabled": "メトリクス有効",
     "migrateFromExistingInstallation": "既存のインストールから移行",
     "migration": "移行",
     "migrationOptional": "移行は任意です。既存のインストールがない場合、このステップをスキップできます。",
     "migrationSourcePathDescription": "既存のComfyUIインストールがある場合、既存のユーザーファイルとモデルを新しいインストールにコピー/リンクすることができます。既存のComfyUIインストールは影響を受けません。",
+    "moreInfo": "詳細は、私たちの",
     "parentMissing": "パスが存在しません - 最初に含まれるディレクトリを作成してください",
     "pathExists": "ディレクトリはすでに存在します - すべてのデータをバックアップしたことを確認してください",
     "pathValidationFailed": "パスの検証に失敗しました",
+    "privacyPolicy": "プライバシーポリシー",
     "selectItemsToMigrate": "移行する項目を選択",
     "settings": {
       "allowMetrics": "使用状況のメトリクス",
@@ -214,8 +224,7 @@
         "collect": {
           "errorReports": "エラーメッセージとスタックトレース",
           "systemInfo": "ハードウェア、OSタイプ、アプリバージョン",
-          "userJourneyEvents": "ユーザージャーニーイベント",
-          "userJourneyTooltip": "ユーザージャーニーイベントは、アプリのインストールプロセスを通じてユーザーの旅を追跡するために使用されます。イベントの収集は、最初の成功したComfyUIワークフローの実行で終了します。"
+          "userJourneyEvents": "ユーザージャーニーイベント"
         },
         "doNotCollect": {
           "customNodeConfigurations": "カスタムノードの設定",
@@ -224,23 +233,49 @@
           "workflowContents": "ワークフローの内容"
         },
         "title": "データ収集について",
+        "viewFullPolicy": "完全なポリシーを見る",
         "whatWeCollect": "収集内容:",
         "whatWeDoNotCollect": "収集しない内容:"
       },
+      "errorUpdatingConsent": "同意の更新エラー",
+      "errorUpdatingConsentDetail": "メトリクスの同意設定の更新に失敗しました",
       "learnMoreAboutData": "データ収集の詳細を見る"
     },
     "systemLocations": "システムの場所",
-    "unhandledError": "未知のエラー"
+    "unhandledError": "未知のエラー",
+    "updateConsent": "以前はクラッシュの報告に同意していました。現在、バグの特定とアプリの改善を助けるためにイベントベースのメトリクスを追跡しています。個人を特定できる情報は収集されません。"
   },
   "issueReport": {
     "contactFollowUp": "フォローアップのために私に連絡する",
+    "feedbackTitle": "フィードバックを提供してComfyUIの改善にご協力ください",
     "helpFix": "これを修正するのを助ける",
     "notifyResolve": "解決したときに通知する",
     "provideAdditionalDetails": "追加の詳細を提供する（オプション）",
     "provideEmail": "あなたのメールアドレスを教えてください（オプション）",
+    "rating": "評価",
     "stackTrace": "スタックトレース",
     "submitErrorReport": "エラーレポートを提出する（オプション）",
-    "systemStats": "システム統計"
+    "systemStats": "システム統計",
+    "validation": {
+      "invalidEmail": "有効なメールアドレスを入力してください",
+      "maxLength": "メッセージが長すぎます"
+    }
+  },
+  "maintenance": {
+    "None": "なし",
+    "OK": "OK",
+    "Skipped": "スキップされました",
+    "allOk": "問題は検出されませんでした。",
+    "confirmTitle": "よろしいですか？",
+    "detected": "検出されました",
+    "error": {
+      "defaultDescription": "メンテナンスタスクの実行中にエラーが発生しました。",
+      "taskFailed": "タスクの実行に失敗しました。",
+      "toastTitle": "タスクエラー"
+    },
+    "refreshing": "更新中",
+    "showManual": "メンテナンスタスクを表示",
+    "status": "ステータス"
   },
   "menu": {
     "autoQueue": "自動キュー",
@@ -278,6 +313,7 @@
     "Collapse/Expand Selected Nodes": "選択したノードの折りたたみ/展開",
     "Comfy-Org Discord": "Comfy-Org Discord",
     "ComfyUI Docs": "ComfyUIのドキュメント",
+    "ComfyUI Forum": "ComfyUI フォーラム",
     "ComfyUI Issues": "ComfyUIの問題",
     "Convert selected nodes to group node": "選択したノードをグループノードに変換",
     "Desktop User Guide": "デスクトップユーザーガイド",
@@ -285,9 +321,9 @@
     "Edit": "編集",
     "Export": "エクスポート",
     "Export (API)": "エクスポート (API)",
-    "Feedback": "フィードバック",
     "Fit Group To Contents": "グループを内容に合わせる",
     "Fit view to selected nodes": "選択したノードにビューを合わせる",
+    "Give Feedback": "フィードバックを送る",
     "Group Selected Nodes": "選択したノードをグループ化",
     "Help": "ヘルプ",
     "Interrupt": "中断",
@@ -309,6 +345,7 @@
     "Previous Opened Workflow": "前に開いたワークフロー",
     "Queue Prompt": "キューのプロンプト",
     "Queue Prompt (Front)": "キューのプロンプト (前面)",
+    "Quit": "終了",
     "Redo": "やり直す",
     "Refresh Node Definitions": "ノード定義を更新",
     "Reinstall": "再インストール",

@@ -43,7 +43,9 @@
     "WEBCAM": "WEBCAM"
   },
   "desktopMenu": {
+    "confirmQuit": "Il y a des flux de travail non enregistrés ouverts; toutes les modifications non enregistrées seront perdues. Ignorer cela et quitter?",
     "confirmReinstall": "Cela effacera votre fichier extra_models_config.yaml,\net commencera l'installation à nouveau.\n\nÊtes-vous sûr ?",
+    "quit": "Quitter",
     "reinstall": "Réinstaller"
   },
   "downloadGit": {
@@ -87,6 +89,7 @@
     "experimental": "BETA",
     "export": "Exportation",
     "extensionName": "Nom de l'extension",
+    "feedback": "Commentaires",
     "findIssues": "Trouver des problèmes",
     "firstTimeUIMessage": "C'est la première fois que vous utilisez la nouvelle interface utilisateur. Choisissez \"Menu > Utiliser le nouveau menu > Désactivé\" pour restaurer l'ancienne interface utilisateur.",
     "goToNode": "Aller au nœud",
@@ -107,6 +110,7 @@
     "noTasksFound": "Aucune tâche trouvée",
     "noTasksFoundMessage": "Il n'y a pas de tâches dans la file d'attente.",
     "noWorkflowsFound": "Aucun flux de travail trouvé.",
+    "ok": "OK",
     "openNewIssue": "Ouvrir un nouveau problème",
     "overwrite": "Écraser",
     "reconnected": "Reconnecté",
@@ -129,6 +133,7 @@
     "searchWorkflows": "Rechercher des flux de travail",
     "settings": "Paramètres",
     "showReport": "Afficher le rapport",
+    "success": "Succès",
     "systemInfo": "Informations système",
     "terminal": "Terminal",
     "upload": "Téléverser",
@@ -186,6 +191,7 @@
       "selectGpu": "Sélectionnez le GPU",
       "selectGpuDescription": "Sélectionnez le type de GPU que vous avez"
     },
+    "helpImprove": "Veuillez aider à améliorer ComfyUI",
     "installLocation": "Emplacement d'installation",
     "installLocationDescription": "Sélectionnez le répertoire pour les données utilisateur de ComfyUI. Un environnement python sera installé à l'emplacement sélectionné. Veuillez vous assurer que le disque sélectionné a suffisamment d'espace (~15GB) restant.",
     "installLocationTooltip": "Répertoire des données utilisateur de ComfyUI. Stocke :\n- Environnement Python\n- Modèles\n- Nœuds personnalisés\n",
@@ -197,13 +203,17 @@
       "title": "Configuration manuelle",
       "virtualEnvironmentPath": "Chemin de l'environnement virtuel"
     },
+    "metricsDisabled": "Métriques désactivées",
+    "metricsEnabled": "Métriques activées",
     "migrateFromExistingInstallation": "Migrer à partir d'une installation existante",
     "migration": "Migration",
     "migrationOptional": "La migration est facultative. Si vous n'avez pas d'installation existante, vous pouvez sauter cette étape.",
     "migrationSourcePathDescription": "Si vous avez une installation existante de ComfyUI, nous pouvons copier/lier vos fichiers utilisateur et modèles existants à la nouvelle installation. Votre installation existante de ComfyUI ne sera pas affectée.",
+    "moreInfo": "Pour plus d'informations, veuillez lire notre",
     "parentMissing": "Le chemin n'existe pas - créez d'abord le répertoire contenant",
     "pathExists": "Le répertoire existe déjà - veuillez vous assurer que vous avez sauvegardé toutes les données",
     "pathValidationFailed": "Échec de la validation du chemin",
+    "privacyPolicy": "politique de confidentialité",
     "selectItemsToMigrate": "Sélectionnez les éléments à migrer",
     "settings": {
       "allowMetrics": "Métriques d'utilisation",
@@ -214,8 +224,7 @@
         "collect": {
           "errorReports": "Message d'erreur et trace de la pile",
           "systemInfo": "Matériel, type de système d'exploitation et version de l'application",
-          "userJourneyEvents": "Événements du parcours utilisateur",
-          "userJourneyTooltip": "Les événements du parcours utilisateur sont utilisés pour suivre le parcours de l'utilisateur lors du processus d'installation de l'application. La collecte d'événements se termine lors de la première exécution réussie du flux de travail ComfyUI."
+          "userJourneyEvents": "Événements du parcours utilisateur"
         },
         "doNotCollect": {
           "customNodeConfigurations": "Configurations de nœud personnalisées",
@@ -224,23 +233,49 @@
           "workflowContents": "Contenus du flux de travail"
         },
         "title": "À propos de la collecte de données",
+        "viewFullPolicy": "Voir la politique complète",
         "whatWeCollect": "Ce que nous collectons :",
         "whatWeDoNotCollect": "Ce que nous ne collectons pas :"
       },
+      "errorUpdatingConsent": "Erreur de mise à jour du consentement",
+      "errorUpdatingConsentDetail": "Échec de la mise à jour des paramètres de consentement aux métriques",
       "learnMoreAboutData": "En savoir plus sur la collecte de données"
     },
     "systemLocations": "Emplacements système",
-    "unhandledError": "Erreur inconnue"
+    "unhandledError": "Erreur inconnue",
+    "updateConsent": "Vous avez précédemment accepté de signaler les plantages. Nous suivons maintenant des métriques basées sur les événements pour aider à identifier les bugs et améliorer l'application. Aucune information personnelle identifiable n'est collectée."
   },
   "issueReport": {
     "contactFollowUp": "Contactez-moi pour un suivi",
+    "feedbackTitle": "Aidez-nous à améliorer ComfyUI en fournissant des commentaires",
     "helpFix": "Aidez à résoudre cela",
     "notifyResolve": "Prévenez-moi lorsque résolu",
     "provideAdditionalDetails": "Fournir des détails supplémentaires (facultatif)",
     "provideEmail": "Donnez-nous votre email (Facultatif)",
+    "rating": "Évaluation",
     "stackTrace": "Trace de la pile",
     "submitErrorReport": "Soumettre un rapport d'erreur (Facultatif)",
-    "systemStats": "Statistiques du système"
+    "systemStats": "Statistiques du système",
+    "validation": {
+      "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "maxLength": "Message trop long"
+    }
+  },
+  "maintenance": {
+    "None": "Aucun",
+    "OK": "OK",
+    "Skipped": "Ignoré",
+    "allOk": "Aucun problème détecté.",
+    "confirmTitle": "Êtes-vous sûr ?",
+    "detected": "Détecté",
+    "error": {
+      "defaultDescription": "Une erreur s'est produite lors de l'exécution d'une tâche de maintenance.",
+      "taskFailed": "La tâche a échoué.",
+      "toastTitle": "Erreur de tâche"
+    },
+    "refreshing": "Actualisation",
+    "showManual": "Afficher les tâches de maintenance",
+    "status": "Statut"
   },
   "menu": {
     "autoQueue": "File d'attente automatique",
@@ -278,6 +313,7 @@
     "Collapse/Expand Selected Nodes": "Réduire/Étendre les nœuds sélectionnés",
     "Comfy-Org Discord": "Discord de Comfy-Org",
     "ComfyUI Docs": "Docs de ComfyUI",
+    "ComfyUI Forum": "Forum ComfyUI",
     "ComfyUI Issues": "Problèmes de ComfyUI",
     "Convert selected nodes to group node": "Convertir les nœuds sélectionnés en nœud de groupe",
     "Desktop User Guide": "Guide de l'utilisateur de bureau",
@@ -285,9 +321,9 @@
     "Edit": "Éditer",
     "Export": "Exporter",
     "Export (API)": "Exporter (API)",
-    "Feedback": "Retour d'information",
     "Fit Group To Contents": "Ajuster le groupe au contenu",
     "Fit view to selected nodes": "Ajuster la vue aux nœuds sélectionnés",
+    "Give Feedback": "Donnez votre avis",
     "Group Selected Nodes": "Grouper les nœuds sélectionnés",
     "Help": "Aide",
     "Interrupt": "Interrompre",
@@ -309,6 +345,7 @@
     "Previous Opened Workflow": "Flux de travail ouvert précédent",
     "Queue Prompt": "Invite de file d'attente",
     "Queue Prompt (Front)": "Invite de file d'attente (Front)",
+    "Quit": "Quitter",
     "Redo": "Refaire",
     "Refresh Node Definitions": "Actualiser les définitions de nœud",
     "Reinstall": "Réinstaller",

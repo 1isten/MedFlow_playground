@@ -20,11 +20,11 @@
   "Comfy-Desktop_OpenDevTools": {
     "label": "Open DevTools"
   },
-  "Comfy-Desktop_OpenFeedbackPage": {
-    "label": "Feedback"
-  },
   "Comfy-Desktop_OpenUserGuide": {
     "label": "Desktop User Guide"
+  },
+  "Comfy-Desktop_Quit": {
+    "label": "Quit"
   },
   "Comfy-Desktop_Reinstall": {
     "label": "Reinstall"
@@ -83,6 +83,9 @@
   "Comfy_ExportWorkflowAPI": {
     "label": "Export Workflow (API Format)"
   },
+  "Comfy_Feedback": {
+    "label": "Give Feedback"
+  },
   "Comfy_Graph_FitGroupToContents": {
     "label": "Fit Group To Contents"
   },
@@ -106,6 +109,9 @@
   },
   "Comfy_Help_OpenComfyUIDocs": {
     "label": "Open ComfyUI Docs"
+  },
+  "Comfy_Help_OpenComfyUIForum": {
+    "label": "Open ComfyUI Forum"
   },
   "Comfy_Help_OpenComfyUIIssues": {
     "label": "Open ComfyUI Issues"

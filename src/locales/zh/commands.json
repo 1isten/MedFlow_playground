@@ -20,11 +20,11 @@
   "Comfy-Desktop_OpenDevTools": {
     "label": "打开开发者工具"
   },
-  "Comfy-Desktop_OpenFeedbackPage": {
-    "label": "反馈"
-  },
   "Comfy-Desktop_OpenUserGuide": {
     "label": "桌面用户指南"
+  },
+  "Comfy-Desktop_Quit": {
+    "label": "退出"
   },
   "Comfy-Desktop_Reinstall": {
     "label": "重新安装"
@@ -83,6 +83,9 @@
   "Comfy_ExportWorkflowAPI": {
     "label": "导出工作流（API格式）"
   },
+  "Comfy_Feedback": {
+    "label": "反馈"
+  },
   "Comfy_Graph_FitGroupToContents": {
     "label": "适应节点框到内容"
   },
@@ -106,6 +109,9 @@
   },
   "Comfy_Help_OpenComfyUIDocs": {
     "label": "打开ComfyUI文档"
+  },
+  "Comfy_Help_OpenComfyUIForum": {
+    "label": "打开 Comfy-Org 论坛"
   },
   "Comfy_Help_OpenComfyUIIssues": {
     "label": "打开ComfyUI问题"

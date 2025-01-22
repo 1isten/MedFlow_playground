@@ -28,6 +28,7 @@
     </template>
     <ReportIssuePanel
       v-if="sendReportOpen"
+      :title="$t('issueReport.submitErrorReport')"
       error-type="graphExecutionError"
       :extra-fields="[stackTraceField]"
       :tags="{ exceptionMessage: props.error.exception_message }"
@@ -89,10 +90,10 @@ const stackTraceField = computed<ReportField>(() => {
     label: t('issueReport.stackTrace'),
     value: 'StackTrace',
     optIn: true,
-    data: {
+    getData: () => ({
       nodeType: props.error.node_type,
       stackTrace: props.error.traceback?.join('\n')
-    }
+    })
   }
 })
 

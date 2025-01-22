@@ -1,3 +1,5 @@
+import { z } from 'zod'
+
 export type DefaultField = 'Workflow' | 'Logs' | 'SystemStats' | 'Settings'
 
 export interface ReportField {
@@ -14,7 +16,7 @@ export interface ReportField {
   /**
    * The data associated with this field, sent as part of the report.
    */
-  data: Record<string, unknown>
+  getData: () => unknown
 
   /**
    * Indicates whether the field requires explicit opt-in from the user
@@ -22,3 +24,42 @@ export interface ReportField {
    */
   optIn: boolean
 }
+
+export interface IssueReportPanelProps {
+  /**
+   * The type of error being reported. This is used to categorize the error.
+   */
+  errorType: string
+
+  /**
+   * Which of the default fields to include in the report.
+   */
+  defaultFields?: DefaultField[]
+
+  /**
+   * Additional fields to include in the report.
+   */
+  extraFields?: ReportField[]
+
+  /**
+   * Tags that will be added to the report. Tags are used to further categorize the error.
+   */
+  tags?: Record<string, string>
+
+  /**
+   * The title displayed in the dialog.
+   */
+  title?: string
+}
+
+const checkboxField = z.boolean().optional()
+export const issueReportSchema = z
+  .object({
+    contactInfo: z.string().email().max(320).optional().or(z.literal('')),
+    details: z.string().max(5_000).optional()
+  })
+  .catchall(checkboxField)
+  .refine((data) => Object.values(data).some((value) => value), {
+    path: ['details']
+  })
+export type IssueReportFormData = z.infer<typeof issueReportSchema>

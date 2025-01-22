@@ -72,14 +72,6 @@
                 'install.settings.dataCollectionDialog.collect.userJourneyEvents'
               )
             }}
-            <span
-              class="pi pi-info-circle text-neutral-400"
-              v-tooltip="
-                $t(
-                  'install.settings.dataCollectionDialog.collect.userJourneyTooltip'
-                )
-              "
-            />
           </li>
         </ul>
 
@@ -116,6 +108,16 @@
             }}
           </li>
         </ul>
+
+        <div class="mt-4">
+          <a
+            href="https://comfy.org/privacy"
+            target="_blank"
+            class="text-blue-400 hover:text-blue-300 underline"
+          >
+            {{ $t('install.settings.dataCollectionDialog.viewFullPolicy') }}
+          </a>
+        </div>
       </div>
     </Dialog>
   </div>
@@ -128,8 +130,8 @@ import ToggleSwitch from 'primevue/toggleswitch'
 import { ref } from 'vue'
 
 const showDialog = ref(false)
-const autoUpdate = defineModel('autoUpdate', { required: true })
-const allowMetrics = defineModel('allowMetrics', { required: true })
+const autoUpdate = defineModel<boolean>('autoUpdate', { required: true })
+const allowMetrics = defineModel<boolean>('allowMetrics', { required: true })
 
 const showMetricsInfo = () => {
   showDialog.value = true

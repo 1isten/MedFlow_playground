@@ -70,17 +70,26 @@
     "keybinding": "Keybinding",
     "upload": "Upload",
     "export": "Export",
-    "workflow": "Workflow"
+    "workflow": "Workflow",
+    "success": "Success",
+    "ok": "OK",
+    "feedback": "Feedback"
   },
   "issueReport": {
     "submitErrorReport": "Submit Error Report (Optional)",
-    "provideEmail": "Give us your email (Optional)",
+    "provideEmail": "Give us your email (optional)",
     "provideAdditionalDetails": "Provide additional details (optional)",
     "stackTrace": "Stack Trace",
     "systemStats": "System Stats",
     "contactFollowUp": "Contact me for follow up",
     "notifyResolve": "Notify me when resolved",
-    "helpFix": "Help Fix This"
+    "helpFix": "Help Fix This",
+    "rating": "Rating",
+    "feedbackTitle": "Help us improve ComfyUI by providing feedback",
+    "validation": {
+      "maxLength": "Message too long",
+      "invalidEmail": "Please enter a valid email address"
+    }
   },
   "color": {
     "default": "Default",
@@ -182,6 +191,8 @@
     "settings": {
       "autoUpdate": "Automatic Updates",
       "allowMetrics": "Usage Metrics",
+      "errorUpdatingConsent": "Error Updating Consent",
+      "errorUpdatingConsentDetail": "Failed to update metrics consent settings",
       "autoUpdateDescription": "Automatically download updates when they become available. You will be notified before updates are installed.",
       "allowMetricsDescription": "Help improve ComfyUI by sending anonymous usage metrics. No personal information or workflow content will be collected.",
       "learnMoreAboutData": "Learn more about data collection",
@@ -192,19 +203,25 @@
         "collect": {
           "errorReports": "Error message and stack trace",
           "systemInfo": "Hardware, OS type, and app version",
-          "userJourneyEvents": "User journey events",
-          "userJourneyTooltip": "User journey events are used to track the user's journey through the app installation process. The event collection ends on the first successful ComfyUI workflow run."
+          "userJourneyEvents": "User journey events"
         },
         "doNotCollect": {
           "personalInformation": "Personal information",
           "fileSystemInformation": "File system information",
           "workflowContents": "Workflow contents",
           "customNodeConfigurations": "Custom node configurations"
-        }
+        },
+        "viewFullPolicy": "View full policy"
       }
     },
     "customNodes": "Custom Nodes",
-    "customNodesDescription": "Reinstall custom nodes from existing ComfyUI installations."
+    "customNodesDescription": "Reinstall custom nodes from existing ComfyUI installations.",
+    "helpImprove": "Please help improve ComfyUI",
+    "moreInfo": "For more info, please read our",
+    "privacyPolicy": "privacy policy",
+    "metricsEnabled": "Metrics Enabled",
+    "metricsDisabled": "Metrics Disabled",
+    "updateConsent": "You previously opted in to reporting crashes. We are now tracking event-based metrics to help identify bugs and improve the app. No personal identifiable information is collected."
   },
   "serverStart": {
     "reinstall": "Reinstall",
@@ -349,8 +366,8 @@
     "Open Models Folder": "Open Models Folder",
     "Open Outputs Folder": "Open Outputs Folder",
     "Open DevTools": "Open DevTools",
-    "Feedback": "Feedback",
     "Desktop User Guide": "Desktop User Guide",
+    "Quit": "Quit",
     "Reinstall": "Reinstall",
     "Restart": "Restart",
     "Browse Templates": "Browse Templates",
@@ -370,6 +387,7 @@
     "Duplicate Current Workflow": "Duplicate Current Workflow",
     "Export": "Export",
     "Export (API)": "Export (API)",
+    "Give Feedback": "Give Feedback",
     "Fit Group To Contents": "Fit Group To Contents",
     "Group Selected Nodes": "Group Selected Nodes",
     "Convert selected nodes to group node": "Convert selected nodes to group node",
@@ -378,6 +396,7 @@
     "About ComfyUI": "About ComfyUI",
     "Comfy-Org Discord": "Comfy-Org Discord",
     "ComfyUI Docs": "ComfyUI Docs",
+    "ComfyUI Forum": "ComfyUI Forum",
     "ComfyUI Issues": "ComfyUI Issues",
     "Interrupt": "Interrupt",
     "Load Default Workflow": "Load Default Workflow",
@@ -408,7 +427,9 @@
   },
   "desktopMenu": {
     "reinstall": "Reinstall",
-    "confirmReinstall": "This will clear your extra_models_config.yaml file,\nand begin installation again.\n\nAre you sure?"
+    "confirmReinstall": "This will clear your extra_models_config.yaml file,\nand begin installation again.\n\nAre you sure?",
+    "quit": "Quit",
+    "confirmQuit": "There are unsaved workflows open; any unsaved changes will be lost.  Ignore this and quit?"
   },
   "settingsCategories": {
     "Comfy-Desktop": "Comfy-Desktop",
@@ -671,5 +692,21 @@
     "UPSCALE_MODEL": "UPSCALE_MODEL",
     "VAE": "VAE",
     "WEBCAM": "WEBCAM"
+  },
+  "maintenance": {
+    "allOk": "No issues were detected.",
+    "status": "Status",
+    "detected": "Detected",
+    "refreshing": "Refreshing",
+    "None": "None",
+    "OK": "OK",
+    "Skipped": "Skipped",
+    "showManual": "Show maintenance tasks",
+    "confirmTitle": "Are you sure?",
+    "error": {
+      "toastTitle": "Task error",
+      "taskFailed": "Task failed to run.",
+      "defaultDescription": "An error occurred while running a maintenance task."
+    }
   }
 }

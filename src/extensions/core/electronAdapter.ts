@@ -1,6 +1,8 @@
 import { t } from '@/i18n'
 import { app } from '@/scripts/app'
 import { useDialogService } from '@/services/dialogService'
+import { useSettingStore } from '@/stores/settingStore'
+import { useWorkflowStore } from '@/stores/workflowStore'
 import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
 
 ;(async () => {
@@ -8,6 +10,7 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
 
   const electronAPI = getElectronAPI()
   const desktopAppVersion = await electronAPI.getElectronVersion()
+  const workflowStore = useWorkflowStore()
 
   const onChangeRestartApp = (newValue: string, oldValue: string) => {
     // Add a delay to allow changes to take effect before restarting.
@@ -39,18 +42,18 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
         id: 'Comfy-Desktop.WindowStyle',
         category: ['Comfy-Desktop', 'General', 'Window Style'],
         name: 'Window Style',
-        tooltip: 'Choose custom option to hide the system title bar',
+        tooltip: "Custom: Replace the system title bar with ComfyUI's Top menu",
         type: 'combo',
         experimental: true,
         defaultValue: 'default',
         options: ['default', 'custom'],
         onChange: (
           newValue: 'default' | 'custom',
-          oldValue: 'default' | 'custom'
+          oldValue?: 'default' | 'custom'
         ) => {
-          electronAPI.Config.setWindowStyle(newValue)
+          if (!oldValue) return
 
-          onChangeRestartApp(newValue, oldValue)
+          electronAPI.Config.setWindowStyle(newValue)
         }
       }
     ],
@@ -113,14 +116,6 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
         }
       },
       {
-        id: 'Comfy-Desktop.OpenFeedbackPage',
-        label: 'Feedback',
-        icon: 'pi pi-envelope',
-        function() {
-          window.open('https://forum.comfy.org/c/v1-feedback/', '_blank')
-        }
-      },
-      {
         id: 'Comfy-Desktop.OpenUserGuide',
         label: 'Desktop User Guide',
         icon: 'pi pi-book',
@@ -149,16 +144,32 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
         function() {
           electronAPI.restartApp()
         }
+      },
+      {
+        id: 'Comfy-Desktop.Quit',
+        label: 'Quit',
+        icon: 'pi pi-sign-out',
+        async function() {
+          // Confirm if unsaved workflows are open
+          if (workflowStore.modifiedWorkflows.length > 0) {
+            const confirmed = await useDialogService().confirm({
+              message: t('desktopMenu.confirmQuit'),
+              title: t('desktopMenu.quit'),
+              type: 'default'
+            })
+
+            if (!confirmed) return
+          }
+
+          electronAPI.quit()
+        }
       }
     ],
 
     menuCommands: [
       {
         path: ['Help'],
-        commands: [
-          'Comfy-Desktop.OpenUserGuide',
-          'Comfy-Desktop.OpenFeedbackPage'
-        ]
+        commands: ['Comfy-Desktop.OpenUserGuide']
       },
       {
         path: ['Help'],
@@ -178,6 +189,16 @@ import { electronAPI as getElectronAPI, isElectron } from '@/utils/envUtil'
       {
         path: ['Help'],
         commands: ['Comfy-Desktop.Reinstall']
+      }
+    ],
+
+    keybindings: [
+      {
+        commandId: 'Workspace.CloseWorkflow',
+        combo: {
+          key: 'w',
+          ctrl: true
+        }
       }
     ],
 

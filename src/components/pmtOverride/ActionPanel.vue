@@ -923,10 +923,7 @@ async function save() {
     json = JSON.parse(JSON.stringify(json))
     const validationResult = await validatePipelineGraphJson(json)
     if (validationResult) {
-      json.nodes = json.nodes.map((node) => {
-        delete node.pmt_fields
-        return node
-      })
+      // json.nodes = json.nodes.map(({ pmt_fields, ...node }) => node)
     } else {
       saving.value = false
       console.error('validation failed')

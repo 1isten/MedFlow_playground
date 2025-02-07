@@ -218,6 +218,9 @@ const route = useRoute()
 const router = useRouter()
 
 const {
+  datasetId,
+  projectId,
+  taskId,
   pipelineId,
   pipelineEmbedded,
   pipelineReadonly,
@@ -809,59 +812,7 @@ async function run(e, mode = 'complete') {
         }
         for await (const chunk of decodeMultiStream(res.body)) {
           if (chunk?.id === pipelineId) {
-            const { pythonMsg, graphJson } = chunk
-            const msg = pythonMsg?.msg || ''
-            const results = []
-            if (graphJson) {
-              graphJson.forEach(({ id, pmtFields: pmt_fields }) => {
-                if (pmt_fields) {
-                  const result = { id, pmt_fields: JSON.parse(pmt_fields) }
-                  const node = comfyApp.graph.getNodeById(id)
-                  if (node && node.pmt_fields) {
-                    const { outputs, status, type } = result.pmt_fields
-                    if (outputs) {
-                      console.log(result.pmt_fields)
-                      outputs.forEach((output, o) => {
-                        const { name, type, oid, path, value } = output
-                        if (oid) {
-                          node.pmt_fields.outputs[o].oid = Array.isArray(
-                            node.pmt_fields.outputs[o].oid
-                          )
-                            ? [oid]
-                            : oid
-                        }
-                        if (path) {
-                          node.pmt_fields.outputs[o].path = Array.isArray(
-                            node.pmt_fields.outputs[o].path
-                          )
-                            ? [path]
-                            : path
-                        }
-                        if (value) {
-                          node.pmt_fields.outputs[o].value = Array.isArray(
-                            node.pmt_fields.outputs[o].value
-                          )
-                            ? [value]
-                            : value
-                        }
-                      })
-                    }
-                    if (status && type) {
-                      if (type !== 'output') {
-                        node.pmt_fields.status = status
-                      }
-                    }
-                    node.setDirtyCanvas(true)
-                    return
-                  }
-                  results.push(result)
-                }
-              })
-            }
-            if (msg) {
-              terminal.term.write(msg + (msg.endsWith('\r') ? '\n' : ''))
-              console.log(msg, results.length > 0 ? results : '')
-            }
+            handleStreamChunk(chunk)
           }
         }
         console.log('[DONE]')
@@ -1242,7 +1193,9 @@ async function validatePipelineGraphJson(json) {
 }
 
 const peerId =
-  `comfyui-${pipelineId || '*'}` + (embeddedView.value ? '-embedded' : '')
+  `comfyui-${pipelineId || '*'}` +
+  (embeddedView.value ? '-embedded' : '') +
+  (taskId ? `-for-task-${taskId}` : '')
 const ports = Object.create(null)
 onMounted(async () => {
   // window['__ports__'] = ports;
@@ -1279,6 +1232,12 @@ onMounted(async () => {
         port.onmessage = (event) => {
           const { type, payload } = event.data
           switch (type) {
+            case 'got-stream-chunk': {
+              if (payload && payload.id === pipelineId) {
+                handleStreamChunk(payload)
+              }
+              break
+            }
             case 'got-pipeline': {
               handleGetPipeline(payload)
               break
@@ -1312,8 +1271,70 @@ onMounted(async () => {
       peer1: 'mod-pipelines',
       peer2: peerId
     })
+    if (embeddedView.value) {
+      window.$electron.requestMessagePort({
+        peer1: 'batch-tasks-' + datasetId,
+        peer2: peerId
+      })
+    }
   }
 })
+
+function handleStreamChunk(chunk) {
+  const { pythonMsg, graphJson } = chunk
+  const msg = pythonMsg?.msg || ''
+  const results = []
+  if (graphJson) {
+    graphJson.forEach(({ id, pmtFields: pmt_fields }) => {
+      if (pmt_fields) {
+        const result = { id, pmt_fields: JSON.parse(pmt_fields) }
+        const node = comfyApp.graph.getNodeById(id)
+        if (node && node.pmt_fields) {
+          const { outputs, status, type } = result.pmt_fields
+          if (outputs) {
+            console.log(result.pmt_fields)
+            outputs.forEach((output, o) => {
+              const { name, type, oid, path, value } = output
+              if (oid) {
+                node.pmt_fields.outputs[o].oid = Array.isArray(
+                  node.pmt_fields.outputs[o].oid
+                )
+                  ? [oid]
+                  : oid
+              }
+              if (path) {
+                node.pmt_fields.outputs[o].path = Array.isArray(
+                  node.pmt_fields.outputs[o].path
+                )
+                  ? [path]
+                  : path
+              }
+              if (value) {
+                node.pmt_fields.outputs[o].value = Array.isArray(
+                  node.pmt_fields.outputs[o].value
+                )
+                  ? [value]
+                  : value
+              }
+            })
+          }
+          if (status && type) {
+            if (type !== 'output') {
+              node.pmt_fields.status = status
+            }
+          }
+          node.setDirtyCanvas(true)
+          return
+        }
+        results.push(result)
+      }
+    })
+  }
+  if (msg) {
+    terminal.term.write(msg + (msg.endsWith('\r') ? '\n' : ''))
+    console.log(msg, results.length > 0 ? results : '')
+  }
+}
 
 function getPipeline(payload, port) {
   port.postMessage({

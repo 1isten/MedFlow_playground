@@ -1096,6 +1096,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
     }
     const [_, plugin_name, function_name] = nodeDef.python_module.split('.')
     const pmt_fields = merge(
+      node?.pmt_fields ? JSON.parse(JSON.stringify(node.pmt_fields)) : {},
       {
         type,
         plugin_name: plugin_name || null,
@@ -1124,42 +1125,45 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           }
         }),
         status: null
-      },
-      node?.pmt_fields || {}
+      }
     )
     if (pmt_fields.type === 'input') {
-      const oid = pmt_fields.args.oid || pmt_fields.args.source
-      if (oid) {
-        if (subtype === 'load_dicom') {
-          pmt_fields.outputs[0].level = ParsedLevel.INSTANCE
-        } else if (subtype === 'load_series') {
-          pmt_fields.outputs[0].level = ParsedLevel.SERIES
-        } else {
-          delete pmt_fields.outputs[0].level
+      if (keepStatus) {
+        const oid = pmt_fields.args.oid || pmt_fields.args.source
+        if (oid) {
+          if (subtype === 'load_dicom') {
+            pmt_fields.outputs[0].level = ParsedLevel.INSTANCE
+          } else if (subtype === 'load_series') {
+            pmt_fields.outputs[0].level = ParsedLevel.SERIES
+          } else {
+            delete pmt_fields.outputs[0].level
+          }
+          pmt_fields.outputs[0].oid = oid
+          pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || null
+          pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || null
         }
-        pmt_fields.outputs[0].oid = oid
-        pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || null
-        pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || null
-      }
-      if (subtype === 'boolean') {
-        pmt_fields.outputs[0].value =
-          pmt_fields.outputs[0].value || pmt_fields.args.bool
-      }
-      if (subtype === 'int') {
-        pmt_fields.outputs[0].value =
-          pmt_fields.outputs[0].value || pmt_fields.args.int
-      }
-      if (subtype === 'float') {
-        pmt_fields.outputs[0].value =
-          pmt_fields.outputs[0].value || pmt_fields.args.float
-      }
-      if (subtype === 'text') {
-        pmt_fields.outputs[0].value =
-          pmt_fields.outputs[0].value || pmt_fields.args.text
-      }
-      if (subtype === 'textarea') {
-        pmt_fields.outputs[0].value =
-          pmt_fields.outputs[0].value || pmt_fields.args.textarea
+        if (subtype === 'boolean') {
+          pmt_fields.outputs[0].value =
+            pmt_fields.outputs[0].value || pmt_fields.args.bool
+        }
+        if (subtype === 'int') {
+          pmt_fields.outputs[0].value =
+            pmt_fields.outputs[0].value || pmt_fields.args.int
+        }
+        if (subtype === 'float') {
+          pmt_fields.outputs[0].value =
+            pmt_fields.outputs[0].value || pmt_fields.args.float
+        }
+        if (subtype === 'text') {
+          pmt_fields.outputs[0].value =
+            pmt_fields.outputs[0].value || pmt_fields.args.text
+        }
+        if (subtype === 'textarea') {
+          pmt_fields.outputs[0].value =
+            pmt_fields.outputs[0].value || pmt_fields.args.textarea
+        }
+      } else {
+        //
       }
     } else {
       if (node.pmt_fields?.status) {

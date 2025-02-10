@@ -11,6 +11,7 @@ import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { shallowReactive } from 'vue'
 
+import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st } from '@/i18n'
 import { useDialogService } from '@/services/dialogService'
 import { useExtensionService } from '@/services/extensionService'
@@ -51,8 +52,6 @@ import { $el, ComfyUI } from './ui'
 import { ComfyAppMenu } from './ui/menu/index'
 import { clone, getStorageValue } from './utils'
 import { type ComfyWidgetConstructor, ComfyWidgets } from './widgets'
-
-import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 
 export const ANIM_PREVIEW_WIDGET = '$$comfy_animation_preview'
 
@@ -1050,39 +1049,6 @@ export class ComfyApp {
 
     await useExtensionService().invokeExtensionsAsync('init')
     await this.registerNodes()
-
-    localStorage.setItem('Comfy.PreviousWorkflow', 'New Workflow.json')
-    localStorage.setItem(
-      'workflow',
-      '{"last_node_id":0,"last_link_id":0,"nodes":[],"links":[],"groups":[],"config":{},"extra":{"ds":{"scale":1,"offset":[0,0]}},"version":0.4}'
-    )
-
-    // Load previous workflow
-    let restored = false
-    try {
-      const loadWorkflow = async (json) => {
-        if (json) {
-          const workflow = JSON.parse(json)
-          const workflowName = getStorageValue('Comfy.PreviousWorkflow')
-          await this.loadGraphData(workflow, true, true, workflowName)
-          return true
-        }
-      }
-      const clientId = api.initialClientId ?? api.clientId
-      restored =
-        (clientId &&
-          (await loadWorkflow(
-            sessionStorage.getItem(`workflow:${clientId}`)
-          ))) ||
-        (await loadWorkflow(localStorage.getItem('workflow')))
-    } catch (err) {
-      console.error('Error loading previous workflow', err)
-    }
-
-    // We failed to restore a workflow so load the default
-    if (!restored) {
-      await this.loadGraphData()
-    }
 
     this.#addDrawNodeHandler()
     this.#addDrawGroupsHandler()

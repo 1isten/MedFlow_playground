@@ -79,7 +79,7 @@ useExtensionService().registerExtension({
     const countEl = document.createElement('span')
     countEl.textContent = `0/0`
     countEl.style.visibility = 'hidden'
-    countEl.classList.add('text-sm')
+    countEl.classList.add('text-sm', 'mx-auto')
     div.appendChild(countEl)
     const continueEl = document.createElement('button')
     continueEl.textContent = 'Continue'

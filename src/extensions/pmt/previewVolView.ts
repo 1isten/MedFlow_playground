@@ -117,7 +117,7 @@ useExtensionService().registerExtension({
           } else if (imagePath.endsWith('.jpeg')) {
             ext = 'jpeg'
           }
-          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${imagePath}]&layoutName=${'Axial Only'}`
+          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${encodeURIComponent(imagePath)}]&layoutName=${'Axial Only'}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {
@@ -139,7 +139,7 @@ useExtensionService().registerExtension({
             ? decode
               ? `${VOLVIEW_URL}&names=[preview.png]&urls=[connect://localhost/orthanc/instances/${dicomOid}/preview]&layoutName=${'Axial Only'}`
               : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect://localhost/orthanc/instances/${dicomOid}/file]&uid=${dicomOid}`
-            : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect-file://localhost/${dicomPath}]&uid=${window.btoa(dicomPath)}`
+            : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect-file://localhost/${encodeURIComponent(dicomPath)}]&uid=${window.btoa(dicomPath)}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {
@@ -162,7 +162,7 @@ useExtensionService().registerExtension({
           } else if (niftiPath.endsWith('.nii.gz')) {
             ext = 'nii.gz'
           }
-          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${niftiPath}]&layoutName=${'Quad View'}`
+          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${encodeURIComponent(niftiPath)}]&layoutName=${'Quad View'}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {

@@ -134,7 +134,6 @@ useExtensionService().registerExtension({
           app.graph.setDirtyCanvas(true)
         })
 
-        // @ts-expect-error Property 'onDragOver' does not exist on type 'LGraphNode'
         node.onDragOver = function (e) {
           if (e.dataTransfer && e.dataTransfer.items) {
             const image = [...e.dataTransfer.items].find(
@@ -144,7 +143,6 @@ useExtensionService().registerExtension({
           }
           return false
         }
-        // @ts-expect-error Property 'onDragDrop' does not exist on type 'LGraphNode'
         node.onDragDrop = function (e) {
           let handled = false
           for (const file of e.dataTransfer.files) {

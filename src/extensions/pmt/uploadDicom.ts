@@ -20,11 +20,8 @@ useExtensionService().registerExtension({
       return
     }
 
-    // @ts-expect-error override
     if (node.onDragOver) {
-      // @ts-expect-error override
       const _onDragOver = node.onDragOver
-      // @ts-expect-error Property 'onDragOver' does not exist on type 'LGraphNode'
       node.onDragOver = function (e, ...args) {
         let handled = _onDragOver?.apply(this, [e, ...args])
         if (e.dataTransfer && e.dataTransfer.items) {
@@ -38,7 +35,6 @@ useExtensionService().registerExtension({
         return handled
       }
     } else {
-      // @ts-expect-error Property 'onDragOver' does not exist on type 'LGraphNode'
       node.onDragOver = function (e) {
         if (e.dataTransfer && e.dataTransfer.items) {
           const text = [...e.dataTransfer.items].find(
@@ -50,11 +46,8 @@ useExtensionService().registerExtension({
       }
     }
 
-    // @ts-expect-error override
     if (node.onDragDrop) {
-      // @ts-expect-error override
       const _onDragDrop = node.onDragDrop
-      // @ts-expect-error Property 'onDragDrop' does not exist on type 'LGraphNode'
       node.onDragDrop = function (e, ...args) {
         let handled = _onDragDrop?.apply(this, [e, ...args])
         const text = e.dataTransfer.getData('text')
@@ -77,7 +70,6 @@ useExtensionService().registerExtension({
         return handled
       }
     } else {
-      // @ts-expect-error Property 'onDragDrop' does not exist on type 'LGraphNode'
       node.onDragDrop = function (e) {
         let handled = false
         const text = e.dataTransfer.getData('text')
@@ -207,7 +199,6 @@ useExtensionService().registerExtension({
           app.graph.setDirtyCanvas(true)
         })
 
-        // @ts-expect-error Property 'onDragOver' does not exist on type 'LGraphNode'
         node.onDragOver = function (e) {
           if (e.dataTransfer && e.dataTransfer.items) {
             const dicom = [...e.dataTransfer.items].find(
@@ -217,7 +208,6 @@ useExtensionService().registerExtension({
           }
           return false
         }
-        // @ts-expect-error Property 'onDragDrop' does not exist on type 'LGraphNode'
         node.onDragDrop = function (e) {
           let handled = false
           for (const file of e.dataTransfer.files) {

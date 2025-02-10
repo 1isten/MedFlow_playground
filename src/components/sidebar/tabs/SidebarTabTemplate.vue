@@ -1,6 +1,6 @@
 <template>
   <div
-    class="comfy-vue-side-bar-container flex flex-col h-full"
+    class="comfy-vue-side-bar-container flex flex-col h-full group/sidebar-tab"
     :class="props.class"
   >
     <div class="comfy-vue-side-bar-header">
@@ -11,7 +11,11 @@
           </span>
         </template>
         <template #end>
-          <slot name="tool-buttons"></slot>
+          <div
+            class="flex flex-row motion-safe:w-0 motion-safe:opacity-0 motion-safe:group-hover/sidebar-tab:w-auto motion-safe:group-hover/sidebar-tab:opacity-100 motion-safe:group-focus-within/sidebar-tab:w-auto motion-safe:group-focus-within/sidebar-tab:opacity-100 touch:w-auto touch:opacity-100 transition-all duration-200"
+          >
+            <slot name="tool-buttons"></slot>
+          </div>
         </template>
       </Toolbar>
       <slot name="header"></slot>

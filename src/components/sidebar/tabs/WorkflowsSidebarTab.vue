@@ -7,6 +7,7 @@
       <Button
         class="browse-templates-button"
         icon="pi pi-th-large"
+        severity="secondary"
         v-tooltip.bottom="$t('sideToolbar.browseTemplates')"
         text
         @click="() => commandStore.execute('Comfy.BrowseTemplates')"
@@ -14,6 +15,7 @@
       <Button
         class="open-workflow-button"
         icon="pi pi-folder-open"
+        severity="secondary"
         v-tooltip.bottom="$t('sideToolbar.openWorkflow')"
         text
         @click="() => commandStore.execute('Comfy.OpenWorkflow')"
@@ -21,6 +23,7 @@
       <Button
         class="new-blank-workflow-button"
         icon="pi pi-plus"
+        severity="secondary"
         v-tooltip.bottom="$t('sideToolbar.newBlankWorkflow')"
         @click="() => commandStore.execute('Comfy.NewBlankWorkflow')"
         text
@@ -152,7 +155,7 @@ import TreeExplorer from '@/components/common/TreeExplorer.vue'
 import TreeExplorerTreeNode from '@/components/common/TreeExplorerTreeNode.vue'
 import SidebarTabTemplate from '@/components/sidebar/tabs/SidebarTabTemplate.vue'
 import WorkflowTreeLeaf from '@/components/sidebar/tabs/workflows/WorkflowTreeLeaf.vue'
-import { useTreeExpansion } from '@/hooks/treeHooks'
+import { useTreeExpansion } from '@/composables/useTreeExpansion'
 import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
 import { useSettingStore } from '@/stores/settingStore'
@@ -242,24 +245,18 @@ const renderTreeNode = (
 
   const workflow: ComfyWorkflow = node.data
 
-  const handleClick = (
-    node: TreeExplorerNode<ComfyWorkflow>,
-    e: MouseEvent
-  ) => {
-    if (node.leaf) {
+  function handleClick(this: TreeExplorerNode<ComfyWorkflow>, e: MouseEvent) {
+    if (this.leaf) {
       workflowService.openWorkflow(workflow)
     } else {
-      toggleNodeOnEvent(e, node)
+      toggleNodeOnEvent(e, this)
     }
   }
 
   const actions = node.leaf
     ? {
         handleClick,
-        handleRename: async (
-          node: TreeExplorerNode<ComfyWorkflow>,
-          newName: string
-        ) => {
+        async handleRename(newName: string) {
           const newPath =
             type === WorkflowTreeType.Browse
               ? workflow.directory + '/' + appendJsonExt(newName)
@@ -269,10 +266,10 @@ const renderTreeNode = (
         },
         handleDelete: workflow.isTemporary
           ? undefined
-          : async () => {
+          : async function () {
               await workflowService.deleteWorkflow(workflow)
             },
-        contextMenuItems: (node: TreeExplorerNode<ComfyWorkflow>) => {
+        contextMenuItems() {
           return [
             {
               label: t('g.insert'),
@@ -283,7 +280,8 @@ const renderTreeNode = (
               }
             }
           ]
-        }
+        },
+        draggable: true
       }
     : { handleClick }
 

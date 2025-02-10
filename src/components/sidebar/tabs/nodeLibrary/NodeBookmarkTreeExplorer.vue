@@ -23,14 +23,15 @@
 
 <script setup lang="ts">
 import type { TreeNode } from 'primevue/treenode'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, h, nextTick, ref, render, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import FolderCustomizationDialog from '@/components/common/CustomizationDialog.vue'
 import TreeExplorer from '@/components/common/TreeExplorer.vue'
+import NodePreview from '@/components/node/NodePreview.vue'
 import NodeTreeFolder from '@/components/sidebar/tabs/nodeLibrary/NodeTreeFolder.vue'
 import NodeTreeLeaf from '@/components/sidebar/tabs/nodeLibrary/NodeTreeLeaf.vue'
-import { useTreeExpansion } from '@/hooks/treeHooks'
+import { useTreeExpansion } from '@/composables/useTreeExpansion'
 import { useLitegraphService } from '@/services/litegraphService'
 import { useNodeBookmarkStore } from '@/stores/nodeBookmarkStore'
 import { ComfyNodeDefImpl } from '@/stores/nodeDefStore'
@@ -139,8 +140,8 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
         label: node.leaf ? node.data.display_name : node.label,
         leaf: node.leaf,
         data: node.data,
-        getIcon: (node: TreeExplorerNode<ComfyNodeDefImpl>) => {
-          if (node.leaf) {
+        getIcon() {
+          if (this.leaf) {
             return 'pi pi-circle-fill'
           }
           const customization =
@@ -151,11 +152,15 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
         },
         children: sortedChildren,
         draggable: node.leaf,
+        renderDragPreview(container) {
+          const vnode = h(NodePreview, { nodeDef: node.data })
+          render(vnode, container)
+          return () => {
+            render(null, container)
+          }
+        },
         droppable: !node.leaf,
-        handleDrop: (
-          node: TreeExplorerNode<ComfyNodeDefImpl>,
-          data: TreeExplorerDragAndDropData<ComfyNodeDefImpl>
-        ) => {
+        handleDrop(data: TreeExplorerDragAndDropData<ComfyNodeDefImpl>) {
           const nodeDefToAdd = data.data.data
           // Remove bookmark if the source is the top level bookmarked node.
           if (nodeBookmarkStore.isBookmarked(nodeDefToAdd)) {
@@ -165,12 +170,9 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
           const nodePath = folderNodeDef.category + '/' + nodeDefToAdd.name
           nodeBookmarkStore.addBookmark(nodePath)
         },
-        handleClick: (
-          node: RenderedTreeExplorerNode<ComfyNodeDefImpl>,
-          e: MouseEvent
-        ) => {
-          if (node.leaf) {
-            useLitegraphService().addNodeOnGraph(node.data)
+        handleClick(e: MouseEvent) {
+          if (this.leaf) {
+            useLitegraphService().addNodeOnGraph(this.data)
           } else {
             toggleNodeOnEvent(e, node)
           }
@@ -179,9 +181,13 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
         ...(node.leaf
           ? {}
           : {
-              handleRename,
-              handleDelete: (node: TreeExplorerNode<ComfyNodeDefImpl>) => {
-                nodeBookmarkStore.deleteBookmarkFolder(node.data)
+              handleRename(newName: string) {
+                if (this.data && this.data.isDummyFolder) {
+                  nodeBookmarkStore.renameBookmarkFolder(this.data, newName)
+                }
+              },
+              handleDelete() {
+                nodeBookmarkStore.deleteBookmarkFolder(this.data)
               }
             })
       }
@@ -211,12 +217,6 @@ const addNewBookmarkFolder = (
 defineExpose({
   addNewBookmarkFolder
 })
-
-const handleRename = (node: TreeNode, newName: string) => {
-  if (node.data && node.data.isDummyFolder) {
-    nodeBookmarkStore.renameBookmarkFolder(node.data, newName)
-  }
-}
 
 const showCustomizationDialog = ref(false)
 const initialIcon = ref(nodeBookmarkStore.defaultBookmarkIcon)

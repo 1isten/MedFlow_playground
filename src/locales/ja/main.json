@@ -1,4 +1,9 @@
 {
+  "clipboard": {
+    "errorMessage": "クリップボードへのコピーに失敗しました",
+    "errorNotSupported": "お使いのブラウザではクリップボードAPIがサポートされていません",
+    "successMessage": "クリップボードにコピーしました"
+  },
   "color": {
     "blue": "青",
     "custom": "カスタム",
@@ -7,6 +12,39 @@
     "pink": "ピンク",
     "red": "赤",
     "yellow": "黄色"
+  },
+  "contextMenu": {
+    " to input": " 入力へ",
+    " to widget": " ウィジェットへ",
+    "Add Group": "グループを追加",
+    "Add Group For Selected Nodes": "選択したノードのグループを追加",
+    "Add Node": "ノードを追加",
+    "Bypass": "バイパス",
+    "Clone": "クローン",
+    "Collapse": "折りたたむ",
+    "Colors": "色",
+    "Convert ": "変換 ",
+    "Convert Input to Widget": "入力をウィジェットに変換",
+    "Convert Widget to Input": "ウィジェットを入力に変換",
+    "Convert to Group Node": "グループノードに変換",
+    "Copy (Clipspace)": "コピー (Clipspace)",
+    "Expand": "展開",
+    "Inputs": "入力",
+    "Manage": "管理",
+    "Manage Group Nodes": "グループノードを管理",
+    "Mode": "モード",
+    "Node Templates": "ノードテンプレート",
+    "Outputs": "出力",
+    "Pin": "ピン",
+    "Properties": "プロパティ",
+    "Properties Panel": "プロパティパネル",
+    "Remove": "削除",
+    "Resize": "リサイズ",
+    "Save Selected as Template": "選択したものをテンプレートとして保存",
+    "Search": "検索",
+    "Shapes": "形",
+    "Title": "タイトル",
+    "Unpin": "ピン解除"
   },
   "dataTypes": {
     "AUDIO": "オーディオ",
@@ -48,6 +86,11 @@
     "quit": "終了",
     "reinstall": "再インストール"
   },
+  "desktopUpdate": {
+    "description": "ComfyUIデスクトップは新しい依存関係をインストールしています。これには数分かかる場合があります。",
+    "terminalDefaultMessage": "更新からの任意のコンソール出力はここに表示されます。",
+    "title": "ComfyUIデスクトップの更新"
+  },
   "downloadGit": {
     "gitWebsite": "Gitをダウンロード",
     "instructions": "お使いのオペレーティングシステムに最新バージョンをダウンロードしてインストールしてください。以下の「Gitをダウンロード」ボタンをクリックすると、git-scm.comのダウンロードページが開きます。",
@@ -74,6 +117,7 @@
     "comingSoon": "近日公開",
     "command": "コマンド",
     "confirm": "確認",
+    "continue": "続ける",
     "copyToClipboard": "クリップボードにコピー",
     "currentUser": "現在のユーザー",
     "customize": "カスタマイズ",
@@ -220,6 +264,7 @@
       "allowMetricsDescription": "匿名の使用状況メトリクスを送信してComfyUIを改善します。個人情報やワークフローの内容は収集されません。",
       "autoUpdate": "自動更新",
       "autoUpdateDescription": "更新が利用可能になると、自動的にダウンロードおよびインストールを行います。インストール前に通知が表示されます。",
+      "checkingMirrors": "Pythonミラーへのネットワークアクセスを確認中...",
       "dataCollectionDialog": {
         "collect": {
           "errorReports": "エラーメッセージとスタックトレース",
@@ -239,7 +284,12 @@
       },
       "errorUpdatingConsent": "同意の更新エラー",
       "errorUpdatingConsentDetail": "メトリクスの同意設定の更新に失敗しました",
-      "learnMoreAboutData": "データ収集の詳細を見る"
+      "learnMoreAboutData": "データ収集の詳細を見る",
+      "mirrorSettings": "ミラー設定",
+      "mirrorsReachable": "Pythonミラーへのネットワークアクセスは良好です",
+      "mirrorsUnreachable": "一部のpythonミラーへのネットワークアクセスが悪い",
+      "pypiMirrorPlaceholder": "PyPIミラーURLを入力してください",
+      "pythonMirrorPlaceholder": "PythonミラーURLを入力してください"
     },
     "systemLocations": "システムの場所",
     "unhandledError": "未知のエラー",
@@ -267,15 +317,19 @@
     "Skipped": "スキップされました",
     "allOk": "問題は検出されませんでした。",
     "confirmTitle": "よろしいですか？",
+    "consoleLogs": "コンソールログ",
     "detected": "検出されました",
     "error": {
+      "cannotContinue": "続行できません - エラーが残っています",
       "defaultDescription": "メンテナンスタスクの実行中にエラーが発生しました。",
       "taskFailed": "タスクの実行に失敗しました。",
       "toastTitle": "タスクエラー"
     },
     "refreshing": "更新中",
     "showManual": "メンテナンスタスクを表示",
-    "status": "ステータス"
+    "status": "ステータス",
+    "terminalDefaultMessage": "トラブルシューティングコマンドを実行すると、出力はここに表示されます。",
+    "title": "メンテナンス"
   },
   "menu": {
     "autoQueue": "自動キュー",
@@ -369,6 +423,11 @@
     "Workflow": "ワークフロー",
     "Zoom In": "ズームイン",
     "Zoom Out": "ズームアウト"
+  },
+  "missingModelsDialog": {
+    "doNotAskAgain": "再度表示しない",
+    "missingModels": "モデルが見つかりません",
+    "missingModelsMessage": "グラフを読み込む際に、次のモデルが見つかりませんでした"
   },
   "nodeCategories": {
     "3d": "3d",
@@ -598,6 +657,7 @@
     "ColorPalette": "カラーパレット",
     "Comfy": "Comfy",
     "Comfy-Desktop": "Comfyデスクトップ",
+    "ContextMenu": "コンテキストメニュー",
     "CustomColorPalettes": "カスタムカラーパレット",
     "DevMode": "開発モード",
     "EditTokenWeight": "トークンの重みを編集",
@@ -628,6 +688,7 @@
     "Settings": "設定",
     "Sidebar": "サイドバー",
     "Tree Explorer": "ツリーエクスプローラー",
+    "UV": "UV",
     "Validation": "検証",
     "Window": "ウィンドウ",
     "Workflow": "ワークフロー"

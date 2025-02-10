@@ -73,7 +73,8 @@
     "workflow": "Workflow",
     "success": "Success",
     "ok": "OK",
-    "feedback": "Feedback"
+    "feedback": "Feedback",
+    "continue": "Continue"
   },
   "issueReport": {
     "submitErrorReport": "Submit Error Report (Optional)",
@@ -99,6 +100,39 @@
     "pink": "Pink",
     "yellow": "Yellow",
     "custom": "Custom"
+  },
+  "contextMenu": {
+    "Inputs": "Inputs",
+    "Outputs": "Outputs",
+    "Properties": "Properties",
+    "Properties Panel": "Properties Panel",
+    "Title": "Title",
+    "Mode": "Mode",
+    "Resize": "Resize",
+    "Collapse": "Collapse",
+    "Expand": "Expand",
+    "Pin": "Pin",
+    "Unpin": "Unpin",
+    "Clone": "Clone",
+    "Remove": "Remove",
+    "Colors": "Colors",
+    "Shapes": "Shapes",
+    "Bypass": "Bypass",
+    "Copy (Clipspace)": "Copy (Clipspace)",
+    "Convert Widget to Input": "Convert Widget to Input",
+    "Convert Input to Widget": "Convert Input to Widget",
+    "Add Node": "Add Node",
+    "Add Group": "Add Group",
+    "Convert to Group Node": "Convert to Group Node",
+    "Manage Group Nodes": "Manage Group Nodes",
+    "Add Group For Selected Nodes": "Add Group For Selected Nodes",
+    "Save Selected as Template": "Save Selected as Template",
+    "Node Templates": "Node Templates",
+    "Manage": "Manage",
+    "Convert ": "Convert ",
+    " to input": " to input",
+    " to widget": " to widget",
+    "Search": "Search"
   },
   "icon": {
     "bookmark": "Bookmark",
@@ -212,7 +246,13 @@
           "customNodeConfigurations": "Custom node configurations"
         },
         "viewFullPolicy": "View full policy"
-      }
+      },
+      "pythonMirrorPlaceholder": "Enter Python mirror URL",
+      "pypiMirrorPlaceholder": "Enter PyPI mirror URL",
+      "checkingMirrors": "Checking network access to python mirrors...",
+      "mirrorsReachable": "Network access to python mirrors is good",
+      "mirrorsUnreachable": "Network access to some python mirrors is bad",
+      "mirrorSettings": "Mirror Settings"
     },
     "customNodes": "Custom Nodes",
     "customNodesDescription": "Reinstall custom nodes from existing ComfyUI installations.",
@@ -471,7 +511,9 @@
     "Server-Config": "Server-Config",
     "About": "About",
     "EditTokenWeight": "Edit Token Weight",
-    "CustomColorPalettes": "Custom Color Palettes"
+    "CustomColorPalettes": "Custom Color Palettes",
+    "UV": "UV",
+    "ContextMenu": "Context Menu"
   },
   "serverConfigItems": {
     "listen": {
@@ -694,6 +736,7 @@
     "WEBCAM": "WEBCAM"
   },
   "maintenance": {
+    "title": "Maintenance",
     "allOk": "No issues were detected.",
     "status": "Status",
     "detected": "Detected",
@@ -703,10 +746,28 @@
     "Skipped": "Skipped",
     "showManual": "Show maintenance tasks",
     "confirmTitle": "Are you sure?",
+    "terminalDefaultMessage": "When you run a troubleshooting command, any output will be shown here.",
+    "consoleLogs": "Console Logs",
     "error": {
       "toastTitle": "Task error",
       "taskFailed": "Task failed to run.",
+      "cannotContinue": "Unable to continue - errors remain",
       "defaultDescription": "An error occurred while running a maintenance task."
     }
+  },
+  "missingModelsDialog": {
+    "doNotAskAgain": "Don't show this again",
+    "missingModels": "Missing Models",
+    "missingModelsMessage": "When loading the graph, the following models were not found"
+  },
+  "desktopUpdate": {
+    "title": "Updating ComfyUI Desktop",
+    "description": "ComfyUI Desktop is installing new dependencies.  This may take a few minutes.",
+    "terminalDefaultMessage": "Any console output from the update will be shown here."
+  },
+  "clipboard": {
+    "successMessage": "Copied to clipboard",
+    "errorMessage": "Failed to copy to clipboard",
+    "errorNotSupported": "Clipboard API not supported in your browser"
   }
 }

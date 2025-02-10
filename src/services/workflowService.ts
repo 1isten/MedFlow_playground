@@ -1,7 +1,9 @@
 import { LGraphCanvas } from '@comfyorg/litegraph'
+import type { Vector2 } from '@comfyorg/litegraph'
 import { toRaw } from 'vue'
 
 import { t } from '@/i18n'
+import { api } from '@/scripts/api'
 import { app } from '@/scripts/app'
 import { blankGraph, defaultGraph } from '@/scripts/defaultGraph'
 import { downloadBlob } from '@/scripts/utils'
@@ -119,6 +121,18 @@ export const useWorkflowService = () => {
    */
   const loadDefaultWorkflow = async () => {
     await app.loadGraphData(defaultGraph)
+  }
+
+  /**
+   * Load the tutorial workflow
+   */
+  const loadTutorialWorkflow = async () => {
+    const tutorialWorkflow = await fetch(
+      api.fileURL('/templates/default.json')
+    ).then((r) => r.json())
+    await app.loadGraphData(tutorialWorkflow, false, false, 'tutorial', {
+      showMissingModelsDialog: true
+    })
   }
 
   /**
@@ -314,7 +328,10 @@ export const useWorkflowService = () => {
   /**
    * Insert the given workflow into the current graph editor.
    */
-  const insertWorkflow = async (workflow: ComfyWorkflow) => {
+  const insertWorkflow = async (
+    workflow: ComfyWorkflow,
+    options: { position?: Vector2 } = {}
+  ) => {
     const loadedWorkflow = await workflow.load()
     const data = loadedWorkflow.initialState
     const old = localStorage.getItem('litegrapheditor_clipboard')
@@ -328,7 +345,7 @@ export const useWorkflowService = () => {
     canvas.reroutesEnabled = app.canvas.reroutesEnabled
     canvas.selectItems()
     canvas.copyToClipboard()
-    app.canvas.pasteFromClipboard()
+    app.canvas.pasteFromClipboard(options)
     if (old !== null) {
       localStorage.setItem('litegrapheditor_clipboard', old)
     }
@@ -366,6 +383,7 @@ export const useWorkflowService = () => {
     saveWorkflow,
     loadDefaultWorkflow,
     loadBlankWorkflow,
+    loadTutorialWorkflow,
     reloadCurrentWorkflow,
     openWorkflow,
     closeWorkflow,

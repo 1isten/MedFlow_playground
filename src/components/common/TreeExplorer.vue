@@ -9,6 +9,7 @@
     :pt="{
       nodeLabel: 'tree-explorer-node-label',
       nodeContent: ({ context }) => ({
+        class: 'group/tree-node',
         onClick: (e: MouseEvent) =>
           onNodeContentClick(e, context.node as RenderedTreeExplorerNode),
         onContextmenu: (e: MouseEvent) =>
@@ -42,7 +43,7 @@ import { computed, provide, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import TreeExplorerTreeNode from '@/components/common/TreeExplorerTreeNode.vue'
-import { useErrorHandling } from '@/hooks/errorHooks'
+import { useErrorHandling } from '@/composables/useErrorHandling'
 import type {
   RenderedTreeExplorerNode,
   TreeExplorerNode
@@ -69,7 +70,7 @@ const renderedRoots = computed<RenderedTreeExplorerNode[]>(() => {
 })
 const getTreeNodeIcon = (node: TreeExplorerNode) => {
   if (node.getIcon) {
-    const icon = node.getIcon(node)
+    const icon = node.getIcon()
     if (icon) {
       return icon
     }
@@ -94,7 +95,7 @@ const fillNodeInfo = (node: TreeExplorerNode): RenderedTreeExplorerNode => {
     children,
     type: node.leaf ? 'node' : 'folder',
     totalLeaves,
-    badgeText: node.getBadgeText ? node.getBadgeText(node) : null
+    badgeText: node.getBadgeText ? node.getBadgeText() : null
   }
 }
 const onNodeContentClick = async (
@@ -105,7 +106,7 @@ const onNodeContentClick = async (
     selectionKeys.value = {}
   }
   if (node.handleClick) {
-    await node.handleClick(node, e)
+    await node.handleClick(e)
   }
   emit('nodeClick', node, e)
 }
@@ -127,7 +128,7 @@ const renameCommand = (node: RenderedTreeExplorerNode) => {
   renameEditingNode.value = node
 }
 const deleteCommand = async (node: RenderedTreeExplorerNode) => {
-  await node.handleDelete?.(node)
+  await node.handleDelete?.()
   emit('nodeDelete', node)
 }
 const menuItems = computed<MenuItem[]>(() =>

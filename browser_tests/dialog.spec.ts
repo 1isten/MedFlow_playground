@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test'
+import { Locator, expect } from '@playwright/test'
 
 import { Keybinding } from '../src/types/keyBindingTypes'
 import { comfyPageFixture as test } from './fixtures/ComfyPage'
@@ -66,9 +66,71 @@ test.describe('Missing models warning', () => {
     }, comfyPage.url)
   })
 
+  test('Should display a warning when missing models are found', async ({
+    comfyPage
+  }) => {
+    await comfyPage.loadWorkflow('missing_models')
+
+    const missingModelsWarning = comfyPage.page.locator('.comfy-missing-models')
+    await expect(missingModelsWarning).toBeVisible()
+
+    const downloadButton = missingModelsWarning.getByLabel('Download')
+    await expect(downloadButton).toBeVisible()
+  })
+
+  test('Should not display a warning when no missing models are found', async ({
+    comfyPage
+  }) => {
+    const modelFoldersRes = {
+      status: 200,
+      body: JSON.stringify([
+        {
+          name: 'clip',
+          folders: ['ComfyUI/models/clip']
+        }
+      ])
+    }
+    comfyPage.page.route(
+      '**/api/experiment/models',
+      (route) => route.fulfill(modelFoldersRes),
+      { times: 1 }
+    )
+
+    // Reload page to trigger indexing of model folders
+    await comfyPage.setup()
+
+    const clipModelsRes = {
+      status: 200,
+      body: JSON.stringify([
+        {
+          name: 'fake_model.safetensors',
+          pathIndex: 0
+        }
+      ])
+    }
+    comfyPage.page.route(
+      '**/api/experiment/models/clip',
+      (route) => route.fulfill(clipModelsRes),
+      { times: 1 }
+    )
+
+    await comfyPage.loadWorkflow('missing_models')
+
+    const missingModelsWarning = comfyPage.page.locator('.comfy-missing-models')
+    await expect(missingModelsWarning).not.toBeVisible()
+  })
+
+  test('should show on tutorial workflow', async ({ comfyPage }) => {
+    await comfyPage.setSetting('Comfy.TutorialCompleted', false)
+    await comfyPage.setup({ clearStorage: true })
+    const missingModelsWarning = comfyPage.page.locator('.comfy-missing-models')
+    await expect(missingModelsWarning).toBeVisible()
+    expect(await comfyPage.getSetting('Comfy.TutorialCompleted')).toBe(true)
+  })
+
   // Flaky test after parallelization
   // https://github.com/Comfy-Org/ComfyUI_frontend/pull/1400
-  test.skip('Should display a warning when missing models are found', async ({
+  test.skip('Should download missing model when clicking download button', async ({
     comfyPage
   }) => {
     // The fake_model.safetensors is served by
@@ -85,6 +147,49 @@ test.describe('Missing models warning', () => {
 
     const download = await downloadPromise
     expect(download.suggestedFilename()).toBe('fake_model.safetensors')
+  })
+
+  test.describe('Do not show again checkbox', () => {
+    let checkbox: Locator
+    let closeButton: Locator
+
+    test.beforeEach(async ({ comfyPage }) => {
+      await comfyPage.setSetting(
+        'Comfy.Workflow.ShowMissingModelsWarning',
+        true
+      )
+      await comfyPage.loadWorkflow('missing_models')
+
+      checkbox = comfyPage.page.getByLabel("Don't show this again")
+      closeButton = comfyPage.page.getByLabel('Close')
+    })
+
+    test('Should disable warning dialog when checkbox is checked', async ({
+      comfyPage
+    }) => {
+      await checkbox.click()
+      const changeSettingPromise = comfyPage.page.waitForRequest(
+        '**/api/settings/Comfy.Workflow.ShowMissingModelsWarning'
+      )
+      await closeButton.click()
+      await changeSettingPromise
+
+      const settingValue = await comfyPage.getSetting(
+        'Comfy.Workflow.ShowMissingModelsWarning'
+      )
+      expect(settingValue).toBe(false)
+    })
+
+    test('Should keep warning dialog enabled when checkbox is unchecked', async ({
+      comfyPage
+    }) => {
+      await closeButton.click()
+
+      const settingValue = await comfyPage.getSetting(
+        'Comfy.Workflow.ShowMissingModelsWarning'
+      )
+      expect(settingValue).toBe(true)
+    })
   })
 })
 
@@ -148,7 +253,7 @@ test.describe('Settings', () => {
 
     // Save keybinding
     const saveButton = comfyPage.page
-      .getByLabel('Comfy.NewBlankWorkflow')
+      .getByLabel('New Blank Workflow')
       .getByLabel('Save')
     await saveButton.click()
 

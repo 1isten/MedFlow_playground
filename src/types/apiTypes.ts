@@ -269,6 +269,13 @@ function inputSpec<TType extends ZodType, TSpec extends ZodType>(
   ])
 }
 
+const zRemoteWidgetConfig = z.object({
+  route: z.string().url().or(z.string().startsWith('/')),
+  refresh: z.number().gte(128).safe().or(z.number().lte(0).safe()).optional(),
+  response_key: z.string().optional(),
+  query_params: z.record(z.string(), z.string()).optional()
+})
+
 const zBaseInputSpecValue = z
   .object({
     default: z.any().optional(),
@@ -329,17 +336,27 @@ const zStringInputSpec = inputSpec([
   })
 ])
 
+const zComboInputProps = zBaseInputSpecValue.extend({
+  control_after_generate: z.boolean().optional(),
+  image_upload: z.boolean().optional(),
+  remote: zRemoteWidgetConfig.optional()
+})
+
 // Dropdown Selection.
 const zComboInputSpec = inputSpec(
-  [
-    z.array(z.any()),
-    zBaseInputSpecValue.extend({
-      control_after_generate: z.boolean().optional(),
-      image_upload: z.boolean().optional()
-    })
-  ],
+  [z.array(z.any()), zComboInputProps],
   /* allowUpcast=*/ false
 )
+
+const zComboInputSpecV2 = inputSpec(
+  [z.literal('COMBO'), zComboInputProps],
+  /* allowUpcast=*/ false
+)
+export function isComboInputSpecV1(
+  inputSpec: InputSpec
+): inputSpec is ComboInputSpec {
+  return Array.isArray(inputSpec[0])
+}
 
 const excludedLiterals = new Set(['INT', 'FLOAT', 'BOOLEAN', 'STRING', 'COMBO'])
 
@@ -354,6 +371,7 @@ const zInputSpec = z.union([
   zBooleanInputSpec,
   zStringInputSpec,
   zComboInputSpec,
+  zComboInputSpecV2,
   zCustomInputSpec
 ])
 
@@ -388,6 +406,8 @@ const zComfyNodeDef = z.object({
 })
 
 // `/object_info`
+export type ComboInputSpec = z.infer<typeof zComboInputSpec>
+export type ComboInputSpecV2 = z.infer<typeof zComboInputSpecV2>
 export type InputSpec = z.infer<typeof zInputSpec>
 export type ComfyInputsSpec = z.infer<typeof zComfyInputsSpec>
 export type ComfyOutputTypesSpec = z.infer<typeof zComfyOutputTypesSpec>
@@ -559,7 +579,8 @@ const zSettings = z.record(z.any()).and(
       'Comfy.Server.LaunchArgs': z.record(z.string(), z.string()),
       'LiteGraph.Canvas.MaximumFps': z.number(),
       'Comfy.Workflow.ConfirmDelete': z.boolean(),
-      'Comfy.RerouteBeta': z.boolean()
+      'Comfy.RerouteBeta': z.boolean(),
+      'LiteGraph.Canvas.LowQualityRenderingZoomThreshold': z.number()
     })
     .optional()
 )
@@ -576,3 +597,4 @@ export type UserDataFullInfo = z.infer<typeof zUserDataFullInfo>
 export type TerminalSize = z.infer<typeof zTerminalSize>
 export type LogEntry = z.infer<typeof zLogEntry>
 export type LogsRawResponse = z.infer<typeof zLogRawResponse>
+export type RemoteWidgetConfig = z.infer<typeof zRemoteWidgetConfig>

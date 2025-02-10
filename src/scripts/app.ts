@@ -4,9 +4,10 @@ import {
   LGraphCanvas,
   LGraphEventMode,
   LGraphNode,
-  LiteGraph
+  LiteGraph,
+  strokeShape
 } from '@comfyorg/litegraph'
-import { Vector2 } from '@comfyorg/litegraph'
+import type { Rect, Vector2 } from '@comfyorg/litegraph'
 import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { shallowReactive } from 'vue'
@@ -37,6 +38,7 @@ import {
 } from '@/types/comfyWorkflow'
 import { ExtensionManager } from '@/types/extensionTypes'
 import { ColorAdjustOptions, adjustColor } from '@/utils/colorUtil'
+import { isImageNode } from '@/utils/litegraphUtil'
 import { deserialiseAndCreate } from '@/utils/vintageClipboard'
 
 import { type ComfyApi, api } from './api'
@@ -114,8 +116,6 @@ export class ComfyApp {
   canvas: LGraphCanvas
   dragOverNode: LGraphNode | null
   canvasEl: HTMLCanvasElement
-  // x, y, scale
-  zoom_drag_start: [number, number, number] | null
   lastNodeErrors: any[] | null
   /** @type {ExecutionErrorWsMessage} */
   lastExecutionError: { node_id?: NodeId } | null
@@ -185,6 +185,21 @@ export class ComfyApp {
     return useExecutionStore()._executingNodeProgress
   }
 
+  /**
+   * @deprecated Use {@link isImageNode} from @/utils/litegraphUtil instead
+   */
+  static isImageNode(node: LGraphNode) {
+    return isImageNode(node)
+  }
+
+  /**
+   * Resets the canvas view to the default
+   * @deprecated Use {@link useLitegraphService().resetView} instead
+   */
+  resetView() {
+    useLitegraphService().resetView()
+  }
+
   constructor() {
     this.vueAppReady = false
     this.ui = new ComfyUI(this)
@@ -230,15 +245,6 @@ export class ComfyApp {
 
   getRandParam() {
     return '&rand=' + Math.random()
-  }
-
-  static isImageNode(node) {
-    return (
-      node.imgs ||
-      (node &&
-        node.widgets &&
-        node.widgets.findIndex((obj) => obj.name === 'image') >= 0)
-    )
   }
 
   static onClipspaceEditorSave() {
@@ -423,7 +429,6 @@ export class ComfyApp {
       this.dragOverNode = null
       // Node handles file drop, we dont use the built in onDropFile handler as its buggy
       // If you drag multiple files it will call it multiple times with the same file
-      // @ts-expect-error This is not a standard event. TODO fix it.
       if (n && n.onDragDrop && (await n.onDragDrop(event))) {
         return
       }
@@ -464,7 +469,6 @@ export class ComfyApp {
         this.canvas.adjustMouseEvent(e)
         const node = this.graph.getNodeOnPos(e.canvasX, e.canvasY)
         if (node) {
-          // @ts-expect-error This is not a standard event. TODO fix it.
           if (node.onDragOver && node.onDragOver(e)) {
             this.dragOverNode = node
 
@@ -479,162 +483,6 @@ export class ComfyApp {
       },
       false
     )
-  }
-
-  /**
-   * Adds a handler on paste that extracts and loads images or workflows from pasted JSON data
-   */
-  #addPasteHandler() {
-    document.addEventListener('paste', async (e: ClipboardEvent) => {
-      // ctrl+shift+v is used to paste nodes with connections
-      // this is handled by litegraph
-      if (this.shiftDown) return
-
-      // @ts-expect-error: Property 'clipboardData' does not exist on type 'Window & typeof globalThis'.
-      // Did you mean 'Clipboard'?ts(2551)
-      // TODO: Not sure what the code wants to do.
-      let data = e.clipboardData || window.clipboardData
-      const items = data.items
-
-      // Look for image paste data
-      for (const item of items) {
-        if (item.type.startsWith('image/')) {
-          var imageNode = null
-
-          // If an image node is selected, paste into it
-          if (
-            this.canvas.current_node &&
-            this.canvas.current_node.is_selected &&
-            ComfyApp.isImageNode(this.canvas.current_node)
-          ) {
-            imageNode = this.canvas.current_node
-          }
-
-          // No image node selected: add a new one
-          if (!imageNode) {
-            const newNode = LiteGraph.createNode('LoadImage')
-            // @ts-expect-error array to Float32Array
-            newNode.pos = [...this.canvas.graph_mouse]
-            imageNode = this.graph.add(newNode)
-            this.graph.change()
-          }
-          const blob = item.getAsFile()
-          imageNode.pasteFile(blob)
-          return
-        }
-      }
-
-      // No image found. Look for node data
-      data = data.getData('text/plain')
-      let workflow: ComfyWorkflowJSON | null = null
-      try {
-        data = data.slice(data.indexOf('{'))
-        workflow = JSON.parse(data)
-      } catch (err) {
-        try {
-          data = data.slice(data.indexOf('workflow\n'))
-          data = data.slice(data.indexOf('{'))
-          workflow = JSON.parse(data)
-        } catch (error) {
-          workflow = null
-        }
-      }
-
-      if (workflow && workflow.version && workflow.nodes && workflow.extra) {
-        await this.loadGraphData(workflow)
-      } else {
-        if (
-          (e.target instanceof HTMLTextAreaElement &&
-            e.target.type === 'textarea') ||
-          (e.target instanceof HTMLInputElement && e.target.type === 'text')
-        ) {
-          return
-        }
-
-        // Litegraph default paste
-        this.canvas.pasteFromClipboard()
-      }
-    })
-  }
-
-  /**
-   * Adds a handler on copy that serializes selected nodes to JSON
-   */
-  #addCopyHandler() {
-    document.addEventListener('copy', (e) => {
-      if (!(e.target instanceof Element)) {
-        return
-      }
-      if (
-        (e.target instanceof HTMLTextAreaElement &&
-          e.target.type === 'textarea') ||
-        (e.target instanceof HTMLInputElement && e.target.type === 'text')
-      ) {
-        // Default system copy
-        return
-      }
-      const isTargetInGraph =
-        e.target.classList.contains('litegraph') ||
-        e.target.classList.contains('graph-canvas-container')
-
-      // copy nodes and clear clipboard
-      if (isTargetInGraph && this.canvas.selected_nodes) {
-        this.canvas.copyToClipboard()
-        e.clipboardData.setData('text', ' ') //clearData doesn't remove images from clipboard
-        e.preventDefault()
-        e.stopImmediatePropagation()
-        return false
-      }
-    })
-  }
-
-  /**
-   * Handle mouse
-   *
-   * Move group by header
-   */
-  #addProcessMouseHandler() {
-    const self = this
-
-    const origProcessMouseDown = LGraphCanvas.prototype.processMouseDown
-    LGraphCanvas.prototype.processMouseDown = function (e) {
-      // prepare for ctrl+shift drag: zoom start
-      const useFastZoom = useSettingStore().get('Comfy.Graph.CtrlShiftZoom')
-      if (useFastZoom && e.ctrlKey && e.shiftKey && !e.altKey && e.buttons) {
-        self.zoom_drag_start = [e.x, e.y, this.ds.scale]
-        return
-      }
-
-      const res = origProcessMouseDown.apply(this, arguments)
-      return res
-    }
-    const origProcessMouseMove = LGraphCanvas.prototype.processMouseMove
-    LGraphCanvas.prototype.processMouseMove = function (e) {
-      // handle ctrl+shift drag
-      if (e.ctrlKey && e.shiftKey && self.zoom_drag_start) {
-        // stop canvas zoom action
-        if (!e.buttons) {
-          self.zoom_drag_start = null
-          return
-        }
-
-        // calculate delta
-        let deltaY = e.y - self.zoom_drag_start[1]
-        let startScale = self.zoom_drag_start[2]
-
-        let scale = startScale - deltaY / 100
-
-        this.ds.changeScale(scale, [
-          self.zoom_drag_start[0],
-          self.zoom_drag_start[1]
-        ])
-        this.graph.change()
-
-        return
-      }
-
-      return origProcessMouseMove.apply(this, arguments)
-    }
   }
 
   /**
@@ -693,48 +541,6 @@ export class ComfyApp {
   }
 
   /**
-   * Draws group header bar
-   */
-  #addDrawGroupsHandler() {
-    const self = this
-    const origDrawGroups = LGraphCanvas.prototype.drawGroups
-    LGraphCanvas.prototype.drawGroups = function (canvas, ctx) {
-      if (!this.graph) {
-        return
-      }
-
-      var groups = this.graph.groups
-
-      ctx.save()
-      ctx.globalAlpha = 0.7 * this.editor_alpha
-
-      for (var i = 0; i < groups.length; ++i) {
-        var group = groups[i]
-
-        if (!LiteGraph.overlapBounding(this.visible_area, group._bounding)) {
-          continue
-        } //out of the visible area
-
-        ctx.fillStyle = group.color || '#335'
-        ctx.strokeStyle = group.color || '#335'
-        var pos = group._pos
-        var size = group._size
-        ctx.globalAlpha = 0.25 * this.editor_alpha
-        ctx.beginPath()
-        var font_size = group.font_size || LiteGraph.DEFAULT_GROUP_FONT_SIZE
-        ctx.rect(pos[0] + 0.5, pos[1] + 0.5, size[0], font_size * 1.4)
-        ctx.fill()
-        ctx.globalAlpha = this.editor_alpha
-      }
-
-      ctx.restore()
-
-      const res = origDrawGroups.apply(this, arguments)
-      return res
-    }
-  }
-
-  /**
    * Draws node highlights (executing, drag drop) and progress bar
    */
   #addDrawNodeHandler() {
@@ -781,49 +587,19 @@ export class ComfyApp {
       }
 
       if (color) {
-        const shape =
-          node._shape || node.constructor.shape || LiteGraph.ROUND_SHAPE
-        ctx.lineWidth = lineWidth
-        ctx.globalAlpha = 0.8
-        ctx.beginPath()
-        if (shape == LiteGraph.BOX_SHAPE)
-          ctx.rect(
-            -6,
-            -6 - LiteGraph.NODE_TITLE_HEIGHT,
-            12 + size[0] + 1,
-            12 + size[1] + LiteGraph.NODE_TITLE_HEIGHT
-          )
-        else if (
-          shape == LiteGraph.ROUND_SHAPE ||
-          (shape == LiteGraph.CARD_SHAPE && node.flags.collapsed)
-        )
-          ctx.roundRect(
-            -6,
-            -6 - LiteGraph.NODE_TITLE_HEIGHT,
-            12 + size[0] + 1,
-            12 + size[1] + LiteGraph.NODE_TITLE_HEIGHT,
-            this.round_radius * 2
-          )
-        else if (shape == LiteGraph.CARD_SHAPE)
-          ctx.roundRect(
-            -6,
-            -6 - LiteGraph.NODE_TITLE_HEIGHT,
-            12 + size[0] + 1,
-            12 + size[1] + LiteGraph.NODE_TITLE_HEIGHT,
-            [this.round_radius * 2, this.round_radius * 2, 2, 2]
-          )
-        else if (shape == LiteGraph.CIRCLE_SHAPE)
-          ctx.arc(
-            size[0] * 0.5,
-            size[1] * 0.5,
-            size[0] * 0.5 + 6,
-            0,
-            Math.PI * 2
-          )
-        ctx.strokeStyle = color
-        ctx.stroke()
-        ctx.strokeStyle = fgcolor
-        ctx.globalAlpha = 1
+        const area: Rect = [
+          0,
+          -LiteGraph.NODE_TITLE_HEIGHT,
+          size[0],
+          size[1] + LiteGraph.NODE_TITLE_HEIGHT
+        ]
+        strokeShape(ctx, area, {
+          shape: node._shape || node.constructor.shape || LiteGraph.ROUND_SHAPE,
+          thickness: lineWidth,
+          colour: color,
+          title_height: LiteGraph.NODE_TITLE_HEIGHT,
+          collapsed: node.collapsed
+        })
       }
 
       if (self.progress && node.id === +self.runningNodeId) {
@@ -1017,7 +793,6 @@ export class ComfyApp {
     await useWorkspaceStore().workflow.syncWorkflows()
     await useExtensionService().loadExtensions()
 
-    this.#addProcessMouseHandler()
     this.#addProcessKeyHandler()
     this.#addConfigureHandler()
     this.#addApiUpdateHandlers()
@@ -1051,10 +826,7 @@ export class ComfyApp {
     await this.registerNodes()
 
     this.#addDrawNodeHandler()
-    this.#addDrawGroupsHandler()
     this.#addDropHandler()
-    this.#addCopyHandler()
-    this.#addPasteHandler()
 
     await useExtensionService().invokeExtensionsAsync('setup')
   }
@@ -1299,17 +1071,19 @@ export class ComfyApp {
       graphData.models &&
       useSettingStore().get('Comfy.Workflow.ShowMissingModelsWarning')
     ) {
+      const modelStore = useModelStore()
       for (const m of graphData.models) {
-        const models_available = await useModelStore().getLoadedModelFolder(
-          m.directory
-        )
-        if (models_available === null) {
-          // @ts-expect-error
-          m.directory_invalid = true
-          missingModels.push(m)
-        } else if (!(m.name in models_available.models)) {
-          missingModels.push(m)
-        }
+        const modelFolder = await modelStore.getLoadedModelFolder(m.directory)
+        // @ts-expect-error
+        if (!modelFolder) m.directory_invalid = true
+
+        const modelsAvailable = modelFolder?.models
+        const modelExists =
+          modelsAvailable &&
+          Object.values(modelsAvailable).some(
+            (model) => model.file_name === m.name
+          )
+        if (!modelExists) missingModels.push(m)
       }
     }
 
@@ -1998,12 +1772,6 @@ export class ComfyApp {
         life: 1000
       })
     }
-  }
-
-  resetView() {
-    app.canvas.ds.scale = 1
-    app.canvas.ds.offset = [0, 0]
-    app.graph.setDirtyCanvas(true, true)
   }
 
   /**

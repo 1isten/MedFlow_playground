@@ -68,7 +68,7 @@
       class="min-w-96"
       v-model:visible="editDialogVisible"
       modal
-      :header="currentEditingCommand?.id"
+      :header="currentEditingCommand?.label"
       @hide="cancelEdit"
     >
       <div>
@@ -151,6 +151,7 @@ const { t } = useI18n()
 interface ICommandData {
   id: string
   keybinding: KeybindingImpl | null
+  label: string
 }
 
 const commandsData = computed<ICommandData[]>(() => {
@@ -213,6 +214,17 @@ function removeKeybinding(commandData: ICommandData) {
 }
 
 function captureKeybinding(event: KeyboardEvent) {
+  // Allow the use of keyboard shortcuts when adding keyboard shortcuts
+  if (!event.shiftKey && !event.altKey && !event.ctrlKey && !event.metaKey) {
+    switch (event.key) {
+      case 'Escape':
+        cancelEdit()
+        return
+      case 'Enter':
+        saveKeybinding()
+        return
+    }
+  }
   const keyCombo = KeyComboImpl.fromEvent(event)
   newBindingKeyCombo.value = keyCombo
 }

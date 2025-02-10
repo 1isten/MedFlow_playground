@@ -157,7 +157,7 @@ export const CORE_SETTINGS: SettingParams[] = [
     id: 'Comfy.Workflow.ShowMissingModelsWarning',
     name: 'Show missing models warning',
     type: 'boolean',
-    defaultValue: false,
+    defaultValue: true,
     experimental: true
   },
   {
@@ -290,7 +290,7 @@ export const CORE_SETTINGS: SettingParams[] = [
     name: 'Node ID badge mode',
     type: 'combo',
     options: [NodeBadgeMode.None, NodeBadgeMode.ShowAll],
-    defaultValue: NodeBadgeMode.ShowAll
+    defaultValue: NodeBadgeMode.None
   },
   {
     id: 'Comfy.NodeBadge.NodeLifeCycleBadgeMode',
@@ -362,6 +362,18 @@ export const CORE_SETTINGS: SettingParams[] = [
       step: 1
     },
     defaultValue: 0
+  },
+  {
+    id: 'LiteGraph.Node.TooltipDelay',
+    name: 'Tooltip Delay',
+    type: 'number',
+    attrs: {
+      min: 100,
+      max: 3000,
+      step: 50
+    },
+    defaultValue: 500,
+    versionAdded: '1.9.0'
   },
   {
     id: 'Comfy.EnableTooltips',
@@ -654,7 +666,7 @@ export const CORE_SETTINGS: SettingParams[] = [
   },
   {
     id: 'LiteGraph.Canvas.MaximumFps',
-    name: 'Maxium FPS',
+    name: 'Maximum FPS',
     tooltip:
       'The maximum frames per second that the canvas is allowed to render. Caps GPU usage at the cost of smoothness. If 0, the screen refresh rate is used. Default: 0',
     type: 'slider',
@@ -708,5 +720,32 @@ export const CORE_SETTINGS: SettingParams[] = [
     defaultValue: 'after',
     options: ['before', 'after'],
     versionModified: '1.6.10'
+  },
+  {
+    id: 'Comfy.TutorialCompleted',
+    name: 'Tutorial completed',
+    type: 'hidden',
+    defaultValue: false,
+    versionAdded: '1.8.7'
+  },
+  {
+    id: 'LiteGraph.ContextMenu.Scaling',
+    name: 'Scale node combo widget menus (lists) when zoomed in',
+    defaultValue: false,
+    type: 'boolean',
+    versionAdded: '1.8.8'
+  },
+  {
+    id: 'LiteGraph.Canvas.LowQualityRenderingZoomThreshold',
+    name: 'Low quality rendering zoom threshold',
+    tooltip: 'Render low quality shapes when zoomed out',
+    type: 'slider',
+    attrs: {
+      min: 0.1,
+      max: 1,
+      step: 0.01
+    },
+    defaultValue: 0.6,
+    versionAdded: '1.9.1'
   }
 ]

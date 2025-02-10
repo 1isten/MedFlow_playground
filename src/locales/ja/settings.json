@@ -5,6 +5,18 @@
   "Comfy-Desktop_SendStatistics": {
     "name": "匿名の使用統計を送信する"
   },
+  "Comfy-Desktop_UV_PypiInstallMirror": {
+    "name": "Pypi インストールミラー",
+    "tooltip": "デフォルトの pip インストールミラー"
+  },
+  "Comfy-Desktop_UV_PythonInstallMirror": {
+    "name": "Python Install Mirror",
+    "tooltip": "管理されたPythonのインストールは、Astral python-build-standaloneプロジェクトからダウンロードされます。この変数は、Pythonのインストールのための異なるソースを使用するためのミラーURLに設定することができます。提供されたURLは、例えば、https://github.com/astral-sh/python-build-standalone/releases/download/20240713/cpython-3.12.4%2B20240713-aarch64-apple-darwin-install_only.tar.gzの中でhttps://github.com/astral-sh/python-build-standalone/releases/downloadを置き換えます。ディストリビューションは、file:// URLスキームを使用してローカルディレクトリから読み取ることができます。"
+  },
+  "Comfy-Desktop_UV_TorchInstallMirror": {
+    "name": "Torch Install Mirror",
+    "tooltip": "pytorchのpipインストールミラー"
+  },
   "Comfy-Desktop_WindowStyle": {
     "name": "ウィンドウスタイル",
     "options": {
@@ -305,9 +317,19 @@
       "Topbar (2nd-row)": "トップバー（2行目）"
     }
   },
+  "LiteGraph_Canvas_LowQualityRenderingZoomThreshold": {
+    "name": "低品質レンダリングズーム閾値",
+    "tooltip": "ズームアウト時に低品質の形状をレンダリングする"
+  },
   "LiteGraph_Canvas_MaximumFps": {
     "name": "最大FPS",
     "tooltip": "キャンバスがレンダリングできる最大フレーム数です。スムーズさの代わりにGPU使用量を制限します。0の場合、画面のリフレッシュレートが使用されます。デフォルト：0"
+  },
+  "LiteGraph_ContextMenu_Scaling": {
+    "name": "ズームイン時にノードコンボウィジェットメニュー（リスト）をスケーリングする"
+  },
+  "LiteGraph_Node_TooltipDelay": {
+    "name": "ツールチップ遅延"
   },
   "pysssss_SnapToGrid": {
     "name": "常にグリッドにスナップ"

@@ -1,4 +1,9 @@
 {
+  "clipboard": {
+    "errorMessage": "Не удалось скопировать в буфер обмена",
+    "errorNotSupported": "API буфера обмена не поддерживается в вашем браузере",
+    "successMessage": "Скопировано в буфер обмена"
+  },
   "color": {
     "blue": "Синий",
     "custom": "Пользовательский",
@@ -7,6 +12,39 @@
     "pink": "Розовый",
     "red": "Красный",
     "yellow": "Жёлтый"
+  },
+  "contextMenu": {
+    " to input": " во вход",
+    " to widget": " в виджет",
+    "Add Group": "Добавить группу",
+    "Add Group For Selected Nodes": "Добавить группу для выбранных узлов",
+    "Add Node": "Добавить узел",
+    "Bypass": "Обход",
+    "Clone": "Клонировать",
+    "Collapse": "Свернуть",
+    "Colors": "Цвета",
+    "Convert ": "Преобразовать ",
+    "Convert Input to Widget": "Преобразовать вход в виджет",
+    "Convert Widget to Input": "Преобразовать виджет во вход",
+    "Convert to Group Node": "Преобразовать в групповой узел",
+    "Copy (Clipspace)": "Копировать (Clipspace)",
+    "Expand": "Развернуть",
+    "Inputs": "Входы",
+    "Manage": "Управлять",
+    "Manage Group Nodes": "Управление групповыми узлами",
+    "Mode": "Режим",
+    "Node Templates": "Шаблоны узлов",
+    "Outputs": "Выходы",
+    "Pin": "Закрепить",
+    "Properties": "Свойства",
+    "Properties Panel": "Панель свойств",
+    "Remove": "Удалить",
+    "Resize": "Изменить размер",
+    "Save Selected as Template": "Сохранить выбранное как шаблон",
+    "Search": "Поиск",
+    "Shapes": "Формы",
+    "Title": "Заголовок",
+    "Unpin": "Открепить"
   },
   "dataTypes": {
     "AUDIO": "АУДИО",
@@ -48,6 +86,11 @@
     "quit": "Выйти",
     "reinstall": "Переустановить"
   },
+  "desktopUpdate": {
+    "description": "ComfyUI Desktop устанавливает новые зависимости. Это может занять несколько минут.",
+    "terminalDefaultMessage": "Любой вывод консоли из обновления будет отображаться здесь.",
+    "title": "Обновление ComfyUI Desktop"
+  },
   "downloadGit": {
     "gitWebsite": "Скачать git",
     "instructions": "Пожалуйста, скачайте и установите последнюю версию для вашей операционной системы. Кнопка «Скачать git» ниже открывает страницу загрузок git-scm.com.",
@@ -74,6 +117,7 @@
     "comingSoon": "Скоро будет",
     "command": "Команда",
     "confirm": "Подтвердить",
+    "continue": "Продолжить",
     "copyToClipboard": "Скопировать в буфер обмена",
     "currentUser": "Текущий пользователь",
     "customize": "Настроить",
@@ -220,6 +264,7 @@
       "allowMetricsDescription": "Помогите улучшить ComfyUI, отправляя анонимные метрики использования. Личная информация или содержание рабочего процесса не будут собираться.",
       "autoUpdate": "Автоматические обновления",
       "autoUpdateDescription": "Автоматически загружать и устанавливать обновления, когда они становятся доступными. Вы всегда будете уведомлены перед установкой обновлений.",
+      "checkingMirrors": "Проверка доступа к зеркалам python по сети...",
       "dataCollectionDialog": {
         "collect": {
           "errorReports": "Сообщение об ошибке и трассировка стека",
@@ -239,7 +284,12 @@
       },
       "errorUpdatingConsent": "Ошибка обновления согласия",
       "errorUpdatingConsentDetail": "Не удалось обновить настройки согласия на метрики",
-      "learnMoreAboutData": "Узнать больше о сборе данных"
+      "learnMoreAboutData": "Узнать больше о сборе данных",
+      "mirrorSettings": "Настройки зеркала",
+      "mirrorsReachable": "Сетевой доступ к зеркалам python хороший",
+      "mirrorsUnreachable": "Сетевой доступ к некоторым зеркалам python плохой",
+      "pypiMirrorPlaceholder": "Введите URL-зеркало PyPI",
+      "pythonMirrorPlaceholder": "Введите URL-зеркало Python"
     },
     "systemLocations": "Системные места",
     "unhandledError": "Неизвестная ошибка",
@@ -267,15 +317,19 @@
     "Skipped": "Пропущено",
     "allOk": "Проблем не обнаружено.",
     "confirmTitle": "Вы уверены?",
+    "consoleLogs": "Консольные журналы",
     "detected": "Обнаружено",
     "error": {
+      "cannotContinue": "Невозможно продолжить - остались ошибки",
       "defaultDescription": "Произошла ошибка при выполнении задачи по обслуживанию.",
       "taskFailed": "Не удалось выполнить задачу.",
       "toastTitle": "Ошибка задачи"
     },
     "refreshing": "Обновление",
     "showManual": "Показать задачи по обслуживанию",
-    "status": "Статус"
+    "status": "Статус",
+    "terminalDefaultMessage": "Когда вы запускаете команду для устранения неполадок, любой вывод будет отображаться здесь.",
+    "title": "Обслуживание"
   },
   "menu": {
     "autoQueue": "Автоочередь",
@@ -369,6 +423,11 @@
     "Workflow": "Рабочий процесс",
     "Zoom In": "Увеличить",
     "Zoom Out": "Уменьшить"
+  },
+  "missingModelsDialog": {
+    "doNotAskAgain": "Больше не показывать это",
+    "missingModels": "Отсутствующие модели",
+    "missingModelsMessage": "При загрузке графа следующие модели не были найдены"
   },
   "nodeCategories": {
     "3d": "3d",
@@ -598,6 +657,7 @@
     "ColorPalette": "Цветовая палитра",
     "Comfy": "Comfy",
     "Comfy-Desktop": "Десктопный Comfy",
+    "ContextMenu": "Контекстное меню",
     "CustomColorPalettes": "Пользовательские цветовые палитры",
     "DevMode": "Режим разработчика",
     "EditTokenWeight": "Редактировать вес токена",
@@ -628,6 +688,7 @@
     "Settings": "Настройки",
     "Sidebar": "Боковая панель",
     "Tree Explorer": "Дерево проводника",
+    "UV": "UV",
     "Validation": "Валидация",
     "Window": "Окно",
     "Workflow": "Рабочий процесс"

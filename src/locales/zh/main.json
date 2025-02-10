@@ -1,4 +1,9 @@
 {
+  "clipboard": {
+    "errorMessage": "复制到剪贴板失败",
+    "errorNotSupported": "您的浏览器不支持剪贴板API",
+    "successMessage": "已复制到剪贴板"
+  },
   "color": {
     "blue": "蓝色",
     "custom": "自定义",
@@ -7,6 +12,39 @@
     "pink": "粉色",
     "red": "红色",
     "yellow": "黄色"
+  },
+  "contextMenu": {
+    " to input": " 为输入",
+    " to widget": " 为控件",
+    "Add Group": "添加组",
+    "Add Group For Selected Nodes": "为选定节点添加组",
+    "Add Node": "添加节点",
+    "Bypass": "绕过",
+    "Clone": "克隆",
+    "Collapse": "折叠",
+    "Colors": "颜色",
+    "Convert ": "转换 ",
+    "Convert Input to Widget": "将输入转换为控件",
+    "Convert Widget to Input": "将控件转换为输入",
+    "Convert to Group Node": "转换为组节点",
+    "Copy (Clipspace)": "复制 (Clipspace)",
+    "Expand": "展开",
+    "Inputs": "输入",
+    "Manage": "管理",
+    "Manage Group Nodes": "管理组节点",
+    "Mode": "模式",
+    "Node Templates": "节点模板",
+    "Outputs": "输出",
+    "Pin": "固定",
+    "Properties": "属性",
+    "Properties Panel": "属性面板",
+    "Remove": "删除",
+    "Resize": "调整大小",
+    "Save Selected as Template": "将选定节点另存为模板",
+    "Search": "搜索",
+    "Shapes": "形状",
+    "Title": "标题",
+    "Unpin": "取消固定"
   },
   "dataTypes": {
     "AUDIO": "音频",
@@ -48,6 +86,11 @@
     "quit": "退出",
     "reinstall": "重新安装"
   },
+  "desktopUpdate": {
+    "description": "ComfyUI桌面正在安装新的依赖项。这可能需要几分钟的时间。",
+    "terminalDefaultMessage": "更新过程中的任何控制台输出都将在这里显示。",
+    "title": "正在更新ComfyUI桌面"
+  },
   "downloadGit": {
     "gitWebsite": "下载 git",
     "instructions": "请下载并安装适合您操作系统的最新版本。下面的下载 git 按钮将打开 git-scm.com 下载页面。",
@@ -74,6 +117,7 @@
     "comingSoon": "即将推出",
     "command": "指令",
     "confirm": "确认",
+    "continue": "继续",
     "copyToClipboard": "复制到剪贴板",
     "currentUser": "当前用户",
     "customize": "自定义",
@@ -220,6 +264,7 @@
       "allowMetricsDescription": "通过发送匿名使用情况指标来帮助改进ComfyUI。不会收集任何个人信息或工作流内容。",
       "autoUpdate": "自动更新",
       "autoUpdateDescription": "更新可用时自动更新。您将在安装更新之前收到通知。",
+      "checkingMirrors": "正在检查到Python镜像的网络访问...",
       "dataCollectionDialog": {
         "collect": {
           "errorReports": "错误报告和堆栈跟踪",
@@ -239,7 +284,12 @@
       },
       "errorUpdatingConsent": "更新同意错误",
       "errorUpdatingConsentDetail": "无法更新度量同意设置",
-      "learnMoreAboutData": "了解更多关于数据收集的信息"
+      "learnMoreAboutData": "了解更多关于数据收集的信息",
+      "mirrorSettings": "镜像设置",
+      "mirrorsReachable": "到Python镜像的网络访问良好",
+      "mirrorsUnreachable": "对某些python镜像的网络访问不佳",
+      "pypiMirrorPlaceholder": "输入PyPI镜像URL",
+      "pythonMirrorPlaceholder": "输入Python镜像URL"
     },
     "systemLocations": "系统位置",
     "unhandledError": "未知错误",
@@ -267,15 +317,19 @@
     "Skipped": "跳过",
     "allOk": "未检测到任何问题。",
     "confirmTitle": "你确定吗？",
+    "consoleLogs": "控制台日志",
     "detected": "检测到",
     "error": {
+      "cannotContinue": "无法继续 - 仍有错误",
       "defaultDescription": "运行维护任务时发生错误。",
       "taskFailed": "任务运行失败。",
       "toastTitle": "任务错误"
     },
     "refreshing": "刷新中",
     "showManual": "显示维护任务",
-    "status": "状态"
+    "status": "状态",
+    "terminalDefaultMessage": "当你运行一个故障排除命令时，任何输出都会在这里显示。",
+    "title": "维护"
   },
   "menu": {
     "autoQueue": "自动执行",
@@ -369,6 +423,11 @@
     "Workflow": "工作流",
     "Zoom In": "放大画面",
     "Zoom Out": "缩小画面"
+  },
+  "missingModelsDialog": {
+    "doNotAskAgain": "不再显示此消息",
+    "missingModels": "缺少模型",
+    "missingModelsMessage": "加载图表时，未找到以下模型"
   },
   "nodeCategories": {
     "3d": "3d",
@@ -598,6 +657,7 @@
     "ColorPalette": "色彩主题",
     "Comfy": "Comfy",
     "Comfy-Desktop": "Comfy桌面版",
+    "ContextMenu": "上下文菜单",
     "CustomColorPalettes": "自定义色彩主题",
     "DevMode": "开发模式",
     "EditTokenWeight": "编辑令牌权重",
@@ -628,6 +688,7 @@
     "Settings": "设置",
     "Sidebar": "侧边栏",
     "Tree Explorer": "树形浏览器",
+    "UV": "UV",
     "Validation": "验证",
     "Window": "窗口",
     "Workflow": "工作流"

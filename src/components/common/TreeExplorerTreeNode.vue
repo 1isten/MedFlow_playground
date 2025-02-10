@@ -27,19 +27,25 @@
         class="leaf-count-badge"
       />
     </div>
-    <div class="node-actions">
+    <div
+      class="node-actions motion-safe:opacity-0 motion-safe:group-hover/tree-node:opacity-100"
+    >
       <slot name="actions" :node="props.node"></slot>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { setCustomNativeDragPreview } from '@atlaskit/pragmatic-drag-and-drop/element/set-custom-native-drag-preview'
 import Badge from 'primevue/badge'
 import { Ref, computed, inject, ref } from 'vue'
 
 import EditableText from '@/components/common/EditableText.vue'
-import { usePragmaticDraggable, usePragmaticDroppable } from '@/hooks/dndHooks'
-import { useErrorHandling } from '@/hooks/errorHooks'
+import { useErrorHandling } from '@/composables/useErrorHandling'
+import {
+  usePragmaticDraggable,
+  usePragmaticDroppable
+} from '@/composables/usePragmaticDragAndDrop'
 import type {
   RenderedTreeExplorerNode,
   TreeExplorerDragAndDropData,
@@ -80,7 +86,7 @@ const isEditing = computed(
 const errorHandling = useErrorHandling()
 const handleRename = errorHandling.wrapWithErrorHandlingAsync(
   async (newName: string) => {
-    await props.node.handleRename(props.node, newName)
+    await props.node.handleRename(newName)
   },
   props.node.handleError,
   () => {
@@ -102,7 +108,17 @@ if (props.node.draggable) {
       }
     },
     onDragStart: () => emit('dragStart', props.node),
-    onDrop: () => emit('dragEnd', props.node)
+    onDrop: () => emit('dragEnd', props.node),
+    onGenerateDragPreview: props.node.renderDragPreview
+      ? ({ nativeSetDragImage }) => {
+          setCustomNativeDragPreview({
+            render: ({ container }) => {
+              return props.node.renderDragPreview(container)
+            },
+            nativeSetDragImage
+          })
+        }
+      : undefined
   })
 }
 
@@ -111,7 +127,7 @@ if (props.node.droppable) {
     onDrop: async (event) => {
       const dndData = event.source.data as TreeExplorerDragAndDropData
       if (dndData.type === 'tree-explorer-node') {
-        await props.node.handleDrop?.(props.node, dndData)
+        await props.node.handleDrop?.(dndData)
         canDrop.value = false
         emit('itemDropped', props.node, dndData.data)
       }

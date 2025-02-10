@@ -5,6 +5,18 @@
   "Comfy-Desktop_SendStatistics": {
     "name": "发送匿名使用情况统计"
   },
+  "Comfy-Desktop_UV_PypiInstallMirror": {
+    "name": "Pypi 安装镜像",
+    "tooltip": "默认 pip 安装镜像"
+  },
+  "Comfy-Desktop_UV_PythonInstallMirror": {
+    "name": "Python安装镜像",
+    "tooltip": "管理的Python安装包从Astral python-build-standalone项目下载。此变量可以设置为镜像URL，以使用不同的Python安装源。提供的URL将替换https://github.com/astral-sh/python-build-standalone/releases/download，例如，在https://github.com/astral-sh/python-build-standalone/releases/download/20240713/cpython-3.12.4%2B20240713-aarch64-apple-darwin-install_only.tar.gz中。可以通过使用file:// URL方案从本地目录读取分发包。"
+  },
+  "Comfy-Desktop_UV_TorchInstallMirror": {
+    "name": "Torch安装镜像",
+    "tooltip": "用于pytorch的Pip安装镜像"
+  },
   "Comfy-Desktop_WindowStyle": {
     "name": "窗口样式",
     "options": {
@@ -305,9 +317,19 @@
       "Topbar (2nd-row)": "顶部栏 (第二行)"
     }
   },
+  "LiteGraph_Canvas_LowQualityRenderingZoomThreshold": {
+    "name": "低质量渲染缩放阈值",
+    "tooltip": "在缩小时渲染低质量形状"
+  },
   "LiteGraph_Canvas_MaximumFps": {
     "name": "最大FPS",
     "tooltip": "画布允许渲染的最大帧数。限制GPU使用以换取流畅度。如果为0，则使用屏幕刷新率。默认值：0"
+  },
+  "LiteGraph_ContextMenu_Scaling": {
+    "name": "放大时缩放节点组合部件菜单（列表）"
+  },
+  "LiteGraph_Node_TooltipDelay": {
+    "name": "工具提示延迟"
   },
   "pysssss_SnapToGrid": {
     "name": "始终吸附到网格"

@@ -1,4 +1,9 @@
 {
+  "clipboard": {
+    "errorMessage": "Échec de la copie dans le presse-papiers",
+    "errorNotSupported": "L'API du presse-papiers n'est pas prise en charge par votre navigateur",
+    "successMessage": "Copié dans le presse-papiers"
+  },
   "color": {
     "blue": "Bleu",
     "custom": "Personnalisé",
@@ -7,6 +12,39 @@
     "pink": "Rose",
     "red": "Rouge",
     "yellow": "Jaune"
+  },
+  "contextMenu": {
+    " to input": " en entrée",
+    " to widget": " en widget",
+    "Add Group": "Ajouter un Groupe",
+    "Add Group For Selected Nodes": "Ajouter un Groupe pour les Nœuds Sélectionnés",
+    "Add Node": "Ajouter un Nœud",
+    "Bypass": "Contourner",
+    "Clone": "Cloner",
+    "Collapse": "Réduire",
+    "Colors": "Couleurs",
+    "Convert ": "Convertir ",
+    "Convert Input to Widget": "Convertir l'Entrée en Widget",
+    "Convert Widget to Input": "Convertir le Widget en Entrée",
+    "Convert to Group Node": "Convertir en Nœud de Groupe",
+    "Copy (Clipspace)": "Copier (Clipspace)",
+    "Expand": "Développer",
+    "Inputs": "Entrées",
+    "Manage": "Gérer",
+    "Manage Group Nodes": "Gérer les Nœuds de Groupe",
+    "Mode": "Mode",
+    "Node Templates": "Modèles de Nœuds",
+    "Outputs": "Sorties",
+    "Pin": "Épingler",
+    "Properties": "Propriétés",
+    "Properties Panel": "Panneau des Propriétés",
+    "Remove": "Supprimer",
+    "Resize": "Redimensionner",
+    "Save Selected as Template": "Enregistrer la Sélection comme Modèle",
+    "Search": "Recherche",
+    "Shapes": "Formes",
+    "Title": "Titre",
+    "Unpin": "Désépingler"
   },
   "dataTypes": {
     "AUDIO": "AUDIO",
@@ -48,6 +86,11 @@
     "quit": "Quitter",
     "reinstall": "Réinstaller"
   },
+  "desktopUpdate": {
+    "description": "ComfyUI Desktop installe de nouvelles dépendances. Cela peut prendre quelques minutes.",
+    "terminalDefaultMessage": "Toute sortie de console de la mise à jour sera affichée ici.",
+    "title": "Mise à jour de ComfyUI Desktop"
+  },
   "downloadGit": {
     "gitWebsite": "Télécharger git",
     "instructions": "Veuillez télécharger et installer la dernière version pour votre système d'exploitation. Le bouton Télécharger git ci-dessous ouvre la page de téléchargement de git-scm.com.",
@@ -74,6 +117,7 @@
     "comingSoon": "Bientôt disponible",
     "command": "Commande",
     "confirm": "Confirmer",
+    "continue": "Continuer",
     "copyToClipboard": "Copier dans le presse-papiers",
     "currentUser": "Utilisateur actuel",
     "customize": "Personnaliser",
@@ -220,6 +264,7 @@
       "allowMetricsDescription": "Aidez à améliorer ComfyUI en envoyant des métriques d'utilisation anonymes. Aucune information personnelle ou contenu de flux de travail ne sera collecté.",
       "autoUpdate": "Mises à jour automatiques",
       "autoUpdateDescription": "Téléchargez et installez automatiquement les mises à jour lorsqu'elles deviennent disponibles. Vous serez toujours informé avant l'installation des mises à jour.",
+      "checkingMirrors": "Vérification de l'accès réseau aux miroirs python...",
       "dataCollectionDialog": {
         "collect": {
           "errorReports": "Message d'erreur et trace de la pile",
@@ -239,7 +284,12 @@
       },
       "errorUpdatingConsent": "Erreur de mise à jour du consentement",
       "errorUpdatingConsentDetail": "Échec de la mise à jour des paramètres de consentement aux métriques",
-      "learnMoreAboutData": "En savoir plus sur la collecte de données"
+      "learnMoreAboutData": "En savoir plus sur la collecte de données",
+      "mirrorSettings": "Paramètres du Miroir",
+      "mirrorsReachable": "L'accès réseau aux miroirs python est bon",
+      "mirrorsUnreachable": "L'accès au réseau à certains miroirs python est mauvais",
+      "pypiMirrorPlaceholder": "Entrez l'URL du miroir PyPI",
+      "pythonMirrorPlaceholder": "Entrez l'URL du miroir Python"
     },
     "systemLocations": "Emplacements système",
     "unhandledError": "Erreur inconnue",
@@ -267,15 +317,19 @@
     "Skipped": "Ignoré",
     "allOk": "Aucun problème détecté.",
     "confirmTitle": "Êtes-vous sûr ?",
+    "consoleLogs": "Journaux de la console",
     "detected": "Détecté",
     "error": {
+      "cannotContinue": "Impossible de continuer - des erreurs subsistent",
       "defaultDescription": "Une erreur s'est produite lors de l'exécution d'une tâche de maintenance.",
       "taskFailed": "La tâche a échoué.",
       "toastTitle": "Erreur de tâche"
     },
     "refreshing": "Actualisation",
     "showManual": "Afficher les tâches de maintenance",
-    "status": "Statut"
+    "status": "Statut",
+    "terminalDefaultMessage": "Lorsque vous exécutez une commande de dépannage, toute sortie sera affichée ici.",
+    "title": "Maintenance"
   },
   "menu": {
     "autoQueue": "File d'attente automatique",
@@ -369,6 +423,11 @@
     "Workflow": "Flux de travail",
     "Zoom In": "Zoom avant",
     "Zoom Out": "Zoom arrière"
+  },
+  "missingModelsDialog": {
+    "doNotAskAgain": "Ne plus afficher ce message",
+    "missingModels": "Modèles manquants",
+    "missingModelsMessage": "Lors du chargement du graphique, les modèles suivants n'ont pas été trouvés"
   },
   "nodeCategories": {
     "3d": "3d",
@@ -598,6 +657,7 @@
     "ColorPalette": "Palette de Couleurs",
     "Comfy": "Confort",
     "Comfy-Desktop": "Comfy-Desktop",
+    "ContextMenu": "Menu Contextuel",
     "CustomColorPalettes": "Palettes de Couleurs Personnalisées",
     "DevMode": "Mode Développeur",
     "EditTokenWeight": "Modifier le Poids du Jeton",
@@ -628,6 +688,7 @@
     "Settings": "Paramètres",
     "Sidebar": "Barre Latérale",
     "Tree Explorer": "Explorateur d'Arbre",
+    "UV": "UV",
     "Validation": "Validation",
     "Window": "Fenêtre",
     "Workflow": "Flux de Travail"

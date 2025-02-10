@@ -201,7 +201,7 @@ import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
-import { ParsedLevel } from '@/constants/pmtCore'
+import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
 import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
@@ -1232,6 +1232,12 @@ onMounted(async () => {
         port.onmessage = (event) => {
           const { type, payload } = event.data
           switch (type) {
+            case 'got-batch-stream-chunk': {
+              if (payload && payload.pipelineId === pipelineId) {
+                handleBatchStreamChunk(payload.output)
+              }
+              break
+            }
             case 'got-stream-chunk': {
               if (payload && payload.id === pipelineId) {
                 handleStreamChunk(payload)
@@ -1281,7 +1287,7 @@ onMounted(async () => {
 })
 
 function handleStreamChunk(chunk) {
-  const { pythonMsg, graphJson } = chunk
+  const { pythonMsg, graphJson } = chunk || {}
   const msg = pythonMsg?.msg || ''
   const results = []
   if (graphJson) {
@@ -1333,6 +1339,43 @@ function handleStreamChunk(chunk) {
   if (msg) {
     terminal.term.write(msg + (msg.endsWith('\r') ? '\n' : ''))
     console.log(msg, results.length > 0 ? results : '')
+  }
+}
+
+function handleBatchStreamChunk(chunk) {
+  const { error, comfyNodeId, numOfDone, numOfTotal } = chunk || {}
+  const node = comfyApp.graph.getNodeById(comfyNodeId)
+  if (node) {
+    let status = null
+    let countStr = `${numOfDone}/${numOfTotal}`
+    if (error) {
+      status = 'error'
+      console.error(comfyNodeId, chunk.message)
+    } else if (numOfTotal > 0) {
+      if (numOfDone > 0) {
+        status = 'pending'
+        if (numOfDone === numOfTotal) {
+          status = 'done'
+        }
+      }
+      console.log(comfyNodeId, countStr, chunk.message)
+    }
+    if (status) {
+      node.pmt_fields = {
+        ...(node.pmt_fields || {}),
+        status
+      }
+      node.setDirtyCanvas(true)
+    }
+    const statusWidget = node.widgets.find((w) => {
+      return w.name === 'status-float'
+    })
+    const countEl = statusWidget?.element?.querySelector('span')
+    if (countEl) {
+      countEl.textContent = countStr
+      countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
+      countEl.style.visibility = 'visible'
+    }
   }
 }
 

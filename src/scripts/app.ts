@@ -1300,7 +1300,7 @@ export class ComfyApp {
 
         // Store all widget values
         if (widgets) {
-          for (const i in widgets) {
+          for (let i = 0; i < widgets.length; i++) {
             const widget = widgets[i]
             if (!widget.options || widget.options.serialize !== false) {
               inputs[widget.name] = widget.serializeValue
@@ -1311,7 +1311,7 @@ export class ComfyApp {
         }
 
         // Store all node links
-        for (let i in node.inputs) {
+        for (let i = 0; i < node.inputs.length; i++) {
           let parent = node.getInputNode(i)
           if (parent) {
             let link = node.getInputLink(i)
@@ -1331,14 +1331,18 @@ export class ComfyApp {
               } else if (link && parent.mode === LGraphEventMode.BYPASS) {
                 let all_inputs = [link.origin_slot]
                 if (parent.inputs) {
+                  // @ts-expect-error convert list of strings to list of numbers
                   all_inputs = all_inputs.concat(Object.keys(parent.inputs))
                   for (let parent_input in all_inputs) {
+                    // @ts-expect-error assign string to number
                     parent_input = all_inputs[parent_input]
                     if (
                       parent.inputs[parent_input]?.type === node.inputs[i].type
                     ) {
+                      // @ts-expect-error convert string to number
                       link = parent.getInputLink(parent_input)
                       if (link) {
+                        // @ts-expect-error convert string to number
                         parent = parent.getInputNode(parent_input)
                       }
                       found = true
@@ -1360,6 +1364,7 @@ export class ComfyApp {
               if (link) {
                 inputs[node.inputs[i].name] = [
                   String(link.origin_id),
+                  // @ts-expect-error link.origin_slot is already number.
                   parseInt(link.origin_slot)
                 ]
               }
@@ -1476,9 +1481,7 @@ export class ComfyApp {
               for (const widget of node.widgets) {
                 // Allow widgets to run callbacks after a prompt has been queued
                 // e.g. random seed after every gen
-                // @ts-expect-error
                 if (widget.afterQueued) {
-                  // @ts-expect-error
                   widget.afterQueued()
                 }
               }

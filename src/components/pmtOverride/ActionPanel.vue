@@ -310,13 +310,13 @@ const toggleTerminal = (val) => {
   }
 }
 
-onMounted(() => {
-  ;[
+onMounted(async () => {
+  const hideTypes = [
     'input.load_image',
     'input.load_nifti',
-    // ...
     ...Object.keys(SYSTEM_NODE_DEFS)
-  ].forEach((type) => {
+  ]
+  hideTypes.forEach((type) => {
     if (LiteGraph.getNodeType(type)) {
       LiteGraph.unregisterNodeType(type)
     }
@@ -343,8 +343,13 @@ onMounted(() => {
           callback: () => resetNodeById(-1)
         },
         {
-          content: 'Refresh Node Definitions',
+          content: window.location.reload
+            ? 'Reload Workflow'
+            : 'Refresh Node Definitions',
           callback: async () => {
+            if (window.location.reload) {
+              return window.location.reload()
+            }
             await useCommandStore().execute('Comfy.RefreshNodeDefinitions')
             useWorkflowService().reloadCurrentWorkflow()
           }

@@ -79,6 +79,7 @@
                 />
               </InputGroup>
               <Button
+                v-if="!pipeline.readonly"
                 ref="delBtn"
                 class="btn-del ml-2"
                 :aria-label="'Delete'"
@@ -86,7 +87,13 @@
                 text
                 :severity="delBtnHovered ? 'danger' : 'secondary'"
                 :loading="deleting"
-                :disabled="loading || isNewPipeline || running || saving"
+                :disabled="
+                  loading ||
+                  isNewPipeline ||
+                  running ||
+                  saving ||
+                  pipeline.readonly
+                "
                 @click="confirmDelete"
               />
             </div>
@@ -117,14 +124,16 @@
                 severity="contrast"
                 size="small"
                 :loading="false"
-                :disabled="!pipelineName || saving || deleting"
+                :disabled="
+                  !pipelineName || saving || deleting || pipeline.readonly
+                "
                 @click="commitPipEdit"
               />
             </div>
           </div>
         </Popover>
         <Button
-          v-if="!loading"
+          v-if="!loading && false"
           class="btn-term"
           size="small"
           :aria-label="'Terminal'"
@@ -143,7 +152,7 @@
           icon="pi pi-save"
           severity="secondary"
           :loading="saving"
-          :disabled="loading || running || deleting"
+          :disabled="loading || running || deleting || pipeline.readonly"
           @click="confirmSave"
           @contextmenu.prevent.stop
         />
@@ -239,7 +248,8 @@ const pipeline = ref({
   id: pipelineId,
   name: pipelineName.value,
   description: pipelineDescription.value,
-  color: pipelineColor.value
+  color: pipelineColor.value,
+  readonly: false
 })
 const pipelineWorkflow = computed(() =>
   pipeline.value.workflow ? JSON.parse(pipeline.value.workflow) : null
@@ -1402,6 +1412,7 @@ function handleGetPipeline(payload) {
   pipeline.value.name = payload.name
   pipeline.value.description = payload.description
   pipeline.value.color = payload.color
+  pipeline.value.readonly = !!payload.readonly
   if (payload.workflow) {
     pipeline.value.workflow = payload.workflow
   } else {

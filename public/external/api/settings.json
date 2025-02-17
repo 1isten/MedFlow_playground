@@ -1,6 +1,7 @@
 {
   "Comfy.Window.UnloadConfirmation": false,
   "Comfy.Workflow.WorkflowTabsPosition": "None",
+  "Comfy.UseNewMenu": "Disabled",
   "Comfy.ColorPalette": "dark",
   "Comfy.LinkRenderMode": 2,
   "Comfy.Locale": "en"

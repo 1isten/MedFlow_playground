@@ -19,6 +19,11 @@
       <GraphCanvasMenu v-if="canvasMenuEnabled" class="pointer-events-auto" />
     </template>
   </LiteGraphCanvasSplitterOverlay>
+  <LiteGraphCanvasSplitterOverlay v-if="comfyAppReady && !betaMenuEnabled">
+    <template #bottom-panel>
+      <ActionPanel />
+    </template>
+  </LiteGraphCanvasSplitterOverlay>
   <TitleEditor />
   <GraphCanvasMenu v-if="!betaMenuEnabled && canvasMenuEnabled" />
   <canvas
@@ -46,6 +51,7 @@ import NodeBadge from '@/components/graph/NodeBadge.vue'
 import NodeTooltip from '@/components/graph/NodeTooltip.vue'
 import SelectionOverlay from '@/components/graph/SelectionOverlay.vue'
 import TitleEditor from '@/components/graph/TitleEditor.vue'
+import ActionPanel from '@/components/pmtOverride/ActionPanel.vue'
 import NodeSearchboxPopover from '@/components/searchbox/NodeSearchBoxPopover.vue'
 import SideToolbar from '@/components/sidebar/SideToolbar.vue'
 import SecondRowWorkflowTabs from '@/components/topbar/SecondRowWorkflowTabs.vue'

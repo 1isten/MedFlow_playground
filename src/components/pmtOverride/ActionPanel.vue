@@ -1686,4 +1686,8 @@ async function langchainChat(langchain_json) {
 #terminal .xterm-rows {
   font-size: 14px;
 }
+
+div.comfy-menu.no-drag {
+  display: none !important;
+}
 </style>

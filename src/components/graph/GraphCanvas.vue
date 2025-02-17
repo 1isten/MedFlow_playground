@@ -1,30 +1,37 @@
 <template>
-  <teleport to=".graph-canvas-container">
-    <!-- Load splitter overlay only after comfyApp is ready. -->
-    <!-- If load immediately, the top-level splitter stateKey won't be correctly
-    synced with the stateStorage (localStorage). -->
-    <LiteGraphCanvasSplitterOverlay
-      v-if="comfyAppReady && betaMenuEnabled && !workspaceStore.focusMode"
-    >
-      <template #side-bar-panel>
-        <SideToolbar v-if="false" />
-      </template>
-      <template #bottom-panel>
-        <BottomPanel v-if="false" />
-        <ActionPanel v-else />
-      </template>
-      <template #graph-canvas-panel>
-        <SecondRowWorkflowTabs
-          v-if="workflowTabsPosition === 'Topbar (2nd-row)'"
-        />
-        <GraphCanvasMenu v-if="canvasMenuEnabled" />
-      </template>
-    </LiteGraphCanvasSplitterOverlay>
-    <TitleEditor />
-    <GraphCanvasMenu v-if="!betaMenuEnabled && canvasMenuEnabled" />
-    <canvas ref="canvasRef" id="graph-canvas" tabindex="1" />
-  </teleport>
+  <!-- Load splitter overlay only after comfyApp is ready. -->
+  <!-- If load immediately, the top-level splitter stateKey won't be correctly
+  synced with the stateStorage (localStorage). -->
+  <LiteGraphCanvasSplitterOverlay
+    v-if="comfyAppReady && betaMenuEnabled && !workspaceStore.focusMode"
+  >
+    <template #side-bar-panel>
+      <SideToolbar />
+    </template>
+    <template #bottom-panel>
+      <BottomPanel />
+    </template>
+    <template #graph-canvas-panel>
+      <SecondRowWorkflowTabs
+        v-if="workflowTabsPosition === 'Topbar (2nd-row)'"
+        class="pointer-events-auto"
+      />
+      <GraphCanvasMenu v-if="canvasMenuEnabled" class="pointer-events-auto" />
+    </template>
+  </LiteGraphCanvasSplitterOverlay>
+  <TitleEditor />
+  <GraphCanvasMenu v-if="!betaMenuEnabled && canvasMenuEnabled" />
+  <canvas
+    ref="canvasRef"
+    id="graph-canvas"
+    tabindex="1"
+    class="w-full h-full touch-none"
+  />
   <NodeSearchboxPopover />
+  <SelectionOverlay>
+    <!-- Placeholder for selection overlay testing. -->
+    <!-- <div class="w-full h-full bg-red-500"></div> -->
+  </SelectionOverlay>
   <NodeTooltip v-if="tooltipEnabled" />
   <NodeBadge />
 </template>
@@ -38,7 +45,6 @@ import GraphCanvasMenu from '@/components/graph/GraphCanvasMenu.vue'
 import NodeBadge from '@/components/graph/NodeBadge.vue'
 import NodeTooltip from '@/components/graph/NodeTooltip.vue'
 import TitleEditor from '@/components/graph/TitleEditor.vue'
-import ActionPanel from '@/components/pmtOverride/ActionPanel.vue'
 import NodeSearchboxPopover from '@/components/searchbox/NodeSearchBoxPopover.vue'
 import SideToolbar from '@/components/sidebar/SideToolbar.vue'
 import SecondRowWorkflowTabs from '@/components/topbar/SecondRowWorkflowTabs.vue'

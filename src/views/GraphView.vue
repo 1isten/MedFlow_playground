@@ -1,7 +1,7 @@
 <template>
   <!-- Top menu bar needs to load before the GraphCanvas as it needs to host
   the menu buttons added by legacy extension scripts.-->
-  <TopMenubar v-if="false" />
+  <TopMenubar />
   <GraphCanvas @ready="onGraphReady" />
   <GlobalToast />
   <UnloadWindowConfirmDialog v-if="!isElectron()" />

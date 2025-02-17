@@ -1542,9 +1542,9 @@
     "input_order": {
       "required": ["SERIES_FILE_LIST"]
     },
-    "output": ["3D"],
-    "output_name": ["data"],
-    "output_is_list": [false],
+    "output": ["3D", "2D"],
+    "output_name": ["data", "affine"],
+    "output_is_list": [false, false],
     "output_node": false
   },
   "converter.file_to_data.nifti_to_3d": {
@@ -1665,11 +1665,12 @@
     "python_module": "custom_nodes.data_to_file.3d_to_nifti",
     "input": {
       "required": {
-        "data": ["3D"]
+        "data": ["3D"],
+        "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data"]
+      "required": ["data", "affine"]
     },
     "output": ["NIFTI_FILE"],
     "output_name": ["NIFTI_FILE"],

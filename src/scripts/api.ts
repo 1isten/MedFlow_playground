@@ -442,11 +442,11 @@ export class ComfyApi extends EventTarget {
   > {
     const resp = await this.fetchApi('/object_info', { cache: 'no-store' })
     let objectInfoUnsafe = await resp.json()
-    if (objectInfoUnsafe) {
+    if (objectInfoUnsafe && '$electron' in window) {
       const objectInfoPlugins = await fetch(
         'connect://localhost/api/comfyui/object_info'
       )
-        .then((res) => res.json())
+        .then((res) => res.ok && res.json())
         .catch(console.error)
       if (objectInfoPlugins) {
         for (const key in objectInfoUnsafe) {
@@ -459,7 +459,9 @@ export class ComfyApi extends EventTarget {
           }
         }
         for (const key in objectInfoPlugins) {
-          objectInfoUnsafe[key] = objectInfoPlugins[key]
+          if (key.startsWith('plugin.') && objectInfoPlugins[key]) {
+            objectInfoUnsafe[key] = objectInfoPlugins[key]
+          }
         }
         const order: Record<string, number> = {
           input: 1,

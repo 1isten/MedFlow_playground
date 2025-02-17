@@ -44,7 +44,7 @@
     "Search": "検索",
     "Shapes": "形",
     "Title": "タイトル",
-    "Unpin": "ピン解除"
+    "Unpin": "ピンを解除"
   },
   "dataTypes": {
     "AUDIO": "オーディオ",
@@ -75,13 +75,13 @@
     "SIGMAS": "シグマ",
     "STRING": "文字列",
     "STYLE_MODEL": "スタイルモデル",
-    "TIMESTEPS_RANGE": "タイムステップ範囲",
+    "TIMESTEPS_RANGE": "タイムステップの範囲",
     "UPSCALE_MODEL": "アップスケールモデル",
     "VAE": "VAE",
     "WEBCAM": "ウェブカメラ"
   },
   "desktopMenu": {
-    "confirmQuit": "保存されていないワークフローが開いています。保存されていない変更はすべて失われます。これを無視して終了しますか？",
+    "confirmQuit": "保存されていないワークフローを終了しようとしています。保存されていない変更はすべて失われます。これを無視して終了しますか？",
     "confirmReinstall": "これにより、extra_models_config.yamlファイルがクリアされ、再インストールが開始されます。本当によろしいですか？",
     "quit": "終了",
     "reinstall": "再インストール"
@@ -93,7 +93,7 @@
   },
   "downloadGit": {
     "gitWebsite": "Gitをダウンロード",
-    "instructions": "お使いのオペレーティングシステムに最新バージョンをダウンロードしてインストールしてください。以下の「Gitをダウンロード」ボタンをクリックすると、git-scm.comのダウンロードページが開きます。",
+    "instructions": "お使いのオペレーティングシステムに最新のバージョンをダウンロードしてインストールしてください。以下の「Gitをダウンロード」ボタンをクリックすると、git-scm.comのダウンロードページが開きます。",
     "message": "Gitを見つけることができません。正常に動作するためには、Gitの作業コピーが必要です。",
     "skip": "スキップ",
     "title": "Gitをダウンロード",
@@ -135,7 +135,7 @@
     "extensionName": "拡張機能名",
     "feedback": "フィードバック",
     "findIssues": "問題を見つける",
-    "firstTimeUIMessage": "新しいUIを初めて使用しています。「メニュー > 新しいメニューを使用 > 無効」を選択して古いUIに戻してください。",
+    "firstTimeUIMessage": "新しいUIを初めて使用しています。「メニュー > 新しいメニューを使用 > 無効」を選択することで古いUIに戻すことが可能です。",
     "goToNode": "ノードに移動",
     "icon": "アイコン",
     "imageFailedToLoad": "画像の読み込みに失敗しました",
@@ -169,7 +169,7 @@
     "resetKeybindingsTooltip": "キーバインディングをデフォルトにリセット",
     "save": "保存",
     "searchExtensions": "拡張機能を検索",
-    "searchFailedMessage": "検索に一致する設定が見つかりませんでした。検索用語を調整してみてください。",
+    "searchFailedMessage": "検索に一致する設定が見つかりませんでした。検索キーワードを調整してみてください。",
     "searchKeybindings": "キーバインディングを検索",
     "searchModels": "モデルを検索",
     "searchNodes": "ノードを検索",
@@ -222,7 +222,7 @@
     "gpu": "GPU",
     "gpuSelection": {
       "cpuMode": "CPUモード",
-      "cpuModeDescription": "CPUモードは開発者やまれなエッジケースのみを対象としています。",
+      "cpuModeDescription": "CPUモードは開発者や、まれなエッジケースのみを対象としています。",
       "cpuModeDescription2": "これが絶対に必要であることが確定していない場合は、このボックスを無視して上でGPUを選択してください。",
       "customComfyNeedsPython": "ComfyUIはpythonがセットアップされるまで動作しません",
       "customInstallRequirements": "すべての要件と依存関係をインストールする（例：カスタムtorch）",
@@ -247,13 +247,13 @@
       "title": "マニュアル設定",
       "virtualEnvironmentPath": "仮想環境のパス"
     },
-    "metricsDisabled": "メトリクス無効",
-    "metricsEnabled": "メトリクス有効",
+    "metricsDisabled": "メトリクスを無効にする",
+    "metricsEnabled": "メトリクスを有効にする",
     "migrateFromExistingInstallation": "既存のインストールから移行",
     "migration": "移行",
     "migrationOptional": "移行は任意です。既存のインストールがない場合、このステップをスキップできます。",
     "migrationSourcePathDescription": "既存のComfyUIインストールがある場合、既存のユーザーファイルとモデルを新しいインストールにコピー/リンクすることができます。既存のComfyUIインストールは影響を受けません。",
-    "moreInfo": "詳細は、私たちの",
+    "moreInfo": "詳しくはこちらをご覧ください",
     "parentMissing": "パスが存在しません - 最初に含まれるディレクトリを作成してください",
     "pathExists": "ディレクトリはすでに存在します - すべてのデータをバックアップしたことを確認してください",
     "pathValidationFailed": "パスの検証に失敗しました",
@@ -293,7 +293,7 @@
     },
     "systemLocations": "システムの場所",
     "unhandledError": "未知のエラー",
-    "updateConsent": "以前はクラッシュの報告に同意していました。現在、バグの特定とアプリの改善を助けるためにイベントベースのメトリクスを追跡しています。個人を特定できる情報は収集されません。"
+    "updateConsent": "以前、クラッシュレポートを報告することに同意していました。現在、バグの特定とアプリの改善を助けるためにイベントベースのメトリクスを追跡しています。個人を特定できる情報は収集されません。"
   },
   "issueReport": {
     "contactFollowUp": "フォローアップのために私に連絡する",
@@ -310,6 +310,14 @@
       "invalidEmail": "有効なメールアドレスを入力してください",
       "maxLength": "メッセージが長すぎます"
     }
+  },
+  "load3d": {
+    "backgroundColor": "背景色",
+    "fov": "FOV",
+    "lightIntensity": "光の強度",
+    "previewOutput": "出力のプレビュー",
+    "showGrid": "グリッドを表示",
+    "switchCamera": "カメラを切り替える"
   },
   "maintenance": {
     "None": "なし",
@@ -410,12 +418,12 @@
     "Show Settings Dialog": "設定ダイアログを表示",
     "Toggle Bottom Panel": "下部パネルの切り替え",
     "Toggle Focus Mode": "フォーカスモードの切り替え",
-    "Toggle Logs Bottom Panel": "ログボトムパネルを切り替え",
+    "Toggle Logs Bottom Panel": "ログパネル下部を切り替え",
     "Toggle Model Library Sidebar": "モデルライブラリサイドバーを切り替え",
     "Toggle Node Library Sidebar": "ノードライブラリサイドバーを切り替え",
     "Toggle Queue Sidebar": "キューサイドバーを切り替え",
     "Toggle Search Box": "検索ボックスの切り替え",
-    "Toggle Terminal Bottom Panel": "ターミナルボトムパネルを切り替え",
+    "Toggle Terminal Bottom Panel": "ターミナルパネル下部を切り替え",
     "Toggle Theme (Dark/Light)": "テーマを切り替え（ダーク/ライト）",
     "Toggle Workflows Sidebar": "ワークフローサイドバーを切り替え",
     "Undo": "元に戻す",
@@ -434,7 +442,7 @@
     "3d_models": "3Dモデル",
     "DevTools": "デブツール",
     "_for_testing": "_テスト用",
-    "advanced": "高度な",
+    "advanced": "高度な機能",
     "animation": "アニメーション",
     "api": "API",
     "attention_experiments": "アテンション実験",
@@ -727,6 +735,7 @@
       "deleteFailedTitle": "削除に失敗しました",
       "deleted": "ワークフローが削除されました",
       "dirtyClose": "以下のファイルが変更されました。閉じる前に保存しますか？",
+      "dirtyCloseHint": "Shiftキーを押しながら閉じると、プロンプトなしで閉じます",
       "dirtyCloseTitle": "変更を保存しますか？",
       "workflowTreeType": {
         "bookmarks": "ブックマーク",
@@ -747,10 +756,72 @@
   },
   "templateWorkflows": {
     "template": {
-      "default": "画像生成",
-      "flux_schnell": "Flux Schnell",
-      "image2image": "画像から画像へ",
-      "upscale": "2パスアップスケール"
+      "3D": {
+        "stable_zero123_example": "Stable Zero123"
+      },
+      "Area Composition": {
+        "area_composition": "エリア構成",
+        "area_composition_reversed": "エリア構成反転",
+        "area_composition_square_area_for_subject": "主題のためのエリア構成スクエア"
+      },
+      "Audio": {
+        "stable_audio_example": "Stable Audio"
+      },
+      "Basics": {
+        "default": "画像生成",
+        "embedding_example": "埋め込み",
+        "gligen_textbox_example": "Gligenテキストボックス",
+        "image2image": "画像から画像へ",
+        "inpain_model_outpainting": "InpaintモデルのOutpainting",
+        "inpaint_example": "Inpaint",
+        "lora": "Lora",
+        "lora_multiple": "Lora複数",
+        "yosemite_outpaint_example": "Yosemite Outpaint"
+      },
+      "ControlNet": {
+        "2_pass_pose_worship": "2 Pass Pose Worship",
+        "controlnet_example": "ControlNet",
+        "depth_controlnet": "Depth ControlNet",
+        "depth_t2i_adapter": "Depth T2Iアダプタ",
+        "mixing_controlnets": "ControlNetsの混合"
+      },
+      "Flux": {
+        "flux_canny_model_example": "Flux Cannyモデル",
+        "flux_depth_lora_example": "Flux Depth Lora",
+        "flux_dev_checkpoint_example": "Flux Dev",
+        "flux_fill_inpaint_example": "Flux Inpaint",
+        "flux_fill_outpaint_example": "Flux Outpaint",
+        "flux_redux_model_example": "Flux Reduxモデル",
+        "flux_schnell": "Flux Schnell"
+      },
+      "SD3_5": {
+        "sd3_5_large_blur": "SD3.5 ラージブラー",
+        "sd3_5_large_canny_controlnet_example": "SD3.5 ラージキャニーコントロールネット",
+        "sd3_5_large_depth": "SD3.5 ラージデプス",
+        "sd3_5_simple_example": "SD3.5 シンプル"
+      },
+      "SDXL": {
+        "sdxl_refiner_prompt_example": "SDXL Refinerプロンプト",
+        "sdxl_revision_text_prompts": "SDXL Revisionテキストプロンプト",
+        "sdxl_revision_zero_positive": "SDXL Revisionゼロポジティブ",
+        "sdxl_simple_example": "SDXLシンプル",
+        "sdxlturbo_example": "SDXLターボ"
+      },
+      "Upscaling": {
+        "esrgan_example": "ESRGAN",
+        "hiresfix_esrgan_workflow": "HiresFix ESRGANワークフロー",
+        "hiresfix_latent_workflow": "HiresFix Latentワークフロー",
+        "latent_upscale_different_prompt_model": "Latent Upscale異なるプロンプトモデル",
+        "upscale": "アップスケール"
+      },
+      "Video": {
+        "hunyuan_video_text_to_video": "Hunyuanビデオテキストからビデオへ",
+        "image_to_video": "画像からビデオへ",
+        "ltxv_image_to_video": "LTXV画像からビデオへ",
+        "ltxv_text_to_video": "LTXVテキストからビデオへ",
+        "mochi_text_to_video_example": "Mochiテキストからビデオへ",
+        "txt_to_image_to_video": "テキストから画像へ、画像からビデオへ"
+      }
     },
     "title": "テンプレートを利用して開始"
   },

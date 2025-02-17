@@ -17,10 +17,11 @@
             class="w-full"
             :class="{ 'p-invalid': pathError }"
             @update:modelValue="validatePath"
+            @focus="onFocus"
           />
           <InputIcon
             class="pi pi-info-circle"
-            v-tooltip="$t('install.installLocationTooltip')"
+            v-tooltip.top="$t('install.installLocationTooltip')"
           />
         </IconField>
         <Button icon="pi pi-folder" @click="browsePath" class="w-12" />
@@ -81,6 +82,7 @@ const pathError = defineModel<string>('pathError', { required: true })
 const pathExists = ref(false)
 const appData = ref('')
 const appPath = ref('')
+const inputTouched = ref(false)
 
 const electron = electronAPI()
 
@@ -131,5 +133,14 @@ const browsePath = async () => {
   } catch (error) {
     pathError.value = t('install.failedToSelectDirectory')
   }
+}
+
+const onFocus = () => {
+  if (!inputTouched.value) {
+    inputTouched.value = true
+    return
+  }
+  // Refresh validation on re-focus
+  validatePath(installPath.value)
 }
 </script>

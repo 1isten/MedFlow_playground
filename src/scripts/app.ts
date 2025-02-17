@@ -10,7 +10,7 @@ import {
 import type { Rect, Vector2 } from '@comfyorg/litegraph'
 import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
-import { shallowReactive } from 'vue'
+import { reactive } from 'vue'
 
 import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st } from '@/i18n'
@@ -204,13 +204,13 @@ export class ComfyApp {
     this.vueAppReady = false
     this.ui = new ComfyUI(this)
     this.api = api
-    this.bodyTop = $el('div.comfyui-body-top', { parent: document.body })
-    this.bodyLeft = $el('div.comfyui-body-left', { parent: document.body })
-    this.bodyRight = $el('div.comfyui-body-right', { parent: document.body })
-    this.bodyBottom = $el('div.comfyui-body-bottom', { parent: document.body })
-    this.canvasContainer = $el('div.graph-canvas-container', {
-      parent: document.body
-    })
+    // Dummy placeholder elements before GraphCanvas is mounted.
+    this.bodyTop = $el('div.comfyui-body-top')
+    this.bodyLeft = $el('div.comfyui-body-left')
+    this.bodyRight = $el('div.comfyui-body-right')
+    this.bodyBottom = $el('div.comfyui-body-bottom')
+    this.canvasContainer = $el('div.graph-canvas-container')
+
     this.menu = new ComfyAppMenu(this)
     this.bypassBgColor = '#FF00FF'
 
@@ -787,6 +787,12 @@ export class ComfyApp {
    * Set up the app on the page
    */
   async setup(canvasEl: HTMLCanvasElement) {
+    this.bodyTop = document.getElementById('comfyui-body-top')
+    this.bodyLeft = document.getElementById('comfyui-body-left')
+    this.bodyRight = document.getElementById('comfyui-body-right')
+    this.bodyBottom = document.getElementById('comfyui-body-bottom')
+    this.canvasContainer = document.getElementById('graph-canvas-container')
+
     this.canvasEl = canvasEl
     this.resizeCanvas()
 
@@ -802,10 +808,10 @@ export class ComfyApp {
 
     this.#addAfterConfigureHandler()
 
-    // Make LGraphCanvas.state shallow reactive so that any change on the root
-    // object triggers reactivity.
     this.canvas = new LGraphCanvas(canvasEl, this.graph)
-    this.canvas.state = shallowReactive(this.canvas.state)
+    // Make canvas states reactive so we can observe changes on them.
+    this.canvas.state = reactive(this.canvas.state)
+    this.canvas.ds.state = reactive(this.canvas.ds.state)
 
     this.ctx = canvasEl.getContext('2d')
 
@@ -1154,7 +1160,7 @@ export class ComfyApp {
       const size = node.computeSize()
       size[0] = Math.max(node.size[0], size[0])
       size[1] = Math.max(node.size[1], size[1])
-      node.size = size
+      node.setSize(size)
       if (node.widgets) {
         // If you break something in the backend and want to patch workflows in the frontend
         // This is the place to do this

@@ -2,8 +2,11 @@
   <div
     class="absolute top-2 left-2 flex flex-col gap-2 pointer-events-auto z-20"
   >
-    <Button class="p-button-rounded p-button-text" @click="toggleCamera">
-      <i class="pi pi-camera text-white text-lg"></i>
+    <Button class="p-button-rounded p-button-text" @click="switchCamera">
+      <i
+        :class="['pi', getCameraIcon, 'text-white text-lg']"
+        v-tooltip.right="{ value: t('load3d.switchCamera'), showDelay: 300 }"
+      ></i>
     </Button>
 
     <Button
@@ -11,11 +14,17 @@
       :class="{ 'p-button-outlined': showGrid }"
       @click="toggleGrid"
     >
-      <i class="pi pi-table text-white text-lg"></i>
+      <i
+        class="pi pi-table text-white text-lg"
+        v-tooltip.right="{ value: t('load3d.showGrid'), showDelay: 300 }"
+      ></i>
     </Button>
 
     <Button class="p-button-rounded p-button-text" @click="openColorPicker">
-      <i class="pi pi-palette text-white text-lg"></i>
+      <i
+        class="pi pi-palette text-white text-lg"
+        v-tooltip.right="{ value: t('load3d.backgroundColor'), showDelay: 300 }"
+      ></i>
       <input
         type="color"
         ref="colorPickerRef"
@@ -27,12 +36,18 @@
       />
     </Button>
 
-    <div class="relative" v-if="showLightIntensityButton">
+    <div class="relative show-light-intensity" v-if="showLightIntensityButton">
       <Button
         class="p-button-rounded p-button-text"
         @click="toggleLightIntensity"
       >
-        <i class="pi pi-sun text-white text-lg"></i>
+        <i
+          class="pi pi-sun text-white text-lg"
+          v-tooltip.right="{
+            value: t('load3d.lightIntensity'),
+            showDelay: 300
+          }"
+        ></i>
       </Button>
       <div
         v-show="showLightIntensity"
@@ -50,9 +65,12 @@
       </div>
     </div>
 
-    <div class="relative" v-if="showFOVButton">
+    <div class="relative show-fov" v-if="showFOVButton">
       <Button class="p-button-rounded p-button-text" @click="toggleFOV">
-        <i class="pi pi-expand text-white text-lg"></i>
+        <i
+          class="pi pi-expand text-white text-lg"
+          v-tooltip.right="{ value: t('load3d.fov'), showDelay: 300 }"
+        ></i>
       </Button>
       <div
         v-show="showFOV"
@@ -78,6 +96,7 @@
             showPreview ? 'pi-eye' : 'pi-eye-slash',
             'text-white text-lg'
           ]"
+          v-tooltip.right="{ value: t('load3d.previewOutput'), showDelay: 300 }"
         ></i>
       </Button>
     </div>
@@ -85,9 +104,14 @@
 </template>
 
 <script setup lang="ts">
+import { Tooltip } from 'primevue'
 import Button from 'primevue/button'
 import Slider from 'primevue/slider'
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+
+import { t } from '@/i18n'
+
+const vTooltip = Tooltip
 
 const props = defineProps<{
   backgroundColor: string
@@ -98,10 +122,11 @@ const props = defineProps<{
   fov: number
   showFOVButton: boolean
   showPreviewButton: boolean
+  cameraType: 'perspective' | 'orthographic'
 }>()
 
 const emit = defineEmits<{
-  (e: 'toggleCamera'): void
+  (e: 'switchCamera'): void
   (e: 'toggleGrid', value: boolean): void
   (e: 'updateBackgroundColor', color: string): void
   (e: 'updateLightIntensity', value: number): void
@@ -121,8 +146,8 @@ const showFOV = ref(false)
 const showFOVButton = ref(props.showFOVButton)
 const showPreviewButton = ref(props.showPreviewButton)
 
-const toggleCamera = () => {
-  emit('toggleCamera')
+const switchCamera = () => {
+  emit('switchCamera')
 }
 
 const toggleGrid = () => {
@@ -162,11 +187,63 @@ const updateFOV = () => {
 const closeSlider = (e: MouseEvent) => {
   const target = e.target as HTMLElement
 
-  if (!target.closest('.relative')) {
-    showLightIntensity.value = false
+  if (!target.closest('.show-fov')) {
     showFOV.value = false
   }
+
+  if (!target.closest('.show-light-intensity')) {
+    showLightIntensity.value = false
+  }
 }
+
+watch(
+  () => props.backgroundColor,
+  (newValue) => {
+    backgroundColor.value = newValue
+  }
+)
+
+watch(
+  () => props.fov,
+  (newValue) => {
+    fov.value = newValue
+  }
+)
+
+watch(
+  () => props.lightIntensity,
+  (newValue) => {
+    lightIntensity.value = newValue
+  }
+)
+
+watch(
+  () => props.showFOVButton,
+  (newValue) => {
+    showFOVButton.value = newValue
+  }
+)
+
+watch(
+  () => props.showLightIntensityButton,
+  (newValue) => {
+    showLightIntensityButton.value = newValue
+  }
+)
+
+watch(
+  () => props.showPreviewButton,
+  (newValue) => {
+    showPreviewButton.value = newValue
+  }
+)
+
+watch(
+  () => props.showPreview,
+  (newValue) => {
+    showPreview.value = newValue
+  }
+)
 
 onMounted(() => {
   document.addEventListener('click', closeSlider)
@@ -176,13 +253,7 @@ onUnmounted(() => {
   document.removeEventListener('click', closeSlider)
 })
 
-defineExpose({
-  backgroundColor,
-  showGrid,
-  lightIntensity,
-  showLightIntensityButton,
-  fov,
-  showFOVButton,
-  showPreviewButton
+const getCameraIcon = computed(() => {
+  return props.cameraType === 'perspective' ? 'pi-camera' : 'pi-th-large'
 })
 </script>

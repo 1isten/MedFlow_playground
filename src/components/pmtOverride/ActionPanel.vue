@@ -133,7 +133,8 @@
           </div>
         </Popover>
         <Button
-          v-if="!loading && false"
+          v-if="!loading"
+          v-show="false"
           class="btn-term"
           size="small"
           :aria-label="'Terminal'"

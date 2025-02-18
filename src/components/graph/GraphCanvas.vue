@@ -33,9 +33,8 @@
     class="w-full h-full touch-none"
   />
   <NodeSearchboxPopover />
-  <SelectionOverlay>
-    <!-- Placeholder for selection overlay testing. -->
-    <!-- <div class="w-full h-full bg-red-500"></div> -->
+  <SelectionOverlay v-if="selectionToolboxEnabled">
+    <SelectionToolbox />
   </SelectionOverlay>
   <NodeTooltip v-if="tooltipEnabled" />
   <NodeBadge />
@@ -50,11 +49,13 @@ import GraphCanvasMenu from '@/components/graph/GraphCanvasMenu.vue'
 import NodeBadge from '@/components/graph/NodeBadge.vue'
 import NodeTooltip from '@/components/graph/NodeTooltip.vue'
 import SelectionOverlay from '@/components/graph/SelectionOverlay.vue'
+import SelectionToolbox from '@/components/graph/SelectionToolbox.vue'
 import TitleEditor from '@/components/graph/TitleEditor.vue'
 import ActionPanel from '@/components/pmtOverride/ActionPanel.vue'
 import NodeSearchboxPopover from '@/components/searchbox/NodeSearchBoxPopover.vue'
 import SideToolbar from '@/components/sidebar/SideToolbar.vue'
 import SecondRowWorkflowTabs from '@/components/topbar/SecondRowWorkflowTabs.vue'
+import { useChainCallback } from '@/composables/functional/useChainCallback'
 import { useCanvasDrop } from '@/composables/useCanvasDrop'
 import { useContextMenuTranslation } from '@/composables/useContextMenuTranslation'
 import { useCopy } from '@/composables/useCopy'
@@ -93,6 +94,9 @@ const canvasMenuEnabled = computed(() =>
   settingStore.get('Comfy.Graph.CanvasMenu')
 )
 const tooltipEnabled = computed(() => settingStore.get('Comfy.EnableTooltips'))
+const selectionToolboxEnabled = computed(() =>
+  settingStore.get('Comfy.Canvas.SelectionToolbox')
+)
 
 watchEffect(() => {
   nodeDefStore.showDeprecated = settingStore.get('Comfy.Node.ShowDeprecated')
@@ -197,6 +201,11 @@ onMounted(async () => {
   window['graph'] = comfyApp.graph
 
   // comfyAppReady.value = true
+
+  comfyApp.canvas.onSelectionChange = useChainCallback(
+    comfyApp.canvas.onSelectionChange,
+    () => canvasStore.updateSelectedItems()
+  )
 
   // Load color palette
   colorPaletteStore.customPalettes = settingStore.get(

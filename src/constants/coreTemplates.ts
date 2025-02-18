@@ -30,18 +30,11 @@ export const CORE_TEMPLATES = [
           'https://comfyanonymous.github.io/ComfyUI_examples/inpaint/'
       },
       {
-        name: 'yosemite_outpaint_example',
-        mediaType: 'image',
-        mediaSubtype: 'png',
-        tutorialUrl:
-          'https://comfyanonymous.github.io/ComfyUI_examples/inpaint/#outpainting'
-      },
-      {
         name: 'inpain_model_outpainting',
         mediaType: 'image',
         mediaSubtype: 'png',
         tutorialUrl:
-          'https://comfyanonymous.github.io/ComfyUI_examples/inpaint/'
+          'https://comfyanonymous.github.io/ComfyUI_examples/inpaint/#outpainting'
       },
       {
         name: 'embedding_example',
@@ -172,7 +165,7 @@ export const CORE_TEMPLATES = [
         mediaType: 'image',
         mediaSubtype: 'png',
         tutorialUrl:
-          'https://comfyanonymous.github.io/ComfyUI_examples/upscale_models/'
+          'https://comfyanonymous.github.io/ComfyUI_examples/2_pass_txt2img/'
       },
       {
         name: 'esrgan_example',
@@ -180,13 +173,6 @@ export const CORE_TEMPLATES = [
         mediaSubtype: 'png',
         tutorialUrl:
           'https://comfyanonymous.github.io/ComfyUI_examples/upscale_models/'
-      },
-      {
-        name: 'hiresfix_latent_workflow',
-        mediaType: 'image',
-        mediaSubtype: 'png',
-        tutorialUrl:
-          'https://comfyanonymous.github.io/ComfyUI_examples/2_pass_txt2img/'
       },
       {
         name: 'hiresfix_esrgan_workflow',

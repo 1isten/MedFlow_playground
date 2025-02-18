@@ -349,6 +349,7 @@ const zComboInputProps = zBaseInputSpecValue.extend({
   control_after_generate: z.boolean().optional(),
   image_upload: z.boolean().optional(),
   image_folder: z.enum(['input', 'output', 'temp']).optional(),
+  allow_batch: z.boolean().optional(),
   remote: zRemoteWidgetConfig.optional()
 })
 
@@ -590,7 +591,8 @@ const zSettings = z.record(z.any()).and(
       'LiteGraph.Canvas.MaximumFps': z.number(),
       'Comfy.Workflow.ConfirmDelete': z.boolean(),
       'Comfy.RerouteBeta': z.boolean(),
-      'LiteGraph.Canvas.LowQualityRenderingZoomThreshold': z.number()
+      'LiteGraph.Canvas.LowQualityRenderingZoomThreshold': z.number(),
+      'Comfy.Canvas.SelectionToolbox': z.boolean()
     })
     .optional()
 )

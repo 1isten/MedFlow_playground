@@ -378,6 +378,7 @@
     "ComfyUI Forum": "Forum ComfyUI",
     "ComfyUI Issues": "Problèmes de ComfyUI",
     "Convert selected nodes to group node": "Convertir les nœuds sélectionnés en nœud de groupe",
+    "Delete Selected Items": "Supprimer les éléments sélectionnés",
     "Desktop User Guide": "Guide de l'utilisateur de bureau",
     "Duplicate Current Workflow": "Dupliquer le flux de travail actuel",
     "Edit": "Éditer",
@@ -775,8 +776,7 @@
         "inpain_model_outpainting": "Modèle Inpaint Outpainting",
         "inpaint_example": "Inpaint",
         "lora": "Lora",
-        "lora_multiple": "Lora Multiple",
-        "yosemite_outpaint_example": "Yosemite Outpaint"
+        "lora_multiple": "Lora Multiple"
       },
       "ControlNet": {
         "2_pass_pose_worship": "2 Passes Pose Worship",

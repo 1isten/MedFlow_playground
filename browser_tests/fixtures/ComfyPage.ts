@@ -1,3 +1,4 @@
+import type { LGraphNode } from '@comfyorg/litegraph'
 import type { APIRequestContext, Locator, Page } from '@playwright/test'
 import { expect } from '@playwright/test'
 import { test as base } from '@playwright/test'
@@ -278,8 +279,8 @@ export class ComfyPage {
     await this.page.addStyleTag({
       content: `
       * {
-				font-family: 'Roboto Mono', 'Noto Color Emoji';
-			}`
+        font-family: 'Roboto Mono', 'Noto Color Emoji';
+      }`
     })
     await this.page.waitForFunction(() => document.fonts.ready)
     await this.page.waitForFunction(
@@ -646,6 +647,18 @@ export class ComfyPage {
     await this.nextFrame()
   }
 
+  async selectNodes(nodeTitles: string[]) {
+    await this.page.keyboard.down('Control')
+    for (const nodeTitle of nodeTitles) {
+      const nodes = await this.getNodeRefsByTitle(nodeTitle)
+      for (const node of nodes) {
+        await node.click('title')
+      }
+    }
+    await this.page.keyboard.up('Control')
+    await this.nextFrame()
+  }
+
   async select2Nodes() {
     // Select 2 CLIP nodes.
     await this.page.keyboard.down('Control')
@@ -835,12 +848,24 @@ export class ComfyPage {
       (
         await this.page.evaluate((type) => {
           return window['app'].graph.nodes
-            .filter((n) => n.type === type)
-            .map((n) => n.id)
+            .filter((n: LGraphNode) => n.type === type)
+            .map((n: LGraphNode) => n.id)
         }, type)
       ).map((id: NodeId) => this.getNodeRefById(id))
     )
   }
+  async getNodeRefsByTitle(title: string): Promise<NodeReference[]> {
+    return Promise.all(
+      (
+        await this.page.evaluate((title) => {
+          return window['app'].graph.nodes
+            .filter((n: LGraphNode) => n.title === title)
+            .map((n: LGraphNode) => n.id)
+        }, title)
+      ).map((id: NodeId) => this.getNodeRefById(id))
+    )
+  }
+
   async getFirstNodeRef(): Promise<NodeReference | null> {
     const id = await this.page.evaluate(() => {
       return window['app'].graph.nodes[0]?.id
@@ -885,10 +910,10 @@ export class ComfyPage {
 }
 
 export const comfyPageFixture = base.extend<{ comfyPage: ComfyPage }>({
-  comfyPage: async ({ page, request }, use) => {
+  comfyPage: async ({ page, request }, use, testInfo) => {
     const comfyPage = new ComfyPage(page, request)
 
-    const { parallelIndex } = comfyPageFixture.info()
+    const { parallelIndex } = testInfo
     const username = `playwright-test-${parallelIndex}`
     const userId = await comfyPage.setupUser(username)
     comfyPage.userIds[parallelIndex] = userId
@@ -896,9 +921,10 @@ export const comfyPageFixture = base.extend<{ comfyPage: ComfyPage }>({
     try {
       await comfyPage.setupSettings({
         'Comfy.UseNewMenu': 'Disabled',
-        // Hide canvas menu/info by default.
+        // Hide canvas menu/info/selection toolbox by default.
         'Comfy.Graph.CanvasInfo': false,
         'Comfy.Graph.CanvasMenu': false,
+        'Comfy.Canvas.SelectionToolbox': false,
         // Hide all badges by default.
         'Comfy.NodeBadge.NodeIdBadgeMode': NodeBadgeMode.None,
         'Comfy.NodeBadge.NodeSourceBadgeMode': NodeBadgeMode.None,

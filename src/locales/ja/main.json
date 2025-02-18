@@ -378,6 +378,7 @@
     "ComfyUI Forum": "ComfyUI フォーラム",
     "ComfyUI Issues": "ComfyUIの問題",
     "Convert selected nodes to group node": "選択したノードをグループノードに変換",
+    "Delete Selected Items": "選択したアイテムを削除",
     "Desktop User Guide": "デスクトップユーザーガイド",
     "Duplicate Current Workflow": "現在のワークフローを複製",
     "Edit": "編集",
@@ -775,8 +776,7 @@
         "inpain_model_outpainting": "InpaintモデルのOutpainting",
         "inpaint_example": "Inpaint",
         "lora": "Lora",
-        "lora_multiple": "Lora複数",
-        "yosemite_outpaint_example": "Yosemite Outpaint"
+        "lora_multiple": "Lora複数"
       },
       "ControlNet": {
         "2_pass_pose_worship": "2 Pass Pose Worship",

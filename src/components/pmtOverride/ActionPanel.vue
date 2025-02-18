@@ -1132,12 +1132,6 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       } else {
         //
       }
-    } else {
-      if (node.pmt_fields?.status) {
-        pmt_fields.status = node.pmt_fields.status
-      } else {
-        // pmt_fields.status = 'pending'
-      }
     }
     if (pmt_fields.type === 'manual') {
       //
@@ -1155,6 +1149,11 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       // pmt_fields.status = null
     }
     if (keepStatus) {
+      if (node.pmt_fields?.status) {
+        pmt_fields.status = node.pmt_fields.status
+      } else {
+        // pmt_fields.status = 'pending'
+      }
       if (runningMode.value === 'to-node') {
         if (nodesSelectedCount.value === 1) {
           if (node === nodesSelected.value[0]) {

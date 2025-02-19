@@ -208,7 +208,7 @@ import Textarea from 'primevue/textarea'
 import Toast from 'primevue/toast'
 import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
-import { computed, onMounted, onUnmounted, ref, shallowRef } from 'vue'
+import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
@@ -954,6 +954,39 @@ const confirmSave = (e) => {
     reject: () => {}
   })
 }
+
+function saveCheckpoints(nodeId, checked) {
+  let updatedCount = 0
+  pipelineWorkflow.value?.nodes?.forEach((node) => {
+    if (node.id === nodeId) {
+      if (checked) {
+        node.pmt_fields.checkpoint = checked
+      } else {
+        delete node.pmt_fields.checkpoint
+      }
+      updatedCount++
+    }
+  })
+  if (updatedCount) {
+    updatePipeline({
+      ...pipeline.value,
+      workflow: JSON.stringify(pipelineWorkflow.value)
+    })
+  }
+}
+watch(
+  loading,
+  () => {
+    if (loading.value) {
+      return
+    }
+    const saveBtn = document.querySelector('.btn-sav')
+    if (saveBtn) {
+      saveBtn.saveCheckpoints = saveCheckpoints
+    }
+  },
+  { flush: 'post' }
+)
 
 const deleting = ref(false)
 const delBtn = ref()

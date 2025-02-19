@@ -620,6 +620,97 @@ onMounted(async () => {
           {}
         )
       }
+
+      if (node?.comfyClass === 'plugin.tags_deident.main') {
+        const div = document.createElement('div')
+        div.innerHTML = `
+          <div x-data class="w-full h-full overflow-auto">
+            <table class="w-full text-xs text-stone-300 whitespace-nowrap">
+              <tbody class="tabular-nums">
+                <template x-for="tag in [
+                  { key: '0010,0010', name: 'Patient Name' },
+                  { key: '0010,0030', name: 'Patient Birth Date' },
+                  { key: '0010,0040', name: 'Patient Sex' },
+                  { key: '0010,1010', name: 'Patient Age' },
+                  { key: '0010,1030', name: 'Patient Weight' },
+                  { key: '0010,1040', name: 'Patient Address' },
+
+                  { key: '0008,0020', name: 'Study Date' },
+                  { key: '0008,0030', name: 'Study Time' },
+                  { key: '0020,0010', name: 'Study ID' },
+                  { key: '0008,0060', name: 'Study Modality' },
+                  { key: '0008,1030', name: 'Study Description' },
+
+                  { key: '0008,0021', name: 'Series Date' },
+                  { key: '0008,0031', name: 'Series Time' },
+                  { key: '0008,103E', name: 'Series Description' },
+                ]">
+                  <tr>
+                    <td class="w-0 pr-1">(<span x-text="tag.key"></span>)</td>
+                    <td class="w-0 pr-1"><span x-text="tag.name"></span></td>
+                    <td class="w-full pl-1">
+                      <input value="Anonymous" class="block w-full border-b border-transparent focus:border-b-white bg-neutral-800 text-neutral-300 text-xs" />
+                    </td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        `
+        const widget = node.addDOMWidget(
+          'deident-tags-list',
+          'deident-tags-list',
+          div,
+          {}
+        )
+        requestAnimationFrame(() => {
+          node.setSize([360, 250])
+          node.setDirtyCanvas(true)
+        })
+      }
+      if (node?.comfyClass === 'plugin.head_deident.manual_qna') {
+        const div = document.createElement('div')
+        div.innerHTML = `
+          <ol x-data class="w-full h-full overflow-hidden flex flex-col pl-5 m-0 text-xs text-neutral-300">
+            <li class="mb-2">
+              Does the face identifiable?
+              <div class="flex items-center mt-1">
+                <label class="inline-flex items-center mr-2">
+                  <input type="radio" name="face_identifiable" value="yes" class="m-0 mr-1" />
+                  Yes
+                </label>
+                <label class="inline-flex items-center mr-2">
+                  <input type="radio" name="face_identifiable" value="no" class="m-0 mr-1" />
+                  No
+                </label>
+              </div>
+            </li>
+            <li class="mb-2">
+              Does the anatomical information intact?
+              <div class="flex items-center mt-1">
+                <label class="inline-flex items-center mr-2">
+                  <input type="radio" name="anatomical_info_intact" value="yes" class="m-0 mr-1" />
+                  Yes
+                </label>
+                <label class="inline-flex items-center mr-2">
+                  <input type="radio" name="anatomical_info_intact" value="no" class="m-0 mr-1" />
+                  No
+                </label>
+              </div>
+            </li>
+          </ol>
+        `
+        const widget = node.addDOMWidget(
+          'head-manual-qna',
+          'head-manual-qna',
+          div,
+          {}
+        )
+        requestAnimationFrame(() => {
+          node.setSize([260, 130])
+          node.setDirtyCanvas(true)
+        })
+      }
     }
   })
 

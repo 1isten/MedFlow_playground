@@ -451,7 +451,7 @@ export class ComfyApi extends EventTarget {
       if (objectInfoPlugins) {
         for (const key in objectInfoUnsafe) {
           if (
-            key.startsWith('plugin.') ||
+            // key.startsWith('plugin.') ||
             key.startsWith('manual.') ||
             key.startsWith('rag_llm.')
           ) {

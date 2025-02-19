@@ -1733,4 +1733,8 @@ async function langchainChat(langchain_json) {
 div.comfy-menu.no-drag {
   display: none !important;
 }
+
+[data-testid='bypass-button'] {
+  display: none !important;
+}
 </style>

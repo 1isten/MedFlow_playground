@@ -1357,21 +1357,27 @@ function handleStreamChunk(chunk) {
                 node.pmt_fields.outputs[o].oid = Array.isArray(
                   node.pmt_fields.outputs[o].oid
                 )
-                  ? [oid]
+                  ? Array.isArray(oid)
+                    ? oid
+                    : [oid]
                   : oid
               }
               if (path) {
                 node.pmt_fields.outputs[o].path = Array.isArray(
                   node.pmt_fields.outputs[o].path
                 )
-                  ? [path]
+                  ? Array.isArray(path)
+                    ? path
+                    : [path]
                   : path
               }
               if (value) {
                 node.pmt_fields.outputs[o].value = Array.isArray(
                   node.pmt_fields.outputs[o].value
                 )
-                  ? [value]
+                  ? Array.isArray(value)
+                    ? value
+                    : [value]
                   : value
               }
             })

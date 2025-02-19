@@ -836,8 +836,8 @@
   "plugin.head_deident.manual_qna": {
     "name": "plugin.head_deident.manual_qna",
     "category": "plugins/head_deident",
-    "display_name": "Head Q & A",
-    "description": "Manual Q & A.",
+    "display_name": "Head Q&A",
+    "description": "Manual Q&A",
     "python_module": "custom_nodes.head_deident.manual_qna",
     "input": {
       "required": {
@@ -863,13 +863,13 @@
     "input": {
       "required": {
         "NIFTI_FILE": ["NIFTI_FILE"],
-        "QnA": ["DICT"]
+        "QA": ["DICT"]
       }
     },
     "input_order": {
       "required": [
         "NIFTI_FILE",
-        "QnA"
+        "QA"
       ]
     },
     "output": ["NIFTI_FILE"],

@@ -1163,7 +1163,11 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             pmt_fields.outputs[0].value || pmt_fields.args.textarea
         }
       } else {
-        //
+        delete pmt_fields.outputs[0].level
+      }
+    } else if (keepStatus) {
+      if (node.pmt_fields?.outputs) {
+        pmt_fields.outputs = merge(pmt_fields.outputs, node.pmt_fields.outputs)
       }
     }
     if (pmt_fields.type === 'manual') {

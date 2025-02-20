@@ -5,11 +5,17 @@
     "successMessage": "Скопировано в буфер обмена"
   },
   "color": {
+    "black": "Черный",
     "blue": "Синий",
+    "brown": "Коричневый",
     "custom": "Пользовательский",
+    "cyan": "Голубой",
     "default": "По умолчанию",
     "green": "Зелёный",
+    "noColor": "Без цвета",
+    "pale_blue": "Бледно-синий",
     "pink": "Розовый",
+    "purple": "Фиолетовый",
     "red": "Красный",
     "yellow": "Жёлтый"
   },
@@ -654,9 +660,9 @@
       "ready": "Завершение…",
       "starting-server": "Запуск сервера ComfyUI…"
     },
-    "reinstall": "Переустановить",
     "reportIssue": "Сообщить о проблеме",
-    "showTerminal": "Показать терминал"
+    "showTerminal": "Показать терминал",
+    "troubleshoot": "Устранение неполадок"
   },
   "settingsCategories": {
     "About": "О программе",

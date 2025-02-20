@@ -47,6 +47,7 @@ useExtensionService().registerExtension({
       }
       return widget
     }
+    // const widget = getiFrameWidget()
 
     const _onDrawBackground = node.onDrawBackground
     node.onDrawBackground = function (...args) {

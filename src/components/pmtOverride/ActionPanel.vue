@@ -1122,7 +1122,7 @@ function exportJson(download = true, keepStatus = true) {
     const a = document.createElement('a')
     a.href = url
     a.target = '_blank'
-    a.download = 'workflow.json'
+    a.download = `${pipeline.value.name || 'workflow'}.json`
     a.click()
     return URL.revokeObjectURL(url)
   }

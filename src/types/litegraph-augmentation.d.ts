@@ -1,7 +1,7 @@
 import '@comfyorg/litegraph'
 import type { LLink, Size } from '@comfyorg/litegraph'
 
-import type { DOMWidget } from '@/scripts/domWidget'
+import type { DOMWidget, DOMWidgetOptions } from '@/scripts/domWidget'
 import type { ComfyNodeDef } from '@/types/apiTypes'
 
 import type { NodeId } from './comfyWorkflow'
@@ -11,6 +11,12 @@ declare module '@comfyorg/litegraph/dist/types/widgets' {
   interface IWidgetOptions {
     /** Currently used by DOM widgets only.  Declaring here reduces complexity. */
     onHide?: (widget: DOMWidget) => void
+    /**
+     * Controls whether the widget's value is included in the API workflow/prompt.
+     * - If false, the value will be excluded from the API workflow but still serialized as part of the graph state
+     * - If true or undefined, the value will be included in both the API workflow and graph state
+     */
+    serialize?: boolean
   }
 
   interface IBaseWidget {
@@ -68,12 +74,17 @@ declare module '@comfyorg/litegraph' {
     onGraphConfigured?(): void
     onExecuted?(output: any): void
     onNodeCreated?(this: LGraphNode): void
+    /** @deprecated groupNode */
     setInnerNodes?(nodes: LGraphNode[]): void
+    /** Originally a group node API. */
     getInnerNodes?(): LGraphNode[]
+    /** @deprecated groupNode */
     convertToNodes?(): LGraphNode[]
     recreate?(): Promise<LGraphNode>
     refreshComboInNode?(defs: Record<string, ComfyNodeDef>)
+    /** Used by virtual nodes (primitives) to insert their values into the graph prior to queueing. */
     applyToGraph?(extraLinks?: LLink[]): void
+    /** @deprecated groupNode */
     updateLink?(link: LLink): LLink | null
     onExecutionStart?(): unknown
     /**
@@ -101,16 +112,25 @@ declare module '@comfyorg/litegraph' {
      */
     isVirtualNode?: boolean
 
-    addDOMWidget(
+    addDOMWidget<
+      T extends HTMLElement = HTMLElement,
+      V extends object | string = string
+    >(
       name: string,
       type: string,
-      element: HTMLElement,
-      options?: Record<string, any>
-    ): DOMWidget
+      element: T,
+      options?: DOMWidgetOptions<T, V>
+    ): DOMWidget<T, V>
 
     animatedImages?: boolean
     imgs?: HTMLImageElement[]
     images?: ExecutedWsMessage['output']
+    /** Container for the node's video preview */
+    videoContainer?: HTMLElement
+    /** Whether the node's preview media is loading */
+    isLoading?: boolean
+    /** The content type of the node's preview media */
+    previewMediaType?: 'image' | 'video' | 'audio' | 'model'
 
     preview: string[]
     /** Index of the currently selected image on a multi-image node such as Preview Image */
@@ -123,7 +143,7 @@ declare module '@comfyorg/litegraph' {
     /** @deprecated Unused */
     inputHeight?: unknown
 
-    /** @deprecated Unused */
+    /** The y offset of the image preview to the top of the node body. */
     imageOffset?: number
     /** Callback for pasting an image file into the node */
     pasteFile?(file: File): void
@@ -136,32 +156,11 @@ declare module '@comfyorg/litegraph' {
  * Extended types for litegraph, to be merged upstream once it has stabilized.
  */
 declare module '@comfyorg/litegraph' {
-  interface INodeInputSlot {
-    pos?: [number, number]
-  }
-
+  /**
+   * widgets_values is set to LGraphNode by `LGraphNode.configure`, but it is not
+   * used by litegraph internally. We should remove the dependency on it later.
+   */
   interface LGraphNode {
     widgets_values?: unknown[]
-  }
-
-  interface LGraphCanvas {
-    /** This is in the litegraph types but has incorrect return type */
-    isOverNodeInput(
-      node: LGraphNode,
-      canvasX: number,
-      canvasY: number,
-      slotPos: Vector2
-    ): number
-
-    isOverNodeOutput(
-      node: LGraphNode,
-      canvasX: number,
-      canvasY: number,
-      slotPos: Vector2
-    ): number
-  }
-
-  interface ContextMenu {
-    root?: HTMLDivElement
   }
 }

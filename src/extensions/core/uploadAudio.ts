@@ -2,6 +2,10 @@
 import type { IWidget } from '@comfyorg/litegraph'
 import type { IStringWidget } from '@comfyorg/litegraph/dist/types/widgets'
 
+import { useNodeDragAndDrop } from '@/composables/node/useNodeDragAndDrop'
+import { useNodeFileInput } from '@/composables/node/useNodeFileInput'
+import { useNodePaste } from '@/composables/node/useNodePaste'
+import { t } from '@/i18n'
 import type { DOMWidget } from '@/scripts/domWidget'
 import { useToastStore } from '@/stores/toastStore'
 import { ComfyNodeDef } from '@/types/apiTypes'
@@ -179,26 +183,41 @@ app.registerExtension({
           }
         }
 
-        const fileInput = document.createElement('input')
-        fileInput.type = 'file'
-        fileInput.accept = 'audio/*'
-        fileInput.style.display = 'none'
-        fileInput.onchange = () => {
-          if (fileInput.files.length) {
-            uploadFile(audioWidget, audioUIWidget, fileInput.files[0], true)
+        const handleUpload = async (files: File[]) => {
+          if (files?.length) {
+            uploadFile(audioWidget, audioUIWidget, files[0], true)
           }
+          return files
         }
+
+        const isAudioFile = (file: File) => file.type.startsWith('audio/')
+
+        const { openFileSelection } = useNodeFileInput(node, {
+          accept: 'audio/*',
+          onSelect: handleUpload
+        })
+
         // The widget to pop up the upload dialog.
         const uploadWidget = node.addWidget(
           'button',
           inputName,
-          /* value=*/ '',
-          () => {
-            fileInput.click()
-          },
+          '',
+          openFileSelection,
           { serialize: false }
         )
-        uploadWidget.label = 'choose file to upload'
+        uploadWidget.label = t('g.choose_file_to_upload')
+
+        useNodeDragAndDrop(node, {
+          fileFilter: isAudioFile,
+          onDrop: handleUpload
+        })
+
+        useNodePaste(node, {
+          fileFilter: isAudioFile,
+          onPaste: handleUpload
+        })
+
+        node.previewMediaType = 'audio'
 
         return { widget: uploadWidget }
       }

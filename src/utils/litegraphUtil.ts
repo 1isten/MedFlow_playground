@@ -1,15 +1,34 @@
-import type { ColorOption, IWidget } from '@comfyorg/litegraph'
-import { LGraphNode, isColorable } from '@comfyorg/litegraph'
+import type { ColorOption } from '@comfyorg/litegraph'
+import {
+  LGraphGroup,
+  LGraphNode,
+  LiteGraph,
+  isColorable
+} from '@comfyorg/litegraph'
 import type { IComboWidget } from '@comfyorg/litegraph/dist/types/widgets'
 import _ from 'lodash'
 
-export function isImageNode(node: LGraphNode) {
+type ImageNode = LGraphNode & { imgs: HTMLImageElement[] | undefined }
+type VideoNode = LGraphNode & {
+  videoContainer: HTMLElement | undefined
+  imgs: HTMLVideoElement[] | undefined
+}
+
+export function isImageNode(node: LGraphNode | undefined): node is ImageNode {
+  if (!node) return false
   return (
-    node.imgs ||
-    (node &&
-      node.widgets &&
-      node.widgets.findIndex((obj: IWidget) => obj.name === 'image') >= 0)
+    node.previewMediaType === 'image' ||
+    (node.previewMediaType !== 'video' && !!node.imgs?.length)
   )
+}
+
+export function isVideoNode(node: LGraphNode | undefined): node is VideoNode {
+  if (!node) return false
+  return node.previewMediaType === 'video' || !!node.videoContainer
+}
+
+export function isAudioNode(node: LGraphNode | undefined): boolean {
+  return !!node && node.previewMediaType === 'audio'
 }
 
 export function addToComboValues(widget: IComboWidget, value: string) {
@@ -21,8 +40,11 @@ export function addToComboValues(widget: IComboWidget, value: string) {
 }
 
 export const isLGraphNode = (item: unknown): item is LGraphNode => {
-  const name = item?.constructor?.name
-  return name === 'ComfyNode' || name === 'LGraphNode'
+  return item instanceof LGraphNode
+}
+
+export const isLGraphGroup = (item: unknown): item is LGraphGroup => {
+  return item instanceof LGraphGroup
 }
 
 /**
@@ -41,4 +63,35 @@ export const getItemsColorOption = (items: unknown[]): ColorOption | null => {
   )
     ? _.head(colorOptions)!
     : null
+}
+
+export function executeWidgetsCallback(
+  nodes: LGraphNode[],
+  callbackName: 'onRemove' | 'beforeQueued' | 'afterQueued'
+) {
+  for (const node of nodes) {
+    for (const widget of node.widgets ?? []) {
+      widget[callbackName]?.()
+    }
+  }
+}
+
+export function getImageTop(node: LGraphNode) {
+  let shiftY: number
+  if (node.imageOffset != null) {
+    return node.imageOffset
+  } else if (node.widgets?.length) {
+    const w = node.widgets[node.widgets.length - 1]
+    shiftY = w.last_y ?? 0
+    if (w.computeSize) {
+      shiftY += w.computeSize()[1] + 4
+    } else if (w.computedHeight) {
+      shiftY += w.computedHeight
+    } else {
+      shiftY += LiteGraph.NODE_WIDGET_HEIGHT + 4
+    }
+  } else {
+    return node.computeSize()[1]
+  }
+  return shiftY
 }

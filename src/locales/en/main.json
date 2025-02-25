@@ -74,7 +74,11 @@
     "success": "Success",
     "ok": "OK",
     "feedback": "Feedback",
-    "continue": "Continue"
+    "continue": "Continue",
+    "control_after_generate": "control after generate",
+    "control_before_generate": "control before generate",
+    "choose_file_to_upload": "choose file to upload",
+    "capture": "capture"
   },
   "issueReport": {
     "submitErrorReport": "Submit Error Report (Optional)",
@@ -847,6 +851,13 @@
     "fov": "FOV",
     "previewOutput": "Preview Output",
     "uploadBackgroundImage": "Upload Background Image",
-    "removeBackgroundImage": "Remove Background Image"
+    "removeBackgroundImage": "Remove Background Image",
+    "loadingModel": "Loading 3D Model...",
+    "upDirection": "Up Direction",
+    "materialMode": "Material Mode",
+    "scene": "Scene",
+    "model": "Model",
+    "camera": "Camera",
+    "light": "Light"
   }
 }

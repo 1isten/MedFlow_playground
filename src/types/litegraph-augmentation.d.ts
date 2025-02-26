@@ -82,8 +82,6 @@ declare module '@comfyorg/litegraph' {
     convertToNodes?(): LGraphNode[]
     recreate?(): Promise<LGraphNode>
     refreshComboInNode?(defs: Record<string, ComfyNodeDef>)
-    /** Used by virtual nodes (primitives) to insert their values into the graph prior to queueing. */
-    applyToGraph?(extraLinks?: LLink[]): void
     /** @deprecated groupNode */
     updateLink?(link: LLink): LLink | null
     onExecutionStart?(): unknown
@@ -149,6 +147,14 @@ declare module '@comfyorg/litegraph' {
     pasteFile?(file: File): void
     /** Callback for pasting multiple files into the node */
     pasteFiles?(files: File[]): void
+  }
+  /**
+   * Only used by the Primitive node. Primitive node is using the widget property
+   * to store/access the widget config.
+   * We should remove this hacky solution once we have a proper solution.
+   */
+  interface INodeOutputSlot {
+    widget?: IWidget
   }
 }
 

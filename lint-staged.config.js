@@ -13,6 +13,9 @@ export default {
 
 function formatAndEslint(files) {
   const fileNames = micromatch.not(files, ['**/public/**/*.{js,css}'])
+  if (fileNames.length === 0) {
+    return []
+  }
   return [
     `eslint --fix ${fileNames.join(' ')}`,
     `prettier --write ${fileNames.join(' ')}`

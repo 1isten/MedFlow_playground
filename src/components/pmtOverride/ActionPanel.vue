@@ -176,7 +176,6 @@
         :draggable="false"
       />
       <ConfirmPopup group="confirm_saving" />
-      <Toast />
     </Panel>
     <div
       class="terminal-container pointer-events-none"
@@ -205,9 +204,7 @@ import Menu from 'primevue/menu'
 import Panel from 'primevue/panel'
 import Popover from 'primevue/popover'
 import Textarea from 'primevue/textarea'
-import Toast from 'primevue/toast'
 import { useConfirm } from 'primevue/useconfirm'
-import { useToast } from 'primevue/usetoast'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -216,6 +213,7 @@ import { app as comfyApp } from '@/scripts/app'
 import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
 import { SYSTEM_NODE_DEFS, useNodeDefStore } from '@/stores/nodeDefStore'
+import { useToastStore } from '@/stores/toastStore'
 
 let decodeMultiStream = (stream) => {
   console.warn('MessagePack not found')
@@ -772,13 +770,39 @@ onUnmounted(() => {
 })
 
 function onDrop(e) {
-  console.log('Drop:', JSON.parse(e.dataTransfer.getData('text') || 'null'))
-  // ...
-
+  if (e.dataTransfer.files.length) {
+    const file = e.dataTransfer.files[0]
+    if (file.type === 'application/json' || file.name?.endsWith('.json')) {
+      const reader = new FileReader()
+      reader.onload = async () => {
+        const readerResult = reader.result
+        const jsonContent = JSON.parse(readerResult)
+        if (jsonContent?.plugin_name) {
+          // pmt plugin config
+          try {
+            // eslint-disable-next-line no-undef
+            const defs = $pluginConfig2ComfyNodeDefs(jsonContent, false)
+            comfyApp.registerNodes(defs)
+            toast.add({
+              severity: 'info',
+              summary: 'Update',
+              detail: 'Update requested',
+              life: 3000
+            })
+          } catch (err) {
+            console.error(err)
+          }
+        }
+      }
+      reader.readAsText(file)
+    }
+  } else {
+    // console.log('Drop:', JSON.parse(e.dataTransfer.getData('text') || 'null'))
+  }
   e.preventDefault()
 }
 
-const toast = useToast()
+const toast = useToastStore()
 const confirm = useConfirm()
 
 const runMenu = ref()
@@ -1018,7 +1042,7 @@ async function save() {
   toast.add({
     severity: 'success',
     summary: 'Saved',
-    detail: 'Changes have been saved!',
+    detail: 'Changes have been saved',
     life: 3000
   })
 }

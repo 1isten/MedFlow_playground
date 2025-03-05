@@ -10,6 +10,7 @@ export default [
   },
   {
     ignores: [
+      'public/**/*.js',
       'src/scripts/*',
       'src/extensions/core/*',
       'src/types/vue-shim.d.ts'

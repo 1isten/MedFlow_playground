@@ -1,52 +1,6 @@
 'use strict'
 ;(function () {
   // npx esbuild shared\utils\pluginConfig2ComfyNodeDefs.ts --minify
-  function pluginConfig2ComfyNodeDefs(i, s = !0) {
-    const p = {}
-    if (!i || !i.functions) return p
-    i.functions.forEach((n) => {
-      const e = {
-          name: `plugin.${i.plugin_name}.${n.function_name}`,
-          category: `plugins/${i.plugin_name}`,
-          display_name: n.display_name,
-          description: n.description,
-          python_module: `custom_nodes.${i.plugin_name}.${n.function_name}`,
-          input: {},
-          input_order: {},
-          output: [],
-          output_name: [],
-          output_is_list: [],
-          output_node: !1
-        },
-        o = e.input,
-        u = e.input_order
-      n.input?.source &&
-        n.input?.source.forEach((t) => {
-          o.required || (o.required = {}),
-            (o.required[t.name] = [t.type]),
-            t.options && o.required[t.name].push(t.options),
-            u.required || (u.required = []),
-            u.required.push(t.name)
-        }),
-        n.input?.args &&
-          n.input?.args.forEach((t) => {
-            o.optional || (o.optional = {}),
-              (o.optional[t.name] = [t.type]),
-              t.options && o.optional[t.name].push(t.options),
-              u.optional || (u.optional = []),
-              u.optional.push(t.name)
-          })
-      const r = e.output,
-        l = e.output_name,
-        d = e.output_is_list
-      n.output &&
-        n.output.forEach((t) => {
-          r.push(t.type), l.push(t.name), d.push(!1)
-        }),
-        (p[e.name] = e)
-    })
-    const a = JSON.stringify(p, null, 2)
-    return s && console.log(a), JSON.parse(a)
-  }
+  function pluginConfig2ComfyNodeDefs(i,s=!0){const p={};if(!i||!i.functions)return p;i.functions.forEach(n=>{const e={name:`plugin.${i.plugin_name}.${n.function_name}`,category:`plugins/${i.plugin_name}`,display_name:n.display_name,description:n.description,python_module:`custom_nodes.${i.plugin_name}.${n.function_name}`,input:{},input_order:{},output:[],output_name:[],output_is_list:[],output_node:!1},o=e.input,u=e.input_order;n.input?.source&&n.input?.source.forEach(t=>{o.required||(o.required={}),o.required[t.name]=[t.type],t.options&&o.required[t.name].push(t.options),u.required||(u.required=[]),u.required.push(t.name)}),n.input?.args&&n.input?.args.forEach(t=>{o.optional||(o.optional={}),o.optional[t.name]=[t.type],t.options&&o.optional[t.name].push(t.options),u.optional||(u.optional=[]),u.optional.push(t.name)});const r=e.output,l=e.output_name,d=e.output_is_list;n.output&&n.output.forEach(t=>{r.push(t.type),l.push(t.name),d.push(!1)}),p[e.name]=e});const a=JSON.stringify(p,null,2);return s&&console.log(a),JSON.parse(a)}
   window.$pluginConfig2ComfyNodeDefs = pluginConfig2ComfyNodeDefs
 })()

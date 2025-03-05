@@ -738,10 +738,13 @@ onMounted(async () => {
   if (window.Terminal) {
     const Terminal = window.Terminal
     const FitAddon = window.FitAddon.FitAddon
+    const SerializeAddon = window.SerializeAddon.SerializeAddon
 
     const term = new Terminal()
     const fitAddon = new FitAddon()
+    const serializeAddon = new SerializeAddon()
     term.loadAddon(fitAddon)
+    term.loadAddon(serializeAddon)
 
     term.open(document.getElementById('terminal'))
     fitAddon.fit()

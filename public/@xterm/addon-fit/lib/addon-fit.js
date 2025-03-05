@@ -70,4 +70,4 @@
     )
   })()
 )
-//# sourceMappingURL=xterm-addon-fit.js.map
+//# sourceMappingURL=addon-fit.js.map

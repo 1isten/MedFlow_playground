@@ -928,9 +928,7 @@ export class ComfyApp {
   /**
    * Registers nodes with the graph
    */
-  async registerNodes(
-    customNodeDefs?: Record<string, ComfyNodeDefV1 & ComfyNodeDefV2>
-  ) {
+  async registerNodes(customNodeDefs?: Record<string, ComfyNodeDefV1>) {
     // Load node definitions from the backend
     const defs = customNodeDefs || (await this.#getNodeDefs())
     await this.registerNodesFromDefs(defs)

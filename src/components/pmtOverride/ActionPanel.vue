@@ -214,6 +214,7 @@ import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
 import { SYSTEM_NODE_DEFS, useNodeDefStore } from '@/stores/nodeDefStore'
 import { useToastStore } from '@/stores/toastStore'
+import { useWorkflowStore } from '@/stores/workflowStore'
 
 let decodeMultiStream = (stream) => {
   console.warn('MessagePack not found')
@@ -221,6 +222,8 @@ let decodeMultiStream = (stream) => {
 }
 
 const nodeDefStore = useNodeDefStore()
+const workflowStore = useWorkflowStore()
+const workflowService = useWorkflowService()
 
 const route = useRoute()
 const router = useRouter()
@@ -360,7 +363,7 @@ onMounted(async () => {
               return window.location.reload()
             }
             await useCommandStore().execute('Comfy.RefreshNodeDefinitions')
-            useWorkflowService().reloadCurrentWorkflow()
+            workflowService.reloadCurrentWorkflow()
           }
         },
         {
@@ -716,12 +719,18 @@ onMounted(async () => {
 
   if (pipelineId) {
     // console.log('saved pipelines:', pipelines.value)
-  } else if (workflow_name && workflow_name in presets) {
-    comfyApp.graph.configure(JSON.parse(presets[workflow_name]))
   } else {
-    comfyApp.graph.configure(
-      JSON.parse(sessionStorage.getItem('workflow') || presets.default)
+    const workflowData =
+      workflow_name && workflow_name in presets
+        ? JSON.parse(presets[workflow_name])
+        : JSON.parse(sessionStorage.getItem('workflow') || presets.default)
+    const workflow = workflowStore.createTemporary(
+      `pmt/${workflowStore.activeWorkflow.key}`,
+      workflowData
     )
+    workflowStore.closeWorkflow(workflowStore.activeWorkflow).then(() => {
+      workflowService.openWorkflow(workflow)
+    })
   }
 
   if (window.MessagePack) {
@@ -785,13 +794,9 @@ function onDrop(e) {
           try {
             // eslint-disable-next-line no-undef
             const defs = $pluginConfig2ComfyNodeDefs(jsonContent, false)
-            comfyApp.registerNodes(defs)
-            toast.add({
-              severity: 'info',
-              summary: 'Update',
-              detail: 'Update requested',
-              life: 3000
-            })
+            await comfyApp.registerNodes(defs)
+            await useCommandStore().execute('Comfy.RefreshNodeDefinitions')
+            workflowService.reloadCurrentWorkflow()
           } catch (err) {
             console.error(err)
           }
@@ -1570,6 +1575,7 @@ function handleGetPipeline(payload) {
   } else {
     return
   }
+  pipelineName.value = payload.name || pipelineName.value
   pipeline.value.name = payload.name
   pipeline.value.description = payload.description
   pipeline.value.color = payload.color
@@ -1580,12 +1586,19 @@ function handleGetPipeline(payload) {
     delete pipeline.value.workflow
   }
   if (pipelineWorkflow.value?.nodes?.length) {
-    comfyApp.graph.configure(pipelineWorkflow.value)
-    if (readonlyView.value) {
-      requestAnimationFrame(() => {
-        useCommandStore().execute('Comfy.Canvas.FitView')
+    const workflow = workflowStore.createTemporary(
+      `pmt/${pipelineName.value}.json`,
+      pipelineWorkflow.value
+    )
+    workflowStore.closeWorkflow(workflowStore.activeWorkflow).then(() => {
+      workflowService.openWorkflow(workflow).then(() => {
+        if (readonlyView.value) {
+          requestAnimationFrame(() => {
+            useCommandStore().execute('Comfy.Canvas.FitView')
+          })
+        }
       })
-    }
+    })
   }
   loading.value = false
 }

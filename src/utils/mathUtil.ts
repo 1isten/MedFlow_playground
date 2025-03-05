@@ -1,32 +1,21 @@
-import type { InputSpec } from '@/types/apiTypes'
+/**
+ * Finds the greatest common divisor (GCD) for two numbers.
+ *
+ * @param a - The first number.
+ * @param b - The second number.
+ * @returns The GCD of the two numbers.
+ */
+export const gcd = (a: number, b: number): number => {
+  return b === 0 ? a : gcd(b, a % b)
+}
 
-export function getNumberDefaults(
-  inputOptions: InputSpec[1],
-  options: {
-    defaultStep: number
-    precision?: number
-    enableRounding: boolean
-  }
-) {
-  const { defaultStep } = options
-  const {
-    default: defaultVal = 0,
-    min = 0,
-    max = 2048,
-    step = defaultStep
-  } = inputOptions
-  // precision is the number of decimal places to show.
-  // by default, display the the smallest number of decimal places such that changes of size step are visible.
-  const { precision = Math.max(-Math.floor(Math.log10(step)), 0) } = options
-
-  let round = inputOptions.round
-  if (options.enableRounding && (round == undefined || round === true)) {
-    // by default, round the value to those decimal places shown.
-    round = Math.round(1000000 * Math.pow(0.1, precision)) / 1000000
-  }
-
-  return {
-    val: defaultVal,
-    config: { min, max, step: 10.0 * step, round, precision }
-  }
+/**
+ * Finds the least common multiple (LCM) for two numbers.
+ *
+ * @param a - The first number.
+ * @param b - The second number.
+ * @returns The LCM of the two numbers.
+ */
+export const lcm = (a: number, b: number): number => {
+  return Math.abs(a * b) / gcd(a, b)
 }

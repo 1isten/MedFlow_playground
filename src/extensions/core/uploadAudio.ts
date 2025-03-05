@@ -6,9 +6,9 @@ import { useNodeDragAndDrop } from '@/composables/node/useNodeDragAndDrop'
 import { useNodeFileInput } from '@/composables/node/useNodeFileInput'
 import { useNodePaste } from '@/composables/node/useNodePaste'
 import { t } from '@/i18n'
+import type { ComfyNodeDef } from '@/schemas/nodeDefSchema'
 import type { DOMWidget } from '@/scripts/domWidget'
 import { useToastStore } from '@/stores/toastStore'
-import { ComfyNodeDef } from '@/types/apiTypes'
 
 import { api } from '../../scripts/api'
 import { app } from '../../scripts/app'
@@ -91,6 +91,7 @@ app.registerExtension({
       // @ts-expect-error ComfyNode
       ['LoadAudio', 'SaveAudio', 'PreviewAudio'].includes(nodeType.comfyClass)
     ) {
+      // @ts-expect-error InputSpec is not typed correctly
       nodeData.input.required.audioUI = ['AUDIO_UI']
     }
   },
@@ -149,6 +150,7 @@ app.registerExtension({
   name: 'Comfy.UploadAudio',
   async beforeRegisterNodeDef(nodeType, nodeData: ComfyNodeDef) {
     if (nodeData?.input?.required?.audio?.[1]?.audio_upload === true) {
+      // @ts-expect-error InputSpec is not typed correctly
       nodeData.input.required.upload = ['AUDIOUPLOAD']
     }
   },

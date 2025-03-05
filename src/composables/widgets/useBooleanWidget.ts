@@ -1,24 +1,33 @@
 import type { LGraphNode } from '@comfyorg/litegraph'
 
-import type { ComfyWidgetConstructor } from '@/scripts/widgets'
-import type { InputSpec } from '@/types/apiTypes'
+import {
+  type InputSpec,
+  isBooleanInputSpec
+} from '@/schemas/nodeDef/nodeDefSchemaV2'
+import { type ComfyWidgetConstructorV2 } from '@/scripts/widgets'
 
 export const useBooleanWidget = () => {
-  const widgetConstructor: ComfyWidgetConstructor = (
+  const widgetConstructor: ComfyWidgetConstructorV2 = (
     node: LGraphNode,
-    inputName: string,
-    inputData: InputSpec
+    inputSpec: InputSpec
   ) => {
-    const inputOptions = inputData[1]
-    const defaultVal = inputOptions?.default ?? false
-    const options = {
-      on: inputOptions?.label_on,
-      off: inputOptions?.label_off
+    if (!isBooleanInputSpec(inputSpec)) {
+      throw new Error(`Invalid input data: ${inputSpec}`)
     }
 
-    return {
-      widget: node.addWidget('toggle', inputName, defaultVal, () => {}, options)
+    const defaultVal = inputSpec.default ?? false
+    const options = {
+      on: inputSpec.label_on,
+      off: inputSpec.label_off
     }
+
+    return node.addWidget(
+      'toggle',
+      inputSpec.name,
+      defaultVal,
+      () => {},
+      options
+    )
   }
 
   return widgetConstructor

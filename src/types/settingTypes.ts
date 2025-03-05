@@ -1,9 +1,10 @@
-import { Settings } from './apiTypes'
+import type { Settings } from '@/schemas/apiSchema'
 
 export type SettingInputType =
   | 'boolean'
   | 'number'
   | 'slider'
+  | 'knob'
   | 'combo'
   | 'text'
   | 'image'

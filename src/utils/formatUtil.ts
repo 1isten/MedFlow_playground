@@ -1,4 +1,4 @@
-import { ResultItem } from '@/types/apiTypes'
+import { ResultItem } from '@/schemas/apiSchema'
 
 export function formatCamelCase(str: string): string {
   // Check if the string is camel case
@@ -271,4 +271,44 @@ export function parseFilePath(filepath: string): {
     filename: normalizedPath.slice(lastSlashIndex + 1),
     subfolder: normalizedPath.slice(0, lastSlashIndex)
   }
+}
+
+// Simple date formatter
+const parts = {
+  d: (d: Date) => d.getDate(),
+  M: (d: Date) => d.getMonth() + 1,
+  h: (d: Date) => d.getHours(),
+  m: (d: Date) => d.getMinutes(),
+  s: (d: Date) => d.getSeconds()
+}
+const format =
+  Object.keys(parts)
+    .map((k) => k + k + '?')
+    .join('|') + '|yyy?y?'
+
+export function formatDate(text: string, date: Date) {
+  return text.replace(new RegExp(format, 'g'), (text: string): string => {
+    if (text === 'yy') return (date.getFullYear() + '').substring(2)
+    if (text === 'yyyy') return date.getFullYear().toString()
+    if (text[0] in parts) {
+      const p = parts[text[0] as keyof typeof parts](date)
+      return (p + '').padStart(text.length, '0')
+    }
+    return text
+  })
+}
+
+/**
+ * Generate a cache key from parameters
+ * Sorts the parameters to ensure consistent keys regardless of parameter order
+ */
+export const paramsToCacheKey = (params: unknown): string => {
+  if (typeof params === 'string') return params
+  if (typeof params === 'object' && params !== null)
+    return Object.keys(params)
+      .sort((a, b) => a.localeCompare(b))
+      .map((key) => `${key}:${params[key as keyof typeof params]}`)
+      .join('&')
+
+  return String(params)
 }

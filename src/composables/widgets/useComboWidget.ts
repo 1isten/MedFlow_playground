@@ -1,10 +1,14 @@
 import type { LGraphNode } from '@comfyorg/litegraph'
 import type { IComboWidget } from '@comfyorg/litegraph/dist/types/widgets'
 
+import {
+  type InputSpec,
+  getComboSpecComboOptions,
+  isComboInputSpec
+} from '@/schemas/nodeDefSchema'
 import { addValueControlWidgets } from '@/scripts/widgets'
 import type { ComfyWidgetConstructor } from '@/scripts/widgets'
 import { useWidgetStore } from '@/stores/widgetStore'
-import type { InputSpec } from '@/types/apiTypes'
 
 import { useRemoteWidget } from './useRemoteWidget'
 
@@ -14,24 +18,30 @@ export const useComboWidget = () => {
     inputName: string,
     inputData: InputSpec
   ) => {
+    if (!isComboInputSpec(inputData)) {
+      throw new Error(`Invalid input data: ${inputData}`)
+    }
+
     const widgetStore = useWidgetStore()
-    const { remote, options } = inputData[1] || {}
+    const inputOptions = inputData[1] ?? {}
+    const comboOptions = getComboSpecComboOptions(inputData)
+
     const defaultValue = widgetStore.getDefaultValue(inputData)
 
     const res = {
       widget: node.addWidget('combo', inputName, defaultValue, () => {}, {
-        values: options ?? inputData[0]
+        values: comboOptions
       }) as IComboWidget
     }
 
-    if (remote) {
+    if (inputOptions.remote) {
       const remoteWidget = useRemoteWidget({
         inputData,
         defaultValue,
         node,
         widget: res.widget
       })
-      if (remote.refresh_button) remoteWidget.addRefreshButton()
+      if (inputOptions.remote.refresh_button) remoteWidget.addRefreshButton()
 
       const origOptions = res.widget.options
       res.widget.options = new Proxy(
@@ -45,7 +55,7 @@ export const useComboWidget = () => {
       )
     }
 
-    if (inputData[1]?.control_after_generate) {
+    if (inputOptions.control_after_generate) {
       res.widget.linkedWidgets = addValueControlWidgets(
         node,
         res.widget,

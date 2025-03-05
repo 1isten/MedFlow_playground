@@ -12,7 +12,8 @@ test.describe('Templates', () => {
   test('should have a JSON workflow file for each template', async ({
     comfyPage
   }) => {
-    for (const template of comfyPage.templates.getAllTemplates()) {
+    const templates = await comfyPage.templates.getAllTemplates()
+    for (const template of templates) {
       const workflowPath = comfyPage.templates.getTemplatePath(
         `${template.name}.json`
       )
@@ -26,7 +27,8 @@ test.describe('Templates', () => {
   test('should have all required thumbnail media for each template', async ({
     comfyPage
   }) => {
-    for (const template of comfyPage.templates.getAllTemplates()) {
+    const templates = await comfyPage.templates.getAllTemplates()
+    for (const template of templates) {
       const { name, mediaSubtype, thumbnailVariant } = template
       const baseMedia = `${name}-1.${mediaSubtype}`
       const basePath = comfyPage.templates.getTemplatePath(baseMedia)
@@ -70,5 +72,18 @@ test.describe('Templates', () => {
     await expect(async () => {
       expect(await comfyPage.getGraphNodesCount()).toBeGreaterThan(0)
     }).toPass({ timeout: 250 })
+  })
+
+  test('dialog should be automatically shown to first-time users', async ({
+    comfyPage
+  }) => {
+    // Set the tutorial as not completed to mark the user as a first-time user
+    await comfyPage.setSetting('Comfy.TutorialCompleted', false)
+
+    // Load the page
+    await comfyPage.setup({ clearStorage: true })
+
+    // Expect the templates dialog to be shown
+    expect(await comfyPage.templates.content.isVisible()).toBe(true)
   })
 })

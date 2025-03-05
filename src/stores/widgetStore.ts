@@ -1,14 +1,13 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { ComfyWidgetConstructor, ComfyWidgets } from '@/scripts/widgets'
+import type { InputSpec as InputSpecV2 } from '@/schemas/nodeDef/nodeDefSchemaV2'
 import {
-  ComboInputSpecV2,
-  InputSpec,
+  type ComboInputSpecV2,
+  type InputSpec,
   isComboInputSpecV1
-} from '@/types/apiTypes'
-
-import type { BaseInputSpec } from './nodeDefStore'
+} from '@/schemas/nodeDefSchema'
+import { ComfyWidgetConstructor, ComfyWidgets } from '@/scripts/widgets'
 
 export const useWidgetStore = defineStore('widget', () => {
   const coreWidgets = ComfyWidgets
@@ -21,6 +20,9 @@ export const useWidgetStore = defineStore('widget', () => {
   function getWidgetType(type: string, inputName: string) {
     if (type === 'COMBO') {
       return 'COMBO'
+      /**
+       * @deprecated Group node logic. Remove once group node feature is removed.
+       */
     } else if (`${type}:${inputName}` in widgets.value) {
       return `${type}:${inputName}`
     } else if (type in widgets.value) {
@@ -30,7 +32,7 @@ export const useWidgetStore = defineStore('widget', () => {
     }
   }
 
-  function inputIsWidget(spec: BaseInputSpec) {
+  function inputIsWidget(spec: InputSpecV2) {
     return getWidgetType(spec.type, spec.name) !== null
   }
 
@@ -47,6 +49,7 @@ export const useWidgetStore = defineStore('widget', () => {
     if (Array.isArray(inputData[0]))
       return getDefaultValue(transformComboInput(inputData))
 
+    // @ts-expect-error InputSpec is not typed correctly
     const widgetType = getWidgetType(inputData[0], inputData[1]?.name)
 
     const [_, props] = inputData
@@ -54,12 +57,14 @@ export const useWidgetStore = defineStore('widget', () => {
     if (!props) return undefined
     if (props.default) return props.default
 
+    // @ts-expect-error InputSpec is not typed correctly
     if (widgetType === 'COMBO' && props.options?.length) return props.options[0]
     if (props.remote) return 'Loading...'
     return undefined
   }
 
   const transformComboInput = (inputData: InputSpec): ComboInputSpecV2 => {
+    // @ts-expect-error InputSpec is not typed correctly
     return isComboInputSpecV1(inputData)
       ? [
           'COMBO',

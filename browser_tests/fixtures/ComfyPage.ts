@@ -5,12 +5,13 @@ import { test as base } from '@playwright/test'
 import dotenv from 'dotenv'
 import * as fs from 'fs'
 
+import type { NodeId } from '../../src/schemas/comfyWorkflowSchema'
+import type { KeyCombo } from '../../src/schemas/keyBindingSchema'
 import type { useWorkspaceStore } from '../../src/stores/workspaceStore'
-import type { NodeId } from '../../src/types/comfyWorkflow'
-import type { KeyCombo } from '../../src/types/keyBindingTypes'
 import { NodeBadgeMode } from '../../src/types/nodeSource'
 import { ComfyActionbar } from '../helpers/actionbar'
 import { ComfyTemplates } from '../helpers/templates'
+import { ComfyMouse } from './ComfyMouse'
 import { ComfyNodeSearchBox } from './components/ComfyNodeSearchBox'
 import { SettingDialog } from './components/SettingDialog'
 import {
@@ -468,6 +469,7 @@ export class ComfyPage {
     const getFileType = (fileName: string) => {
       if (fileName.endsWith('.png')) return 'image/png'
       if (fileName.endsWith('.webp')) return 'image/webp'
+      if (fileName.endsWith('.webm')) return 'video/webm'
       if (fileName.endsWith('.json')) return 'application/json'
       return 'application/octet-stream'
     }
@@ -909,7 +911,10 @@ export class ComfyPage {
   }
 }
 
-export const comfyPageFixture = base.extend<{ comfyPage: ComfyPage }>({
+export const comfyPageFixture = base.extend<{
+  comfyPage: ComfyPage
+  comfyMouse: ComfyMouse
+}>({
   comfyPage: async ({ page, request }, use, testInfo) => {
     const comfyPage = new ComfyPage(page, request)
 
@@ -940,6 +945,10 @@ export const comfyPageFixture = base.extend<{ comfyPage: ComfyPage }>({
 
     await comfyPage.setup()
     await use(comfyPage)
+  },
+  comfyMouse: async ({ comfyPage }, use) => {
+    const comfyMouse = new ComfyMouse(comfyPage)
+    use(comfyMouse)
   }
 })
 

@@ -2,7 +2,7 @@ import { LGraphNode } from '@comfyorg/litegraph'
 import { IWidget } from '@comfyorg/litegraph'
 import axios from 'axios'
 
-import type { InputSpec, RemoteWidgetConfig } from '@/types/apiTypes'
+import type { InputSpec, RemoteWidgetConfig } from '@/schemas/nodeDefSchema'
 
 const MAX_RETRIES = 5
 const TIMEOUT = 4096
@@ -73,7 +73,7 @@ export function useRemoteWidget<
   widget: IWidget
 }) {
   const { inputData, defaultValue, node, widget } = options
-  const config: RemoteWidgetConfig = inputData[1].remote
+  const config = (inputData[1]?.remote ?? {}) as RemoteWidgetConfig
   const { refresh = 0, max_retries = MAX_RETRIES } = config
   const isPermanent = refresh <= 0
   const cacheKey = createCacheKey(config)

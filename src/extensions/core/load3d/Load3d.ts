@@ -215,6 +215,10 @@ class Load3d {
 
   setCameraState(state: CameraState): void {
     this.cameraManager.setCameraState(state)
+
+    if (this.previewManager.showPreview) {
+      this.previewManager.syncWithMainCamera()
+    }
   }
 
   getCameraState(): CameraState {

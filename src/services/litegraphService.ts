@@ -12,14 +12,15 @@ import { IBaseWidget, IWidget } from '@comfyorg/litegraph/dist/types/widgets'
 
 import { useNodeImage, useNodeVideo } from '@/composables/node/useNodeImage'
 import { st } from '@/i18n'
+import type { NodeId } from '@/schemas/comfyWorkflowSchema'
+import type { ComfyNodeDef as ComfyNodeDefV2 } from '@/schemas/nodeDef/nodeDefSchemaV2'
+import type { ComfyNodeDef as ComfyNodeDefV1 } from '@/schemas/nodeDefSchema'
 import { ANIM_PREVIEW_WIDGET, ComfyApp, app } from '@/scripts/app'
 import { $el } from '@/scripts/ui'
 import { calculateImageGrid, createImageHost } from '@/scripts/ui/imagePreview'
 import { useCanvasStore } from '@/stores/graphStore'
 import { useNodeOutputStore } from '@/stores/imagePreviewStore'
 import { useToastStore } from '@/stores/toastStore'
-import { ComfyNodeDef } from '@/types/apiTypes'
-import type { NodeId } from '@/types/comfyWorkflow'
 import { normalizeI18nKey } from '@/utils/formatUtil'
 import { is_all_same_aspect_ratio } from '@/utils/imageUtil'
 import { getImageTop, isImageNode, isVideoNode } from '@/utils/litegraphUtil'
@@ -34,101 +35,90 @@ export const useLitegraphService = () => {
   const toastStore = useToastStore()
   const canvasStore = useCanvasStore()
 
-  async function registerNodeDef(nodeId: string, nodeData: ComfyNodeDef) {
+  async function registerNodeDef(
+    nodeId: string,
+    nodeDef: ComfyNodeDefV2 & ComfyNodeDefV1
+  ) {
     const node = class ComfyNode extends LGraphNode {
-      static comfyClass? = nodeData.name
-      // TODO: change to "title?" once litegraph.d.ts has been updated
-      static title = nodeData.display_name || nodeData.name
-      static nodeData? = nodeData
+      static comfyClass?: string = nodeDef.name
+      static title?: string = nodeDef.display_name || nodeDef.name
+      static nodeData?: ComfyNodeDefV1 & ComfyNodeDefV2 = nodeDef
       static category?: string
 
       constructor(title?: string) {
         super(title)
-        const requiredInputs = nodeData.input.required
 
-        let inputs = nodeData['input']['required']
-        if (nodeData['input']['optional'] != undefined) {
-          inputs = Object.assign(
-            {},
-            nodeData['input']['required'],
-            nodeData['input']['optional']
-          )
-        }
         const config: {
           minWidth: number
           minHeight: number
           widget?: IBaseWidget
         } = { minWidth: 1, minHeight: 1 }
-        for (const inputName in inputs) {
-          const _inputData = inputs[inputName]
-          const type = _inputData[0]
-          const options = _inputData[1] ?? {}
-          const inputData = [type, options]
-          const nameKey = `nodeDefs.${normalizeI18nKey(nodeData.name)}.inputs.${normalizeI18nKey(inputName)}.name`
 
-          const inputIsRequired = requiredInputs && inputName in requiredInputs
+        // Process inputs using V2 schema
+        for (const [inputName, inputSpec] of Object.entries(nodeDef.inputs)) {
+          const inputType = inputSpec.type
+          const nameKey = `nodeDefs.${normalizeI18nKey(nodeDef.name)}.inputs.${normalizeI18nKey(inputName)}.name`
 
-          let widgetCreated = true
-          const widgetType = app.getWidgetType(inputData, inputName)
+          const widgetType = app.getWidgetType(
+            [inputType, inputSpec],
+            inputName
+          )
           if (widgetType) {
-            if (widgetType === 'COMBO') {
-              Object.assign(
-                config,
-                app.widgets.COMBO(this, inputName, inputData, app) || {}
-              )
-            } else {
-              Object.assign(
-                config,
-                app.widgets[widgetType](this, inputName, inputData, app) || {}
-              )
-            }
+            Object.assign(
+              config,
+              app.widgets[widgetType](
+                this,
+                inputName,
+                [inputType, inputSpec],
+                app
+              ) ?? {}
+            )
             if (config.widget) {
               const fallback = config.widget.label ?? inputName
               config.widget.label = st(nameKey, fallback)
             }
           } else {
             // Node connection inputs
-            const shapeOptions = inputIsRequired
-              ? {}
-              : { shape: RenderShape.HollowCircle }
-            const inputOptions = {
+            const shapeOptions = inputSpec.isOptional
+              ? { shape: RenderShape.HollowCircle }
+              : {}
+
+            this.addInput(inputName, inputType, {
               ...shapeOptions,
               localized_name: st(nameKey, inputName)
-            }
-            this.addInput(inputName, type, inputOptions)
-            widgetCreated = false
+            })
           }
 
-          if (widgetCreated && config?.widget) {
+          if (widgetType && config?.widget) {
             config.widget.options ??= {}
-            if (!inputIsRequired) {
+            if (inputSpec.isOptional) {
               config.widget.options.inputIsOptional = true
             }
-            if (inputData[1]?.forceInput) {
+            if (inputSpec.forceInput) {
               config.widget.options.forceInput = true
             }
-            if (inputData[1]?.defaultInput) {
+            if (inputSpec.defaultInput) {
               config.widget.options.defaultInput = true
             }
-            if (inputData[1]?.advanced) {
+            if (inputSpec.advanced) {
               config.widget.advanced = true
             }
-            if (inputData[1]?.hidden) {
+            if (inputSpec.hidden) {
               config.widget.hidden = true
             }
           }
         }
 
-        for (const o in nodeData['output']) {
-          let output = nodeData['output'][o]
-          if (output instanceof Array) output = 'COMBO'
-          const outputName = nodeData['output_name'][o] || output
-          const outputIsList = nodeData['output_is_list'][o]
+        // Process outputs using V2 schema
+        for (const output of nodeDef.outputs) {
+          const outputName = output.name
+          const outputType = output.type
+          const outputIsList = output.is_list
           const shapeOptions = outputIsList
             ? { shape: LiteGraph.GRID_SHAPE }
             : {}
-          const nameKey = `nodeDefs.${normalizeI18nKey(nodeData.name)}.outputs.${o}.name`
-          const typeKey = `dataTypes.${normalizeI18nKey(output)}`
+          const nameKey = `nodeDefs.${normalizeI18nKey(nodeDef.name)}.outputs.${output.index}.name`
+          const typeKey = `dataTypes.${normalizeI18nKey(outputType)}`
           const outputOptions = {
             ...shapeOptions,
             // If the output name is different from the output type, use the output name.
@@ -136,11 +126,11 @@ export const useLitegraphService = () => {
             // - type ("INT"); name ("Positive") => translate name
             // - type ("FLOAT"); name ("FLOAT") => translate type
             localized_name:
-              output !== outputName
+              outputType !== outputName
                 ? st(nameKey, outputName)
                 : st(typeKey, outputName)
           }
-          this.addOutput(outputName, output, outputOptions)
+          this.addOutput(outputName, outputType, outputOptions)
         }
 
         const s = this.computeSize()
@@ -180,7 +170,7 @@ export const useLitegraphService = () => {
         super.configure(data)
       }
     }
-    node.prototype.comfyClass = nodeData.name
+    node.prototype.comfyClass = nodeDef.name
 
     addNodeContextMenuHandler(node)
     addDrawBackgroundHandler(node)
@@ -189,11 +179,12 @@ export const useLitegraphService = () => {
     await extensionService.invokeExtensionsAsync(
       'beforeRegisterNodeDef',
       node,
-      nodeData
+      nodeDef // Receives V1 NodeDef
     )
+
     LiteGraph.registerNodeType(nodeId, node)
     // Note: Do not move this to the class definition, it will be overwritten
-    node.category = nodeData.category
+    node.category = nodeDef.category
   }
 
   /**
@@ -716,7 +707,7 @@ export const useLitegraphService = () => {
   }
 
   function addNodeOnGraph(
-    nodeDef: ComfyNodeDef,
+    nodeDef: ComfyNodeDefV1 | ComfyNodeDefV2,
     options: Record<string, any> = {}
   ): LGraphNode {
     options.pos ??= getCanvasCenter()

@@ -1,69 +1,89 @@
 import type { LGraphNode } from '@comfyorg/litegraph'
 import type { INumericWidget } from '@comfyorg/litegraph/dist/types/widgets'
 
-import type { ComfyApp } from '@/scripts/app'
+import { transformInputSpecV2ToV1 } from '@/schemas/nodeDef/migration'
 import {
-  type ComfyWidgetConstructor,
+  type InputSpec,
+  isIntInputSpec
+} from '@/schemas/nodeDef/nodeDefSchemaV2'
+import {
+  type ComfyWidgetConstructorV2,
   addValueControlWidget
 } from '@/scripts/widgets'
 import { useSettingStore } from '@/stores/settingStore'
-import { InputSpec } from '@/types/apiTypes'
-import { getNumberDefaults } from '@/utils/mathUtil'
+
+function onValueChange(this: INumericWidget, v: number) {
+  // For integers, always round to the nearest step
+  // step === 0 is invalid, assign 1 if options.step is 0
+  const step = this.options.step2 || 1
+
+  if (step === 1) {
+    // Simple case: round to nearest integer
+    this.value = Math.round(v)
+  } else {
+    // Round to nearest multiple of step
+    // First, determine if min value creates an offset
+    const min = this.options.min ?? 0
+    const offset = min % step
+
+    // Round to nearest step, accounting for offset
+    this.value = Math.round((v - offset) / step) * step + offset
+  }
+}
+
+export const _for_testing = {
+  onValueChange
+}
 
 export const useIntWidget = () => {
-  const widgetConstructor: ComfyWidgetConstructor = (
+  const widgetConstructor: ComfyWidgetConstructorV2 = (
     node: LGraphNode,
-    inputName: string,
-    inputData: InputSpec,
-    app: ComfyApp,
-    widgetName?: string
+    inputSpec: InputSpec
   ) => {
+    if (!isIntInputSpec(inputSpec)) {
+      throw new Error(`Invalid input data: ${inputSpec}`)
+    }
+
     const settingStore = useSettingStore()
     const sliderEnabled = !settingStore.get('Comfy.DisableSliders')
-    const inputOptions = inputData[1]
-    const widgetType = sliderEnabled
-      ? inputOptions?.display === 'slider'
+    const display_type = inputSpec.display
+    const widgetType =
+      sliderEnabled && display_type == 'slider'
         ? 'slider'
-        : 'number'
-      : 'number'
+        : display_type == 'knob'
+          ? 'knob'
+          : 'number'
 
-    const { val, config } = getNumberDefaults(inputOptions, {
-      defaultStep: 1,
-      precision: 0,
-      enableRounding: true
-    })
-    config.precision = 0
+    const step = inputSpec.step ?? 1
+    const defaultValue = inputSpec.default ?? 0
+    const widget = node.addWidget(
+      widgetType,
+      inputSpec.name,
+      defaultValue,
+      onValueChange,
+      {
+        min: inputSpec.min ?? 0,
+        max: inputSpec.max ?? 2048,
+        /** @deprecated Use step2 instead. The 10x value is a legacy implementation. */
+        step: step * 10,
+        step2: step,
+        precision: 0
+      }
+    )
 
-    const result = {
-      widget: node.addWidget(
-        widgetType,
-        inputName,
-        val,
-        function (this: INumericWidget, v: number) {
-          const s = (this.options.step ?? 1) / 10
-          let sh = (this.options.min ?? 0) % s
-          if (isNaN(sh)) {
-            sh = 0
-          }
-          this.value = Math.round((v - sh) / s) * s + sh
-        },
-        config
-      )
-    }
-
-    if (inputData[1]?.control_after_generate) {
+    if (inputSpec.control_after_generate) {
       const seedControl = addValueControlWidget(
         node,
-        result.widget,
+        widget,
         'randomize',
         undefined,
-        widgetName,
-        inputData
+        undefined,
+        transformInputSpecV2ToV1(inputSpec)
       )
-      result.widget.linkedWidgets = [seedControl]
+      widget.linkedWidgets = [seedControl]
     }
 
-    return result
+    return widget
   }
   return widgetConstructor
 }

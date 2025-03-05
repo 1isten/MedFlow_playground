@@ -3,7 +3,7 @@ import type { Vector2 } from '@comfyorg/litegraph'
 import { toRaw } from 'vue'
 
 import { t } from '@/i18n'
-import { api } from '@/scripts/api'
+import { ComfyWorkflowJSON } from '@/schemas/comfyWorkflowSchema'
 import { app } from '@/scripts/app'
 import { blankGraph, defaultGraph } from '@/scripts/defaultGraph'
 import { downloadBlob } from '@/scripts/utils'
@@ -11,7 +11,6 @@ import { useSettingStore } from '@/stores/settingStore'
 import { useToastStore } from '@/stores/toastStore'
 import { ComfyWorkflow, useWorkflowStore } from '@/stores/workflowStore'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
-import { ComfyWorkflowJSON } from '@/types/comfyWorkflow'
 import { appendJsonExt } from '@/utils/formatUtil'
 
 import { useDialogService } from './dialogService'
@@ -121,18 +120,6 @@ export const useWorkflowService = () => {
    */
   const loadDefaultWorkflow = async () => {
     await app.loadGraphData(defaultGraph)
-  }
-
-  /**
-   * Load the tutorial workflow
-   */
-  const loadTutorialWorkflow = async () => {
-    const tutorialWorkflow = await fetch(
-      api.fileURL('/templates/default.json')
-    ).then((r) => r.json())
-    await app.loadGraphData(tutorialWorkflow, false, false, 'tutorial', {
-      showMissingModelsDialog: true
-    })
   }
 
   /**
@@ -275,7 +262,7 @@ export const useWorkflowService = () => {
    * a new graph.
    */
   const beforeLoadNewGraph = () => {
-    // Use workspaceStore here as it is patched in jest tests.
+    // Use workspaceStore here as it is patched in unit tests.
     const workflowStore = useWorkspaceStore().workflow
     const activeWorkflow = workflowStore.activeWorkflow
     if (activeWorkflow) {
@@ -298,7 +285,7 @@ export const useWorkflowService = () => {
     value: string | ComfyWorkflow | null,
     workflowData: ComfyWorkflowJSON
   ) => {
-    // Use workspaceStore here as it is patched in jest tests.
+    // Use workspaceStore here as it is patched in unit tests.
     const workflowStore = useWorkspaceStore().workflow
     if (typeof value === 'string') {
       const workflow = workflowStore.getWorkflowByPath(
@@ -386,7 +373,6 @@ export const useWorkflowService = () => {
     saveWorkflow,
     loadDefaultWorkflow,
     loadBlankWorkflow,
-    loadTutorialWorkflow,
     reloadCurrentWorkflow,
     openWorkflow,
     closeWorkflow,

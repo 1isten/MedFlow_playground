@@ -12,12 +12,13 @@ import type {
 } from '@comfyorg/litegraph'
 import type { CanvasMouseEvent } from '@comfyorg/litegraph/dist/types/events'
 
+import type { InputSpec } from '@/schemas/nodeDefSchema'
 import { app } from '@/scripts/app'
-import { applyTextReplacements } from '@/scripts/utils'
 import { ComfyWidgets, addValueControlWidgets } from '@/scripts/widgets'
 import { useNodeDefStore } from '@/stores/nodeDefStore'
 import { useSettingStore } from '@/stores/settingStore'
-import type { InputSpec } from '@/types/apiTypes'
+import { mergeInputSpec } from '@/utils/nodeDefUtil'
+import { applyTextReplacements } from '@/utils/searchAndReplace'
 import { isPrimitiveNode } from '@/utils/typeGuardUtil'
 
 const CONVERTED_TYPE = 'converted-widget'
@@ -32,7 +33,6 @@ const VALID_TYPES = [
 ]
 const CONFIG = Symbol()
 const GET_CONFIG = Symbol()
-const TARGET = Symbol() // Used for reroutes to specify the real target widget
 
 const replacePropertyName = 'Run widget replace on values'
 export class PrimitiveNode extends LGraphNode {
@@ -53,27 +53,13 @@ export class PrimitiveNode extends LGraphNode {
   applyToGraph(extraLinks: LLink[] = []) {
     if (!this.outputs[0].links?.length) return
 
-    function get_links(node: LGraphNode): number[] {
-      let links: number[] = []
-      for (const l of node.outputs[0].links) {
-        const linkInfo = app.graph.links[l]
-        const n = node.graph.getNodeById(linkInfo.target_id)
-        if (n.type == 'Reroute') {
-          links = links.concat(get_links(n))
-        } else {
-          links.push(l)
-        }
-      }
-      return links
-    }
-
     let links = [
-      ...get_links(this).map((l) => app.graph.links[l]),
+      ...this.outputs[0].links.map((l) => app.graph.links[l]),
       ...extraLinks
     ]
     let v = this.widgets?.[0].value
     if (v && this.properties[replacePropertyName]) {
-      v = applyTextReplacements(app, v as string)
+      v = applyTextReplacements(app.graph.nodes, v as string)
     }
 
     // For each output link copy our value over the original widget value
@@ -81,13 +67,9 @@ export class PrimitiveNode extends LGraphNode {
       const node = this.graph.getNodeById(linkInfo.target_id)
       const input = node.inputs[linkInfo.target_slot]
       let widget: IWidget | undefined
-      if (input.widget[TARGET]) {
-        widget = input.widget[TARGET]
-      } else {
-        const widgetName = (input.widget as { name: string }).name
-        if (widgetName) {
-          widget = node.widgets.find((w) => w.name === widgetName)
-        }
+      const widgetName = (input.widget as { name: string }).name
+      if (widgetName) {
+        widget = node.widgets.find((w) => w.name === widgetName)
       }
 
       if (widget) {
@@ -220,8 +202,7 @@ export class PrimitiveNode extends LGraphNode {
       widget[CONFIG] ?? config,
       theirNode,
       widget.name,
-      recreating,
-      widget[TARGET]
+      recreating
     )
   }
 
@@ -229,8 +210,7 @@ export class PrimitiveNode extends LGraphNode {
     inputData: InputSpec,
     node: LGraphNode,
     widgetName: string,
-    recreating: boolean,
-    targetWidget: IWidget | undefined
+    recreating: boolean
   ) {
     let type = inputData[0]
 
@@ -244,12 +224,11 @@ export class PrimitiveNode extends LGraphNode {
     if (type in ComfyWidgets) {
       widget = (ComfyWidgets[type](this, 'value', inputData, app) || {}).widget
     } else {
+      // @ts-expect-error InputSpec is not typed correctly
       widget = this.addWidget(type, 'value', null, () => {}, {})
     }
 
-    if (targetWidget) {
-      widget.value = targetWidget.value
-    } else if (node?.widgets && widget) {
+    if (node?.widgets && widget) {
       const theirWidget = node.widgets.find((w) => w.name === widgetName)
       if (theirWidget) {
         widget.value = theirWidget.value
@@ -451,6 +430,7 @@ function getConfig(widgetName: string) {
 
 function isConvertibleWidget(widget: IWidget, config: InputSpec): boolean {
   return (
+    // @ts-expect-error InputSpec is not typed correctly
     (VALID_TYPES.includes(widget.type) || VALID_TYPES.includes(config[0])) &&
     !widget.options?.forceInput
   )
@@ -571,35 +551,13 @@ function getWidgetType(config: InputSpec) {
   return { type }
 }
 
-function isValidCombo(combo: string[], obj: unknown) {
-  // New input isnt a combo
-  if (!(obj instanceof Array)) {
-    console.log(`connection rejected: tried to connect combo to ${obj}`)
-    return false
-  }
-  // New input combo has a different size
-  if (combo.length !== obj.length) {
-    console.log(`connection rejected: combo lists dont match`)
-    return false
-  }
-  // New input combo has different elements
-  if (combo.find((v, i) => obj[i] !== v)) {
-    console.log(`connection rejected: combo lists dont match`)
-    return false
-  }
-
-  return true
-}
-
 export function setWidgetConfig(
   slot: INodeInputSlot | INodeOutputSlot,
-  config: InputSpec,
-  target?: IWidget
+  config: InputSpec
 ) {
   if (!slot.widget) return
   if (config) {
     slot.widget[GET_CONFIG] = () => config
-    slot.widget[TARGET] = target
   } else {
     delete slot.widget
   }
@@ -625,114 +583,17 @@ export function mergeIfValid(
   config2: InputSpec,
   forceUpdate?: boolean,
   recreateWidget?: () => void,
-  config1?: unknown
-): { customConfig: Record<string, unknown> } {
+  config1?: InputSpec
+): { customConfig: InputSpec[1] } {
   if (!config1) {
     config1 = getWidgetConfig(output)
   }
 
-  if (config1[0] instanceof Array) {
-    if (!isValidCombo(config1[0], config2[0])) return
-  } else if (config1[0] !== config2[0]) {
-    // Types dont match
-    console.log(`connection rejected: types dont match`, config1[0], config2[0])
-    return
-  }
+  const customSpec = mergeInputSpec(config1, config2)
 
-  const keys = new Set([
-    ...Object.keys(config1[1] ?? {}),
-    ...Object.keys(config2[1] ?? {})
-  ])
-
-  let customConfig: Record<string, unknown> | undefined
-  const getCustomConfig = () => {
-    if (!customConfig) {
-      if (typeof structuredClone === 'undefined') {
-        customConfig = JSON.parse(JSON.stringify(config1[1] ?? {}))
-      } else {
-        customConfig = structuredClone(config1[1] ?? {})
-      }
-    }
-    return customConfig
-  }
-
-  const isNumber = config1[0] === 'INT' || config1[0] === 'FLOAT'
-  for (const k of keys.values()) {
-    if (
-      k !== 'default' &&
-      k !== 'forceInput' &&
-      k !== 'defaultInput' &&
-      k !== 'control_after_generate' &&
-      k !== 'multiline' &&
-      k !== 'tooltip' &&
-      k !== 'dynamicPrompts'
-    ) {
-      let v1 = config1[1][k]
-      let v2 = config2[1]?.[k]
-
-      if (v1 === v2 || (!v1 && !v2)) continue
-
-      if (isNumber) {
-        if (k === 'min') {
-          const theirMax = config2[1]?.['max']
-          if (theirMax != null && v1 > theirMax) {
-            console.log('connection rejected: min > max', v1, theirMax)
-            return
-          }
-          getCustomConfig()[k] =
-            v1 == null ? v2 : v2 == null ? v1 : Math.max(v1, v2)
-          continue
-        } else if (k === 'max') {
-          const theirMin = config2[1]?.['min']
-          if (theirMin != null && v1 < theirMin) {
-            console.log('connection rejected: max < min', v1, theirMin)
-            return
-          }
-          getCustomConfig()[k] =
-            v1 == null ? v2 : v2 == null ? v1 : Math.min(v1, v2)
-          continue
-        } else if (k === 'step') {
-          let step
-          if (v1 == null) {
-            // No current step
-            step = v2
-          } else if (v2 == null) {
-            // No new step
-            step = v1
-          } else {
-            if (v1 < v2) {
-              // Ensure v1 is larger for the mod
-              const a = v2
-              v2 = v1
-              v1 = a
-            }
-            if (v1 % v2) {
-              console.log(
-                'connection rejected: steps not divisible',
-                'current:',
-                v1,
-                'new:',
-                v2
-              )
-              return
-            }
-
-            step = v1
-          }
-
-          getCustomConfig()[k] = step
-          continue
-        }
-      }
-
-      console.log(`connection rejected: config ${k} values dont match`, v1, v2)
-      return
-    }
-  }
-
-  if (customConfig || forceUpdate) {
-    if (customConfig) {
-      output.widget[CONFIG] = [config1[0], customConfig]
+  if (customSpec || forceUpdate) {
+    if (customSpec) {
+      output.widget[CONFIG] = customSpec
     }
 
     const widget = recreateWidget?.call(this)
@@ -746,7 +607,7 @@ export function mergeIfValid(
     }
   }
 
-  return { customConfig }
+  return { customConfig: customSpec[1] }
 }
 
 app.registerExtension({
@@ -763,7 +624,7 @@ app.registerExtension({
     app.canvas.getWidgetLinkType = function (widget, node) {
       const nodeDefStore = useNodeDefStore()
       const nodeDef = nodeDefStore.nodeDefsByName[node.type]
-      const input = nodeDef.inputs.getInput(widget.name)
+      const input = nodeDef.inputs[widget.name]
       return input?.type
     }
 
@@ -797,7 +658,10 @@ app.registerExtension({
     // Add menu options to convert to/from widgets
     const origGetExtraMenuOptions = nodeType.prototype.getExtraMenuOptions
     // @ts-expect-error adding extra property
-    nodeType.prototype.convertWidgetToInput = function (widget) {
+    nodeType.prototype.convertWidgetToInput = function (
+      this: LGraphNode,
+      widget: IWidget
+    ) {
       const config = getConfig.call(this, widget.name) ?? [
         widget.type,
         widget.options || {}
@@ -824,7 +688,11 @@ app.registerExtension({
       ]
     }
 
-    nodeType.prototype.getExtraMenuOptions = function (_, options) {
+    nodeType.prototype.getExtraMenuOptions = function (
+      this: LGraphNode,
+      _,
+      options
+    ) {
       const r = origGetExtraMenuOptions
         ? origGetExtraMenuOptions.apply(this, arguments)
         : undefined
@@ -907,7 +775,7 @@ app.registerExtension({
       return r
     }
 
-    nodeType.prototype.onGraphConfigured = function () {
+    nodeType.prototype.onGraphConfigured = function (this: LGraphNode) {
       if (!this.inputs) return
       this.widgets ??= []
 
@@ -919,7 +787,9 @@ app.registerExtension({
           }
 
           // Cleanup old widget config
+          // @ts-expect-error WidgetRef
           if (input.widget.config) {
+            // @ts-expect-error WidgetRef
             if (input.widget.config[0] instanceof Array) {
               // If we are an old converted combo then replace the input type and the stored link data
               input.type = 'COMBO'
@@ -929,6 +799,7 @@ app.registerExtension({
                 link.type = input.type
               }
             }
+            // @ts-expect-error WidgetRef
             delete input.widget.config
           }
 
@@ -936,14 +807,14 @@ app.registerExtension({
           if (w) {
             hideWidget(this, w)
           } else {
-            convertToWidget(this, input)
+            convertToWidget(this, w)
           }
         }
       }
     }
 
     const origOnNodeCreated = nodeType.prototype.onNodeCreated
-    nodeType.prototype.onNodeCreated = function () {
+    nodeType.prototype.onNodeCreated = function (this: LGraphNode) {
       const r = origOnNodeCreated ? origOnNodeCreated.apply(this) : undefined
 
       // When node is created, convert any force/default inputs
@@ -963,7 +834,7 @@ app.registerExtension({
     }
 
     const origOnConfigure = nodeType.prototype.onConfigure
-    nodeType.prototype.onConfigure = function () {
+    nodeType.prototype.onConfigure = function (this: LGraphNode) {
       const r = origOnConfigure
         ? origOnConfigure.apply(this, arguments)
         : undefined
@@ -995,14 +866,16 @@ app.registerExtension({
 
     // Double click a widget input to automatically attach a primitive
     const origOnInputDblClick = nodeType.prototype.onInputDblClick
-    const ignoreDblClick = Symbol()
-    nodeType.prototype.onInputDblClick = function (slot) {
+    nodeType.prototype.onInputDblClick = function (
+      this: LGraphNode,
+      slot: number
+    ) {
       const r = origOnInputDblClick
         ? origOnInputDblClick.apply(this, arguments)
         : undefined
 
       const input = this.inputs[slot]
-      if (!input.widget || !input[ignoreDblClick]) {
+      if (!input.widget) {
         // Not a widget input or already handled input
         if (
           !(input.type in ComfyWidgets) &&
@@ -1029,43 +902,7 @@ app.registerExtension({
       node.connect(0, this, slot)
       node.title = input.name
 
-      // Prevent adding duplicates due to triple clicking
-      input[ignoreDblClick] = true
-      setTimeout(() => {
-        delete input[ignoreDblClick]
-      }, 300)
-
       return r
-    }
-
-    // Prevent connecting COMBO lists to converted inputs that dont match types
-    const onConnectInput = nodeType.prototype.onConnectInput
-    nodeType.prototype.onConnectInput = function (
-      targetSlot: number,
-      type: string,
-      output: INodeOutputSlot,
-      originNode: LGraphNode,
-      originSlot: number
-    ) {
-      // @ts-expect-error onConnectInput has 5 arguments
-      const v = onConnectInput?.(this, arguments)
-      // Not a combo, ignore
-      if (type !== 'COMBO') return v
-      // Primitive output, allow that to handle
-      if (originNode.outputs[originSlot].widget) return v
-
-      // Ensure target is also a combo
-      const targetCombo = this.inputs[targetSlot].widget?.[GET_CONFIG]?.()?.[0]
-      if (!targetCombo || !(targetCombo instanceof Array)) return v
-
-      // Check they match
-      const originConfig =
-        originNode.constructor?.nodeData?.output?.[originSlot]
-      if (!originConfig || !isValidCombo(targetCombo, originConfig)) {
-        return false
-      }
-
-      return v
     }
   },
   registerCustomNodes() {

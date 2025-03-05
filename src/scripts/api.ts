@@ -1,7 +1,6 @@
 import axios from 'axios'
 
 import type {
-  ComfyNodeDef,
   EmbeddingsResponse,
   ExecutedWsMessage,
   ExecutingWsMessage,
@@ -24,9 +23,13 @@ import type {
   SystemStats,
   User,
   UserDataFullInfo
-} from '@/types/apiTypes'
-import { validateComfyNodeDef } from '@/types/apiTypes'
-import type { ComfyWorkflowJSON, NodeId } from '@/types/comfyWorkflow'
+} from '@/schemas/apiSchema'
+import type { ComfyWorkflowJSON, NodeId } from '@/schemas/comfyWorkflowSchema'
+import {
+  type ComfyNodeDef,
+  validateComfyNodeDef
+} from '@/schemas/nodeDefSchema'
+import { WorkflowTemplates } from '@/types/workflowTemplateTypes'
 
 interface QueuePromptRequestBody {
   client_id: string
@@ -423,6 +426,15 @@ export class ComfyApi extends EventTarget {
   }> {
     const res = await this.fetchApi('/workflow_templates')
     return await res.json()
+  }
+
+  /**
+   * Gets the index of core workflow templates.
+   */
+  async getCoreWorkflowTemplates(): Promise<WorkflowTemplates[]> {
+    const res = await axios.get('/templates/index.json')
+    const contentType = res.headers['content-type']
+    return contentType?.includes('application/json') ? res.data : []
   }
 
   /**

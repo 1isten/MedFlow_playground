@@ -14,8 +14,8 @@ export class ConnectingLinkImpl implements ConnectingLink {
   constructor(
     public node: LGraphNode,
     public slot: number,
-    public input: INodeInputSlot | undefined,
-    public output: INodeOutputSlot | undefined,
+    public input: INodeInputSlot | null | undefined | any,
+    public output: INodeOutputSlot | null | undefined | any,
     public pos: Vector2,
     public afterRerouteId?: RerouteId
   ) {}
@@ -49,8 +49,9 @@ export class ConnectingLinkImpl implements ConnectingLink {
       this.releaseSlotType === 'output' ? newNode.outputs : newNode.inputs
     if (!newNodeSlots) return
 
-    const newNodeSlot = newNodeSlots.findIndex((slot: INodeSlot) =>
-      LiteGraph.isValidConnection(slot.type, this.type)
+    const newNodeSlot = newNodeSlots.findIndex(
+      (slot: INodeSlot) =>
+        this.type && LiteGraph.isValidConnection(slot.type, this.type)
     )
 
     if (newNodeSlot === -1) {

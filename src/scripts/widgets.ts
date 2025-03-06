@@ -46,8 +46,11 @@ const transformWidgetConstructorV2ToV1 = (
     const inputSpec = transformInputSpecV1ToV2(inputData, {
       name: inputName
     })
+    const widget = widgetConstructorV2(node, inputSpec)
     return {
-      widget: widgetConstructorV2(node, inputSpec)
+      widget,
+      minWidth: widget.options.minNodeSize?.[0],
+      minHeight: widget.options.minNodeSize?.[1]
     }
   }
 }
@@ -275,21 +278,12 @@ export function addValueControlWidgets(
   return widgets
 }
 
-const seedWidget = transformWidgetConstructorV2ToV1((node, inputSpec) => {
-  return useIntWidget()(node, {
-    ...inputSpec,
-    control_after_generate: true
-  })
-})
-
 export const ComfyWidgets: Record<string, ComfyWidgetConstructor> = {
-  'INT:seed': seedWidget,
-  'INT:noise_seed': seedWidget,
   INT: transformWidgetConstructorV2ToV1(useIntWidget()),
   FLOAT: transformWidgetConstructorV2ToV1(useFloatWidget()),
   BOOLEAN: transformWidgetConstructorV2ToV1(useBooleanWidget()),
-  STRING: useStringWidget(),
-  MARKDOWN: useMarkdownWidget(),
-  COMBO: useComboWidget(),
+  STRING: transformWidgetConstructorV2ToV1(useStringWidget()),
+  MARKDOWN: transformWidgetConstructorV2ToV1(useMarkdownWidget()),
+  COMBO: transformWidgetConstructorV2ToV1(useComboWidget()),
   IMAGEUPLOAD: useImageUploadWidget()
 }

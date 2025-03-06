@@ -6,11 +6,9 @@ import type {
   IWidgetOptions
 } from '@comfyorg/litegraph/dist/types/widgets'
 
+import { useChainCallback } from '@/composables/functional/useChainCallback'
+import { app } from '@/scripts/app'
 import { useSettingStore } from '@/stores/settingStore'
-
-import { app } from './app'
-
-const SIZE = Symbol()
 
 interface Rect {
   height: number
@@ -21,13 +19,10 @@ interface Rect {
 
 export interface DOMWidget<T extends HTMLElement, V extends object | string>
   extends ICustomWidget<T> {
-  // All unrecognized types will be treated the same way as 'custom' in litegraph internally.
   type: 'custom'
-  name: string
   element: T
   options: DOMWidgetOptions<T, V>
   value: V
-  y?: number
   /**
    * @deprecated Legacy property used by some extensions for customtext
    * (textarea) widgets. Use `element` instead as it provides the same
@@ -35,22 +30,6 @@ export interface DOMWidget<T extends HTMLElement, V extends object | string>
    */
   inputEl?: T
   callback?: (value: V) => void
-  /**
-   * Draw the widget on the canvas.
-   */
-  draw?: (
-    ctx: CanvasRenderingContext2D,
-    node: LGraphNode,
-    widgetWidth: number,
-    y: number,
-    widgetHeight: number
-  ) => void
-  /**
-   * TODO(huchenlei): Investigate when is this callback fired. `onRemove` is
-   * on litegraph's IBaseWidget definition, but not called in litegraph.
-   * Currently only called in widgetInputs.ts.
-   */
-  onRemove?: () => void
 }
 
 export interface DOMWidgetOptions<
@@ -66,6 +45,13 @@ export interface DOMWidgetOptions<
   getMaxHeight?: () => number
   getHeight?: () => string | number
   onDraw?: (widget: DOMWidget<T, V>) => void
+  /**
+   * @deprecated Use `afterResize` instead. This callback is a legacy API
+   * that fires before resize happens, but it is no longer supported. Now it
+   * fires after resize happens.
+   * The resize logic has been upstreamed to litegraph in
+   * https://github.com/Comfy-Org/ComfyUI_frontend/pull/2557
+   */
   beforeResize?: (this: DOMWidget<T, V>, node: LGraphNode) => void
   afterResize?: (this: DOMWidget<T, V>, node: LGraphNode) => void
 }
@@ -383,17 +369,10 @@ LGraphNode.prototype.addDOMWidget = function <
     onRemoved?.call(this)
   }
 
-  // @ts-ignore index with symbol
-  if (!this[SIZE]) {
-    // @ts-ignore index with symbol
-    this[SIZE] = true
-    const onResize = this.onResize
-    this.onResize = function (this: LGraphNode, size: Size) {
-      options.beforeResize?.call(widget, this)
-      onResize?.call(this, size)
-      options.afterResize?.call(widget, this)
-    }
-  }
+  this.onResize = useChainCallback(this.onResize, () => {
+    options.beforeResize?.call(widget, this)
+    options.afterResize?.call(widget, this)
+  })
 
   return widget
 }

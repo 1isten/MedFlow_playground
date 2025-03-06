@@ -146,7 +146,7 @@
           @contextmenu.prevent.stop
         />
         <Button
-          v-if="!loading"
+          v-if="!loading && !!pipelineId"
           class="btn-sav"
           size="small"
           :aria-label="'Save'"
@@ -1187,7 +1187,8 @@ function exportJson(download = true, keepStatus = true) {
 }
 
 function getWorkflowJson(stringify = false, keepStatus = true) {
-  const workflow = comfyApp.graph.serialize()
+  const state = workflowStore.activeWorkflow.activeState
+  const workflow = JSON.parse(JSON.stringify(state))
   workflow.nodes.sort((a, b) => a.order - b.order)
   workflow.nodes.forEach(({ id, inputs, outputs }, i, nodes) => {
     const node = comfyApp.graph.getNodeById(id)

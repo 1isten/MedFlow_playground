@@ -1,3 +1,10 @@
+import '../pmt/manualSegmentation'
+import '../pmt/previewVolView'
+import '../pmt/statusFloat'
+import '../pmt/uploadDicom'
+import '../pmt/uploadImage'
+import '../pmt/uploadNifti'
+// ...
 import './clipspace'
 import './contextMenuFilter'
 import './dynamicPrompts'

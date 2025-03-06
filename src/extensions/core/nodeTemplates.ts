@@ -334,6 +334,8 @@ class ManageTemplates extends ComfyDialog {
 app.registerExtension({
   name: id,
   setup() {
+    return
+
     const manage = new ManageTemplates()
 
     const clipboardAction = async (cb) => {

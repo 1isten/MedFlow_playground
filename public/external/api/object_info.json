@@ -1,0 +1,1863 @@
+{
+  "rag_llm.knowledge": {
+    "name": "rag_llm.knowledge",
+    "category": "LLM",
+    "display_name": "Knowledge Base",
+    "description": "KB",
+    "python_module": "custom_nodes.rag_llm.knowledge",
+    "input": {
+      "required": {
+        "type": [
+          [
+            "web",
+            "pdf"
+          ]
+        ],
+        "sources": [
+          "STRING",
+          {
+            "multiline": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["type", "sources"]
+    },
+    "output": ["STRING", "STRING"],
+    "output_name": ["kownledge", "log"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
+  "rag_llm.text_splitter": {
+    "name": "rag_llm.text_splitter",
+    "category": "LLM",
+    "display_name": "Text Splitter",
+    "description": "Split text.",
+    "python_module": "custom_nodes.rag_llm.text_splitter",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "type": [
+          [
+            "token"
+          ]
+        ],
+        "chunk_size": [
+          "INT",
+          {
+            "default": 350,
+            "min": 1
+          }
+        ],
+        "chunk_overlap": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0
+          }
+        ]
+      },
+      "optional": {
+        "separators": [
+          "STRING",
+          {
+            "multiline": false
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text", "type", "chunk_size", "chunk_overlap"],
+      "optional": ["separators"]
+    },
+    "output": ["STRING"],
+    "output_name": ["text"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.vector_db": {
+    "name": "rag_llm.vector_db",
+    "category": "LLM",
+    "display_name": "Vector DB",
+    "description": "DB",
+    "python_module": "custom_nodes.rag_llm.vector_db",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "type": [
+          [
+            "chroma",
+            "faiss"
+          ]
+        ],
+        "embedding_type": [
+          [
+            "openai"
+          ]
+        ],
+        "retrieve_num": [
+          "INT",
+          {
+            "default": 3,
+            "min": 1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text", "type", "embedding_type", "retrieve_num"]
+    },
+    "output": ["STRING"],
+    "output_name": ["text"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.prompt": {
+    "name": "rag_llm.prompt",
+    "category": "LLM",
+    "display_name": "Prompt",
+    "description": "Prompt template.",
+    "python_module": "custom_nodes.rag_llm.prompt",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "type": [
+          [
+            "hub",
+            "customize"
+          ]
+        ],
+        "hub_link": [
+          "STRING",
+          {
+            "default": "rlm/rag-prompt"
+          }
+        ],
+        "system": [
+          "STRING",
+          {
+            "default": "You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\nQuestion: {question} \nContext: {context} \nAnswer:",
+            "multiline": true
+          }
+        ],
+        "human": [
+          "STRING",
+          {
+            "default": "{messages}",
+            "multiline": true
+          }
+        ]
+      },
+      "optional": {
+        "history": ["LOOP"],
+        "optional_text": ["STRING", { "forceInput": true }]
+      }
+    },
+    "input_order": {
+      "required": ["text", "type", "hub_link", "system", "human"],
+      "optional": ["history", "optional_text"]
+    },
+    "output": ["STRING"],
+    "output_name": ["prompt"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.prompt.grade_docs": {
+    "name": "rag_llm.prompt.grade_docs",
+    "category": "LLM",
+    "display_name": "Prompt (Grade Docs)",
+    "description": "Prompt template.",
+    "python_module": "custom_nodes.rag_llm.prompt.grade_docs",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "type": [
+          [
+            "hub",
+            "customize"
+          ],
+          {
+            "default": "customize"
+          }
+        ],
+        "hub_link": [
+          "STRING"
+        ],
+        "system": [
+          "STRING",
+          {
+            "default": "You are a document retrieval evaluator that's responsible for checking the relevancy of a retrieved document to the user's question.\n\nIf the document contains keyword(s) or semantic meaning related to the question, grade it as relevant.\n\nOutput a binary score 'yes' or 'no' to indicate whether the document is relevant to the question.",
+            "multiline": true
+          }
+        ],
+        "human": [
+          "STRING",
+          {
+            "default": "Retrieved document:\n\n{document}\n\nUser question: {question}",
+            "multiline": true
+          }
+        ]
+      },
+      "optional": {
+        "history": ["LOOP"],
+        "optional_text": ["STRING", { "forceInput": true }]
+      }
+    },
+    "input_order": {
+      "required": ["text", "type", "hub_link", "system", "human"],
+      "optional": ["history", "optional_text"]
+    },
+    "output": ["STRING"],
+    "output_name": ["prompt"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.prompt.transform_query": {
+    "name": "rag_llm.prompt.transform_query",
+    "category": "LLM",
+    "display_name": "Prompt (Transform Query)",
+    "description": "Prompt template.",
+    "python_module": "custom_nodes.rag_llm.prompt.transform_query",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "type": [
+          [
+            "hub",
+            "customize"
+          ],
+          {
+            "default": "customize"
+          }
+        ],
+        "hub_link": [
+          "STRING"
+        ],
+        "system": [
+          "STRING",
+          {
+            "default": "You are a question re-writer that converts an input question to a better version that is optimized for web search.\n\nLook at the input and try to reason about the underlying semantic intent / meaning.",
+            "multiline": true
+          }
+        ],
+        "human": [
+          "STRING",
+          {
+            "default": "Here is the initial question:\n\n{question}\n\nFormulate an improved question.",
+            "multiline": true
+          }
+        ]
+      },
+      "optional": {
+        "history": ["LOOP"],
+        "optional_text": ["STRING", { "forceInput": true }]
+      }
+    },
+    "input_order": {
+      "required": ["text", "type", "hub_link", "system", "human"],
+      "optional": ["history", "optional_text"]
+    },
+    "output": ["STRING"],
+    "output_name": ["prompt"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.model": {
+    "name": "rag_llm.model",
+    "category": "LLM",
+    "display_name": "Model",
+    "description": "Large Language Model (LLM).",
+    "python_module": "custom_nodes.rag_llm.model",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "model_name": [
+          [
+            "gpt-4o-mini",
+            "gpt-4o"
+          ],
+          {
+            "default": "gpt-4o-mini"
+          }
+        ]
+      },
+      "optional": {
+        "temperature": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "round": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text", "model_name"],
+      "optional": ["temperature"]
+    },
+    "output": ["STRING"],
+    "output_name": ["text"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.model.grade_docs": {
+    "name": "rag_llm.model.grade_docs",
+    "category": "LLM",
+    "display_name": "Model (Grade Docs)",
+    "description": "Large Language Model (LLM).",
+    "python_module": "custom_nodes.rag_llm.model.grade_docs",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "model_name": [
+          [
+            "gpt-4o-mini",
+            "gpt-4o"
+          ],
+          {
+            "default": "gpt-4o-mini"
+          }
+        ]
+      },
+      "optional": {
+        "temperature": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "round": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text", "model_name"],
+      "optional": ["temperature"]
+    },
+    "output": ["STRING"],
+    "output_name": ["text"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.model.transform_query": {
+    "name": "rag_llm.model.transform_query",
+    "category": "LLM",
+    "display_name": "Model (Transform Query)",
+    "description": "Large Language Model (LLM).",
+    "python_module": "custom_nodes.rag_llm.model.transform_query",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "model_name": [
+          [
+            "gpt-4o-mini",
+            "gpt-4o"
+          ],
+          {
+            "default": "gpt-4o-mini"
+          }
+        ]
+      },
+      "optional": {
+        "temperature": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.1,
+            "round": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text", "model_name"],
+      "optional": ["temperature"]
+    },
+    "output": ["STRING"],
+    "output_name": ["text"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.web_search": {
+    "name": "rag_llm.web_search",
+    "category": "LLM",
+    "display_name": "Web Search",
+    "description": "Search.",
+    "python_module": "custom_nodes.rag_llm.web_search",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ],
+        "k": [
+          "INT",
+          {
+            "default": 3,
+            "min": 1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text", "k"]
+    },
+    "output": ["STRING"],
+    "output_name": ["text"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "rag_llm.response": {
+    "name": "rag_llm.response",
+    "category": "LLM",
+    "display_name": "Response",
+    "description": "Stream response messages.",
+    "python_module": "custom_nodes.rag_llm.response",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ]
+      },
+      "optional": {
+        "enable_history": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "max_tokens": [
+          "INT",
+          {
+            "default": 10000,
+            "min": 0,
+            "max": 100000
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text"],
+      "optional": ["enable_history", "max_tokens"]
+    },
+    "output": ["STRING", "LOOP"],
+    "output_name": ["text", "history"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
+  "rag_llm.preview_text": {
+    "name": "rag_llm.preview_text",
+    "category": "LLM",
+    "display_name": "Preview Text",
+    "description": "Preview text.",
+    "python_module": "custom_nodes.rag_llm.preview_text",
+    "input": {
+      "required": {
+        "text": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["text"]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  },
+
+  "input.boolean": {
+    "name": "input.boolean",
+    "category": "input",
+    "display_name": "Boolean",
+    "description": "BOOLEAN",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "bool": ["BOOLEAN"]
+      }
+    },
+    "input_order": {
+      "required": ["bool"]
+    },
+    "output": ["BOOLEAN"],
+    "output_name": ["BOOLEAN"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.int": {
+    "name": "input.int",
+    "category": "input",
+    "display_name": "Int",
+    "description": "INT",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "int": ["INT"]
+      }
+    },
+    "input_order": {
+      "required": ["int"]
+    },
+    "output": ["INT"],
+    "output_name": ["INT"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.float": {
+    "name": "input.float",
+    "category": "input",
+    "display_name": "Float",
+    "description": "FLOAT",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "float": [
+          "FLOAT",
+          {
+            "step": 0.1,
+            "round": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["float"]
+    },
+    "output": ["FLOAT"],
+    "output_name": ["FLOAT"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.text": {
+    "name": "input.text",
+    "category": "input",
+    "display_name": "Text",
+    "description": "STRING",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "text": ["STRING"]
+      }
+    },
+    "input_order": {
+      "required": ["text"]
+    },
+    "output": ["STRING"],
+    "output_name": ["STRING"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.textarea": {
+    "name": "input.textarea",
+    "category": "input",
+    "display_name": "Textarea",
+    "description": "STRING (multiline)",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "textarea": [
+          "STRING",
+          {
+            "multiline": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["textarea"]
+    },
+    "output": ["STRING"],
+    "output_name": ["STRING"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.load_image": {
+    "name": "input.load_image",
+    "category": "input",
+    "display_name": "Load Image",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "image": [
+          [
+            ""
+          ],
+          {
+            "image_upload2": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["image"]
+    },
+    "output": ["IMAGE_FILE"],
+    "output_name": ["IMAGE_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.load_dicom": {
+    "name": "input.load_dicom",
+    "category": "input",
+    "display_name": "Load DICOM",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "oid": [
+          [
+            ""
+          ],
+          {
+            "dicom_upload": false
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["oid"]
+    },
+    "output": ["DICOM_FILE"],
+    "output_name": ["DICOM_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.load_series": {
+    "name": "input.load_series",
+    "category": "input",
+    "display_name": "Load Series",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "oid": [
+          [
+            ""
+          ],
+          {
+            "nifti_upload": false
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["oid"]
+    },
+    "output": ["SERIES_FILE_LIST"],
+    "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.load_nifti": {
+    "name": "input.load_nifti",
+    "category": "input",
+    "display_name": "Load NIFTI",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "oid": [
+          [
+            ""
+          ],
+          {
+            "nifti_upload": false
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["oid"]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+
+  "manual.segmentation": {
+    "name": "manual.segmentation",
+    "category": "manual",
+    "display_name": "Segmentation",
+    "description": "Manual segmentations.",
+    "python_module": "custom_nodes.manual.segmentation",
+    "input": {
+      "required": {
+        "DICOM_FILE": ["DICOM_FILE"]
+      }
+    },
+    "input_order": {
+      "required": [
+        "DICOM_FILE"
+      ]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["labelmap.nii.gz"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+
+  "plugin.tags_deident.main": {
+    "name": "plugin.tags_deident.main",
+    "category": "plugins/tags_deident",
+    "display_name": "DICOM Tags De-identify",
+    "description": "DICOM tags de-identifcation",
+    "python_module": "custom_nodes.tags_deident.main",
+    "input": {
+      "required": {
+        "tags": ["DICT"]
+      }
+    },
+    "input_order": {
+      "required": ["tags"]
+    },
+    "output": ["DICT"],
+    "output_name": ["de_identified_tags"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "plugin.head_deident.execution": {
+    "name": "plugin.head_deident.execution",
+    "category": "plugins/head_deident",
+    "display_name": "Head De-identify",
+    "description": "Head de-identifcation",
+    "python_module": "custom_nodes.head_deident.execution",
+    "input": {
+      "required": {
+        "head_data": ["3D"]
+      },
+      "optional": {
+        "modality": [
+          [
+            "CT",
+            "MR"
+          ]
+        ],
+        "threshold": [
+          "INT",
+          {
+            "default": 10,
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "thick": [
+          "INT",
+          {
+            "default": 2,
+            "min": 0,
+            "max": 100,
+            "step": 1
+          }
+        ],
+        "distort": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ],
+        "organ_eyes": [
+          ["blur", "remove", "keep"]
+        ],
+        "organ_nose": [
+          ["blur", "remove", "keep"]
+        ],
+        "organ_mouth": [
+          ["blur", "remove", "keep"]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["head_data"],
+      "optional": ["modality", "threshold", "thick", "distort", "organ_eyes", "organ_nose", "organ_mouth"]
+    },
+    "output": ["3D", "3D", "3D", "3D", "3D"],
+    "output_name": ["de_identified_data", "mask", "refined_mask", "contour", "difference_data"],
+    "output_is_list": [false, false, false, false, false],
+    "output_node": false
+  },
+  "plugin.head_deident.manual_qna": {
+    "name": "plugin.head_deident.manual_qna",
+    "category": "plugins/head_deident",
+    "display_name": "Head Q&A",
+    "description": "Manual Q&A",
+    "python_module": "custom_nodes.head_deident.manual_qna",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"]
+      }
+    },
+    "input_order": {
+      "required": [
+        "NIFTI_FILE"
+      ]
+    },
+    "output": ["DICT"],
+    "output_name": ["answers.json"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "plugin.head_deident.if_condition": {
+    "name": "plugin.head_deident.if_condition",
+    "category": "plugins/head_deident",
+    "display_name": "Head If Condition",
+    "description": "If condition",
+    "python_module": "custom_nodes.head_deident.if_condition",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "QA": ["DICT"]
+      }
+    },
+    "input_order": {
+      "required": [
+        "NIFTI_FILE",
+        "QA"
+      ]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "plugin.ocr_deident.deident_ocr": {
+    "name": "plugin.ocr_deident.deident_ocr",
+    "category": "plugins/ocr_deident",
+    "display_name": "OCR De-identify",
+    "description": "OCR de-identifcation",
+    "python_module": "custom_nodes.ocr_deident.deident_ocr",
+    "input": {
+      "required": {
+        "dicom_obj": ["DICOM"]
+      },
+      "optional": {
+        "sensitive_list": [
+          "STRING",
+          {
+            "default": "PatientName,PatientID,PatientBirthDate",
+            "multiline": true
+          }
+        ],
+        "x": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0
+          }
+        ],
+        "y": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0
+          }
+        ],
+        "width": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0
+          }
+        ],
+        "height": [
+          "INT",
+          {
+            "default": 0,
+            "min": 0
+          }
+        ],
+        "roi_only": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ],
+        "use_gpu": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["dicom_obj"],
+      "optional": ["sensitive_list", "x", "y", "width", "height", "roi_only", "use_gpu"]
+    },
+    "output": ["2D"],
+    "output_name": ["data"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "plugin.smooth.smooth_2d": {
+    "name": "plugin.smooth.smooth_2d",
+    "category": "plugins/smooth",
+    "display_name": "Smooth (2D)",
+    "description": "smooth 2D data",
+    "python_module": "custom_nodes.smooth.smooth_2d",
+    "input": {
+      "required": {
+        "data": ["2D"]
+      },
+      "optional": {
+        "sigma": [
+          "FLOAT",
+          {
+            "default": 4,
+            "min": 0,
+            "max": 50,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["data"],
+      "optional": ["sigma"]
+    },
+    "output": ["2D", "STRING"],
+    "output_name": ["data", "test_txt"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
+  "plugin.smooth.smooth_3d": {
+    "name": "plugin.smooth.smooth_3d",
+    "category": "plugins/smooth",
+    "display_name": "Smooth (3D)",
+    "description": "smooth 3D data",
+    "python_module": "custom_nodes.smooth.smooth_3d",
+    "input": {
+      "required": {
+        "data": ["3D"]
+      },
+      "optional": {
+        "sigma": [
+          "FLOAT",
+          {
+            "default": 4,
+            "min": 0,
+            "max": 50,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["data"],
+      "optional": ["sigma"]
+    },
+    "output": ["3D", "STRING"],
+    "output_name": ["data", "test_txt"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_two2Ddata_together": {
+    "name": "plugin.multi_input_test.add_two2Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Two 2D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_two2Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "2D"
+        ],
+        "data2": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2"
+      ],
+      "optional": [
+        "ratioA"
+      ]
+    },
+    "output": [
+      "2D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_two3Ddata_together": {
+    "name": "plugin.multi_input_test.add_two3Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Two 3D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_two3Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "3D"
+        ],
+        "data2": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.5,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2"
+      ],
+      "optional": [
+        "ratioA"
+      ]
+    },
+    "output": [
+      "3D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_three2Ddata_together": {
+    "name": "plugin.multi_input_test.add_three2Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Three 2D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_three2Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "2D"
+        ],
+        "data2": [
+          "2D"
+        ],
+        "data3": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ],
+        "ratioB": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2",
+        "data3"
+      ],
+      "optional": [
+        "ratioA",
+        "ratioB"
+      ]
+    },
+    "output": [
+      "2D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_input_test.add_three3Ddata_together": {
+    "name": "plugin.multi_input_test.add_three3Ddata_together",
+    "category": "plugins/multi_input_test",
+    "display_name": "Add Three 3D Data",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_input_test.add_three3Ddata_together",
+    "input": {
+      "required": {
+        "data1": [
+          "3D"
+        ],
+        "data2": [
+          "3D"
+        ],
+        "data3": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratioA": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ],
+        "ratioB": [
+          "FLOAT",
+          {
+            "default": 0.33,
+            "min": 0,
+            "max": 1,
+            "step": 0.01
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data1",
+        "data2",
+        "data3"
+      ],
+      "optional": [
+        "ratioA",
+        "ratioB"
+      ]
+    },
+    "output": [
+      "3D"
+    ],
+    "output_name": [
+      "data"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_two2Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_two2Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Two 2D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_two2Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "2D",
+      "2D"
+    ],
+    "output_name": [
+      "data1",
+      "data2"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_two3Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_two3Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Two 3D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_two3Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "3D",
+      "3D"
+    ],
+    "output_name": [
+      "data1",
+      "data2"
+    ],
+    "output_is_list": [
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_three2Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_three2Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Three 2D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_three2Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "2D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "2D",
+      "2D",
+      "2D"
+    ],
+    "output_name": [
+      "data1",
+      "data2",
+      "data3"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_output_test.output_three3Ddiff_contrast": {
+    "name": "plugin.multi_output_test.output_three3Ddiff_contrast",
+    "category": "plugins/multi_output_test",
+    "display_name": "Output Three 3D Data with Different Contrast",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_output_test.output_three3Ddiff_contrast",
+    "input": {
+      "required": {
+        "data": [
+          "3D"
+        ]
+      },
+      "optional": {
+        "ratio": [
+          "FLOAT",
+          {
+            "default": 1.1,
+            "min": 0,
+            "max": 2,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ],
+      "optional": [
+        "ratio"
+      ]
+    },
+    "output": [
+      "3D",
+      "3D",
+      "3D"
+    ],
+    "output_name": [
+      "data1",
+      "data2",
+      "data3"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.multi_in_multi_out_test.m_in_m_output": {
+    "name": "plugin.multi_in_multi_out_test.m_in_m_output",
+    "category": "plugins/multi_in_multi_out_test",
+    "display_name": "Multi in Multi out",
+    "description": "main function",
+    "python_module": "custom_nodes.multi_in_multi_out_test.m_in_m_output",
+    "input": {
+      "required": {
+        "data_2d": [
+          "2D"
+        ],
+        "data_3d": [
+          "3D"
+        ],
+        "data_dict": [
+          "DICT"
+        ],
+        "data_string": [
+          "STRING"
+        ],
+        "data_int": [
+          "INT"
+        ],
+        "data_float": [
+          "FLOAT"
+        ],
+        "data_bool": [
+          "BOOLEAN"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data_2d",
+        "data_3d",
+        "data_dict",
+        "data_string",
+        "data_int",
+        "data_float",
+        "data_bool"
+      ]
+    },
+    "output": [
+      "2D",
+      "3D",
+      "DICT",
+      "STRING",
+      "INT",
+      "FLOAT",
+      "BOOLEAN"
+    ],
+    "output_name": [
+      "data_2d",
+      "data_3d",
+      "data_dict",
+      "data_string",
+      "data_int",
+      "data_float",
+      "data_bool"
+    ],
+    "output_is_list": [
+      false,
+      false,
+      false,
+      false,
+      false,
+      false,
+      false
+    ],
+    "output_node": false
+  },
+  "plugin.error_test.error_test": {
+    "name": "plugin.error_test.error_test",
+    "category": "plugins/error_test",
+    "display_name": "raise error",
+    "description": "It will always raise an error",
+    "python_module": "custom_nodes.error_test.error_test",
+    "input": {
+      "required": {
+        "data": [
+          "2D"
+        ]
+      }
+    },
+    "input_order": {
+      "required": [
+        "data"
+      ]
+    },
+    "output": [
+      "2D"
+    ],
+    "output_name": [
+      "None"
+    ],
+    "output_is_list": [
+      false
+    ],
+    "output_node": false
+  },
+
+  "converter.file_to_data.image_to_2d": {
+    "name": "converter.file_to_data.image_to_2d",
+    "category": "coverters/file_to_data",
+    "display_name": "Image to 2D",
+    "description": "Convert image file to 2D data.",
+    "python_module": "custom_nodes.file_to_data.image_to_2d",
+    "input": {
+      "required": {
+        "IMAGE_FILE": ["IMAGE_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["IMAGE_FILE"]
+    },
+    "output": ["2D"],
+    "output_name": ["data"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_data.dicom_to_2d": {
+    "name": "converter.file_to_data.dicom_to_2d",
+    "category": "coverters/file_to_data",
+    "display_name": "DICOM to 2D",
+    "description": "Convert DICOM file to 2D data.",
+    "python_module": "custom_nodes.file_to_data.dicom_to_2d",
+    "input": {
+      "required": {
+        "DICOM_FILE": ["DICOM_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["DICOM_FILE"]
+    },
+    "output": ["2D", "DICT"],
+    "output_name": ["pixel_data", "header"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
+  "converter.file_to_data.dicom_volume_to_3d": {
+    "name": "converter.file_to_data.dicom_volume_to_3d",
+    "category": "coverters/file_to_data",
+    "display_name": "DICOM Volume to 3D",
+    "description": "Convert DICOM volume file to 3D data.",
+    "python_module": "custom_nodes.file_to_data.dicom_volume_to_3d",
+    "input": {
+      "required": {
+        "DICOM_VOLUME_FILE": ["DICOM_VOLUME_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["DICOM_VOLUME_FILE"]
+    },
+    "output": ["3D"],
+    "output_name": ["data"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_data.series_to_3d": {
+    "name": "converter.file_to_data.series_to_3d",
+    "category": "coverters/file_to_data",
+    "display_name": "Series to 3D",
+    "description": "Convert series files list to 3D data.",
+    "python_module": "custom_nodes.file_to_data.series_to_3d",
+    "input": {
+      "required": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["SERIES_FILE_LIST"]
+    },
+    "output": ["3D", "2D"],
+    "output_name": ["data", "affine"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
+  "converter.file_to_data.nifti_to_3d": {
+    "name": "converter.file_to_data.nifti_to_3d",
+    "category": "coverters/file_to_data",
+    "display_name": "NIFTI to 3D",
+    "description": "Convert NIFTI file to 3D data.",
+    "python_module": "custom_nodes.file_to_data.nifti_to_3d",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["NIFTI_FILE"]
+    },
+    "output": ["3D"],
+    "output_name": ["data"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.2d_to_image": {
+    "name": "converter.data_to_file.2d_to_image",
+    "category": "coverters/data_to_file",
+    "display_name": "2D to Image",
+    "description": "Convert 2D data to image file.",
+    "python_module": "custom_nodes.data_to_file.2d_to_image",
+    "input": {
+      "required": {
+        "data": ["2D"],
+        "format": [
+          [
+            "png",
+            "jpg"
+          ]
+        ]
+      },
+      "optional": {
+        "normalize": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["data", "format"],
+      "optional": ["normalize"]
+    },
+    "output": ["IMAGE_FILE"],
+    "output_name": ["IMAGE_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.2d_to_dicom": {
+    "name": "converter.data_to_file.2d_to_dicom",
+    "category": "coverters/data_to_file",
+    "display_name": "2D to DICOM",
+    "description": "Convert 2D data to DICOM file.",
+    "python_module": "custom_nodes.data_to_file.2d_to_dicom",
+    "input": {
+      "required": {
+        "pixel_data": ["2D"]
+      },
+      "optional": {
+        "header": ["DICT"]
+      }
+    },
+    "input_order": {
+      "required": ["pixel_data"],
+      "optional": ["header"]
+    },
+    "output": ["DICOM_FILE"],
+    "output_name": ["DICOM_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.2d_to_nifti": {
+    "name": "converter.data_to_file.2d_to_nifti",
+    "category": "coverters/data_to_file",
+    "display_name": "2D to NIFTI",
+    "description": "Convert 2D data to NIFTI file.",
+    "python_module": "custom_nodes.data_to_file.2d_to_nifti",
+    "input": {
+      "required": {
+        "data": ["2D"]
+      }
+    },
+    "input_order": {
+      "required": ["data"]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.3d_to_dicom_volume": {
+    "name": "converter.data_to_file.3d_to_dicom_volume",
+    "category": "coverters/data_to_file",
+    "display_name": "3D to DICOM Volume",
+    "description": "Convert 3D data to DICOM volume file.",
+    "python_module": "custom_nodes.data_to_file.3d_to_dicom_volume",
+    "input": {
+      "required": {
+        "data": ["3D"]
+      }
+    },
+    "input_order": {
+      "required": ["data"]
+    },
+    "output": ["DICOM_VOLUME_FILE"],
+    "output_name": ["DICOM_VOLUME_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.3d_to_nifti": {
+    "name": "converter.data_to_file.3d_to_nifti",
+    "category": "coverters/data_to_file",
+    "display_name": "3D to NIFTI",
+    "description": "Convert 3D data to NIFTI file.",
+    "python_module": "custom_nodes.data_to_file.3d_to_nifti",
+    "input": {
+      "required": {
+        "data": ["3D"],
+        "affine": ["2D"]
+      }
+    },
+    "input_order": {
+      "required": ["data", "affine"]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.3d_to_series": {
+    "name": "converter.data_to_file.3d_to_series",
+    "category": "coverters/data_to_file",
+    "display_name": "3D to Series",
+    "description": "Convert 3D data to series files list.",
+    "python_module": "custom_nodes.data_to_file.3d_to_series",
+    "input": {
+      "required": {
+        "data": ["3D"]
+      }
+    },
+    "input_order": {
+      "required": ["data"]
+    },
+    "output": ["SERIES_FILE_LIST"],
+    "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.series_to_nifti": {
+    "name": "converter.file_to_file.series_to_nifti",
+    "category": "coverters/file_to_file",
+    "display_name": "Series to NIFTI",
+    "description": "Convert series files list to NIFTI file.",
+    "python_module": "custom_nodes.file_to_file.series_to_nifti",
+    "input": {
+      "required": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["SERIES_FILE_LIST"]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.nifti_to_series": {
+    "name": "converter.file_to_file.nifti_to_series",
+    "category": "coverters/file_to_file",
+    "display_name": "NIFTI to Series",
+    "description": "Convert NIFTI file to series files list.",
+    "python_module": "custom_nodes.file_to_file.nifti_to_series",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["NIFTI_FILE"]
+    },
+    "output": ["SERIES_FILE_LIST"],
+    "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_data.2d_to_tensor": {
+    "name": "converter.data_to_data.2d_to_tensor",
+    "category": "coverters/data_to_data",
+    "display_name": "2D to Tensor",
+    "description": "Convert 2D data to torch.Tensor python datatype.",
+    "python_module": "custom_nodes.data_to_data.2d_to_tensor",
+    "input": {
+      "required": {
+        "data": ["2D"]
+      }
+    },
+    "input_order": {
+      "required": ["data"]
+    },
+    "output": ["IMAGE"],
+    "output_name": ["tensor"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+
+  "preview.volview": {
+    "name": "preview.volview",
+    "category": "preview",
+    "display_name": "VolView",
+    "description": "",
+    "python_module": "custom_nodes.preview.volview",
+    "input": {
+      "optional": {
+        "IMAGE_FILE": ["IMAGE_FILE"],
+        "DICOM_FILE": ["DICOM_FILE"],
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "optional": [
+        "IMAGE_FILE",
+        "DICOM_FILE",
+        "NIFTI_FILE",
+        "SERIES_FILE_LIST"
+      ]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  },
+
+  "output.export": {
+    "name": "output.export",
+    "category": "output",
+    "display_name": "Export",
+    "description": "",
+    "python_module": "custom_nodes.output.export",
+    "input": {
+      "optional": {
+        "IMAGE_FILE": ["IMAGE_FILE"],
+        "DICOM_FILE": ["DICOM_FILE"],
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "optional": [
+        "IMAGE_FILE",
+        "DICOM_FILE",
+        "NIFTI_FILE",
+        "SERIES_FILE_LIST"
+      ]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  }
+}

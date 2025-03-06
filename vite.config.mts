@@ -98,9 +98,10 @@ const DEV_SERVER_COMFYUI_URL =
   process.env.DEV_SERVER_COMFYUI_URL || 'http://127.0.0.1:8188'
 
 export default defineConfig({
-  base: '',
+  base: './',
   server: {
     host: VITE_REMOTE_DEV ? '0.0.0.0' : undefined,
+    port: 8044,
     proxy: {
       '/internal': {
         target: DEV_SERVER_COMFYUI_URL

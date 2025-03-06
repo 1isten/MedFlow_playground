@@ -1552,7 +1552,7 @@
       "required": ["DICOM_FILE"]
     },
     "output": ["2D", "DICT"],
-    "output_name": ["pixel_data", "header"],
+    "output_name": ["data", "other_tags"],
     "output_is_list": [false, false],
     "output_node": false
   },
@@ -1570,8 +1570,27 @@
     "input_order": {
       "required": ["DICOM_VOLUME_FILE"]
     },
-    "output": ["3D"],
-    "output_name": ["data"],
+    "output": ["3D", "2D"],
+    "output_name": ["data", "affine"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_data.nifti_to_3d": {
+    "name": "converter.file_to_data.nifti_to_3d",
+    "category": "coverters/file_to_data",
+    "display_name": "NIFTI to 3D",
+    "description": "Convert NIFTI file to 3D data.",
+    "python_module": "custom_nodes.file_to_data.nifti_to_3d",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["NIFTI_FILE"]
+    },
+    "output": ["3D", "2D"],
+    "output_name": ["data", "affine"],
     "output_is_list": [false],
     "output_node": false
   },
@@ -1592,25 +1611,6 @@
     "output": ["3D", "2D"],
     "output_name": ["data", "affine"],
     "output_is_list": [false, false],
-    "output_node": false
-  },
-  "converter.file_to_data.nifti_to_3d": {
-    "name": "converter.file_to_data.nifti_to_3d",
-    "category": "coverters/file_to_data",
-    "display_name": "NIFTI to 3D",
-    "description": "Convert NIFTI file to 3D data.",
-    "python_module": "custom_nodes.file_to_data.nifti_to_3d",
-    "input": {
-      "required": {
-        "NIFTI_FILE": ["NIFTI_FILE"]
-      }
-    },
-    "input_order": {
-      "required": ["NIFTI_FILE"]
-    },
-    "output": ["3D"],
-    "output_name": ["data"],
-    "output_is_list": [false],
     "output_node": false
   },
   "converter.data_to_file.2d_to_image": {
@@ -1655,15 +1655,15 @@
     "python_module": "custom_nodes.data_to_file.2d_to_dicom",
     "input": {
       "required": {
-        "pixel_data": ["2D"]
+        "data": ["2D"]
       },
       "optional": {
-        "header": ["DICT"]
+        "other_tags": ["DICT"]
       }
     },
     "input_order": {
-      "required": ["pixel_data"],
-      "optional": ["header"]
+      "required": ["data"],
+      "optional": ["other_tags"]
     },
     "output": ["DICOM_FILE"],
     "output_name": ["DICOM_FILE"],
@@ -1698,10 +1698,14 @@
     "input": {
       "required": {
         "data": ["3D"]
+      },
+      "optional": {
+        "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data"]
+      "required": ["data"],
+      "optional": ["affine"]
     },
     "output": ["DICOM_VOLUME_FILE"],
     "output_name": ["DICOM_VOLUME_FILE"],
@@ -1716,12 +1720,15 @@
     "python_module": "custom_nodes.data_to_file.3d_to_nifti",
     "input": {
       "required": {
-        "data": ["3D"],
+        "data": ["3D"]
+      },
+      "optional": {
         "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data", "affine"]
+      "required": ["data"],
+      "optional": ["affine"]
     },
     "output": ["NIFTI_FILE"],
     "output_name": ["NIFTI_FILE"],
@@ -1737,10 +1744,33 @@
     "input": {
       "required": {
         "data": ["3D"]
+      },
+      "optional": {
+        "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data"]
+      "required": ["data"],
+      "optional": ["affine"]
+    },
+    "output": ["SERIES_FILE_LIST"],
+    "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.nifti_to_series": {
+    "name": "converter.file_to_file.nifti_to_series",
+    "category": "coverters/file_to_file",
+    "display_name": "NIFTI to Series",
+    "description": "Convert NIFTI file to series files list.",
+    "python_module": "custom_nodes.file_to_file.nifti_to_series",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["NIFTI_FILE"]
     },
     "output": ["SERIES_FILE_LIST"],
     "output_name": ["SERIES_FILE_LIST"],
@@ -1763,25 +1793,6 @@
     },
     "output": ["NIFTI_FILE"],
     "output_name": ["NIFTI_FILE"],
-    "output_is_list": [false],
-    "output_node": false
-  },
-  "converter.file_to_file.nifti_to_series": {
-    "name": "converter.file_to_file.nifti_to_series",
-    "category": "coverters/file_to_file",
-    "display_name": "NIFTI to Series",
-    "description": "Convert NIFTI file to series files list.",
-    "python_module": "custom_nodes.file_to_file.nifti_to_series",
-    "input": {
-      "required": {
-        "NIFTI_FILE": ["NIFTI_FILE"]
-      }
-    },
-    "input_order": {
-      "required": ["NIFTI_FILE"]
-    },
-    "output": ["SERIES_FILE_LIST"],
-    "output_name": ["SERIES_FILE_LIST"],
     "output_is_list": [false],
     "output_node": false
   },

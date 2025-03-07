@@ -464,7 +464,7 @@ export class ComfyApi extends EventTarget {
         for (const key in objectInfoUnsafe) {
           if (
             key.startsWith('plugin.') ||
-            key.startsWith('manual.') ||
+            // ...
             key.startsWith('rag_llm.')
           ) {
             delete objectInfoUnsafe[key]

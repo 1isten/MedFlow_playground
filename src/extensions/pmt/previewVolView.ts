@@ -60,8 +60,8 @@ useExtensionService().registerExtension({
       ].includes(pmt_fields?.status)
 
       const imageInputNode = node.getInputNode(0)
-      const dicomInputNode = node.getInputNode(2) || node.getInputNode(1)
-      const niftiInputNode = node.getInputNode(3)
+      const dicomInputNode = node.getInputNode(1)
+      const niftiInputNode = node.getInputNode(2)
 
       let imagePath
       if (imageInputNode && mayPreview) {

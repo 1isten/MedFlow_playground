@@ -162,6 +162,8 @@ useExtensionService().registerExtension({
             ext = 'nii'
           } else if (niftiPath.endsWith('.nii.gz')) {
             ext = 'nii.gz'
+          } else {
+            niftiPath += ext
           }
           let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${encodeURIComponent(niftiPath)}]&layoutName=${'Quad View'}`
           imageUrl = new URL(imageUrl).href

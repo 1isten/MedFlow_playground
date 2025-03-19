@@ -19,6 +19,11 @@
       <GraphCanvasMenu v-if="canvasMenuEnabled" class="pointer-events-auto" />
     </template>
   </LiteGraphCanvasSplitterOverlay>
+  <LiteGraphCanvasSplitterOverlay v-if="comfyAppReady && !betaMenuEnabled">
+    <template #bottom-panel>
+      <ActionPanel />
+    </template>
+  </LiteGraphCanvasSplitterOverlay>
   <TitleEditor />
   <GraphCanvasMenu v-if="!betaMenuEnabled && canvasMenuEnabled" />
   <canvas
@@ -48,6 +53,7 @@ import NodeTooltip from '@/components/graph/NodeTooltip.vue'
 import SelectionOverlay from '@/components/graph/SelectionOverlay.vue'
 import SelectionToolbox from '@/components/graph/SelectionToolbox.vue'
 import TitleEditor from '@/components/graph/TitleEditor.vue'
+import ActionPanel from '@/components/pmtOverride/ActionPanel.vue'
 import NodeSearchboxPopover from '@/components/searchbox/NodeSearchBoxPopover.vue'
 import SideToolbar from '@/components/sidebar/SideToolbar.vue'
 import SecondRowWorkflowTabs from '@/components/topbar/SecondRowWorkflowTabs.vue'
@@ -203,7 +209,7 @@ onMounted(async () => {
   // @ts-expect-error fixme ts strict error
   window['graph'] = comfyApp.graph
 
-  comfyAppReady.value = true
+  // comfyAppReady.value = true
 
   comfyApp.canvas.onSelectionChange = useChainCallback(
     comfyApp.canvas.onSelectionChange,
@@ -215,6 +221,11 @@ onMounted(async () => {
     'Comfy.CustomColorPalettes'
   )
 
+  localStorage.setItem('Comfy.PreviousWorkflow', 'New Workflow.json')
+  localStorage.setItem(
+    'workflow',
+    '{"last_node_id":0,"last_link_id":0,"nodes":[],"links":[],"groups":[],"config":{},"extra":{"ds":{"scale":1,"offset":[0,0]}},"version":0.4}'
+  )
   // Restore workflow and workflow tabs state from storage
   await workflowPersistence.restorePreviousWorkflow()
   workflowPersistence.restoreWorkflowTabsState()
@@ -228,6 +239,7 @@ onMounted(async () => {
     }
   )
 
+  comfyAppReady.value = true
   emit('ready')
 })
 </script>

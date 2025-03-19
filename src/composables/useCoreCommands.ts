@@ -581,6 +581,24 @@ export function useCoreCommands(): ComfyCommand[] {
         app.canvas.deleteSelected()
         app.canvas.setDirty(true, true)
       }
+    },
+    {
+      id: 'Comfy.Manager.CustomNodesManager',
+      icon: 'pi pi-puzzle',
+      label: 'Custom Nodes Manager',
+      versionAdded: '1.12.10',
+      function: () => {
+        dialogService.showManagerDialog()
+      }
+    },
+    {
+      id: 'Comfy.Manager.ToggleManagerProgressDialog',
+      icon: 'pi pi-spinner',
+      label: 'Toggle Progress Dialog',
+      versionAdded: '1.13.9',
+      function: () => {
+        dialogService.showManagerProgressDialog()
+      }
     }
   ]
 }

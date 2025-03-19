@@ -125,6 +125,12 @@
   "Comfy_LoadDefaultWorkflow": {
     "label": "Charger le flux de travail par défaut"
   },
+  "Comfy_Manager_CustomNodesManager": {
+    "label": "Gestionnaire de Nœuds Personnalisés"
+  },
+  "Comfy_Manager_ToggleManagerProgressDialog": {
+    "label": "Basculer la boîte de dialogue de progression"
+  },
   "Comfy_NewBlankWorkflow": {
     "label": "Nouveau flux de travail vierge"
   },

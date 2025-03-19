@@ -135,7 +135,7 @@ export function getPathDetails(path: string) {
  * Replaces dots with underscores.
  */
 export function normalizeI18nKey(key: string) {
-  return key.replace(/\./g, '_')
+  return typeof key === 'string' ? key.replace(/\./g, '_') : ''
 }
 
 /**
@@ -232,7 +232,9 @@ export function createAnnotatedPath(
   const { rootFolder = 'input', subfolder } = options
   if (typeof item === 'string')
     return `${createPath(item, subfolder)}${createAnnotation(item, rootFolder)}`
-  return `${createPath(item.filename ?? '', item.subfolder)}${item.type ? createAnnotation(item.type, rootFolder) : ''}`
+  return `${createPath(item.filename ?? '', item.subfolder)}${
+    item.type ? createAnnotation(item.type, rootFolder) : ''
+  }`
 }
 
 /**
@@ -311,4 +313,105 @@ export const paramsToCacheKey = (params: unknown): string => {
       .join('&')
 
   return String(params)
+}
+
+/**
+ * Generates a RFC4122 compliant UUID v4 using the native crypto API when available
+ * @returns A properly formatted UUID string
+ */
+export const generateUUID = (): string => {
+  // Use native crypto.randomUUID() if available (modern browsers)
+  if (
+    typeof crypto !== 'undefined' &&
+    typeof crypto.randomUUID === 'function'
+  ) {
+    return crypto.randomUUID()
+  }
+
+  // Fallback implementation for older browsers
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0
+    const v = c === 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
+}
+
+/**
+ * Checks if a URL is a Civitai model URL
+ * @example
+ * isCivitaiModelUrl('https://civitai.com/api/download/models/1234567890') // true
+ * isCivitaiModelUrl('https://civitai.com/api/v1/models/1234567890') // true
+ * isCivitaiModelUrl('https://civitai.com/api/v1/models-versions/15342') // true
+ * isCivitaiModelUrl('https://example.com/model.safetensors') // false
+ */
+export const isCivitaiModelUrl = (url: string): boolean => {
+  if (!isValidUrl(url)) return false
+  if (!url.includes('civitai.com')) return false
+
+  const urlObj = new URL(url)
+  const pathname = urlObj.pathname
+
+  return (
+    /^\/api\/download\/models\/(\d+)$/.test(pathname) ||
+    /^\/api\/v1\/models\/(\d+)$/.test(pathname) ||
+    /^\/api\/v1\/models-versions\/(\d+)$/.test(pathname)
+  )
+}
+
+/**
+ * Converts a Hugging Face download URL to a repository page URL
+ * @param url The download URL to convert
+ * @returns The repository page URL or the original URL if conversion fails
+ * @example
+ * downloadUrlToHfRepoUrl(
+ *  'https://huggingface.co/bfl/FLUX.1/resolve/main/flux1-canny-dev.safetensors?download=true'
+ * ) // https://huggingface.co/bfl/FLUX.1
+ */
+export const downloadUrlToHfRepoUrl = (url: string): string => {
+  try {
+    const urlObj = new URL(url)
+    const pathname = urlObj.pathname
+
+    // Use regex to match everything before /resolve/ or /blob/
+    const regex = /^(.*?)(?:\/resolve\/|\/blob\/|$)/
+    const repoPathMatch = regex.exec(pathname)
+
+    // Extract the repository path and remove leading slash if present
+    const repoPath = repoPathMatch?.[1]?.replace(/^\//, '') || ''
+
+    return `https://huggingface.co/${repoPath}`
+  } catch (error) {
+    return url
+  }
+}
+
+export const isSemVer = (version: string) => {
+  const regex = /^(\d+)\.(\d+)\.(\d+)$/
+  return regex.test(version)
+}
+
+const normalizeVersion = (version: string) =>
+  version
+    .split(/[+.-]/)
+    .map(Number)
+    .filter((part) => !Number.isNaN(part))
+
+export function compareVersions(
+  versionA: string | undefined,
+  versionB: string | undefined
+): number {
+  versionA ??= '0.0.0'
+  versionB ??= '0.0.0'
+
+  const aParts = normalizeVersion(versionA)
+  const bParts = normalizeVersion(versionB)
+
+  for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+    const aPart = aParts[i] ?? 0
+    const bPart = bParts[i] ?? 0
+    if (aPart < bPart) return -1
+    if (aPart > bPart) return 1
+  }
+
+  return 0
 }

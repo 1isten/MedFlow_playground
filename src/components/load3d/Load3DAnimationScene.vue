@@ -26,15 +26,17 @@
 import { ref, watch } from 'vue'
 
 import Load3DScene from '@/components/load3d/Load3DScene.vue'
+import Load3dAnimation from '@/extensions/core/load3d/Load3dAnimation'
 import {
   CameraType,
+  Load3DAnimationNodeType,
   MaterialMode,
   UpDirection
 } from '@/extensions/core/load3d/interfaces'
 
 const props = defineProps<{
   node: any
-  type: 'Load3DAnimation' | 'Preview3DAnimation'
+  type: Load3DAnimationNodeType
   backgroundColor: string
   showGrid: boolean
   lightIntensity: number
@@ -62,7 +64,7 @@ const upDirection = ref(props.upDirection)
 const materialMode = ref(props.materialMode)
 const showFOVButton = ref(props.showFOVButton)
 const showLightIntensityButton = ref(props.showLightIntensityButton)
-const load3DSceneRef = ref(null)
+const load3DSceneRef = ref<InstanceType<typeof Load3DScene> | null>(null)
 
 watch(
   () => props.cameraType,
@@ -123,21 +125,24 @@ watch(
 watch(
   () => props.playing,
   (newValue) => {
-    load3DSceneRef.value.load3d.toggleAnimation(newValue)
+    const load3d = load3DSceneRef.value?.load3d as Load3dAnimation | null
+    load3d?.toggleAnimation(newValue)
   }
 )
 
 watch(
   () => props.selectedSpeed,
   (newValue) => {
-    load3DSceneRef.value.load3d.setAnimationSpeed(newValue)
+    const load3d = load3DSceneRef.value?.load3d as Load3dAnimation | null
+    load3d?.setAnimationSpeed(newValue)
   }
 )
 
 watch(
   () => props.selectedAnimation,
   (newValue) => {
-    load3DSceneRef.value.load3d.updateSelectedAnimation(newValue)
+    const load3d = load3DSceneRef.value?.load3d as Load3dAnimation | null
+    load3d?.updateSelectedAnimation(newValue)
   }
 )
 
@@ -182,4 +187,8 @@ const animationListeners = {
     emit('animationListChange', newValue)
   }
 }
+
+defineExpose({
+  load3DSceneRef
+})
 </script>

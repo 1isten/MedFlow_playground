@@ -1,6 +1,11 @@
 <template>
-  <div class="relative w-full h-full">
+  <div
+    class="relative w-full h-full"
+    @mouseenter="handleMouseEnter"
+    @mouseleave="handleMouseLeave"
+  >
     <Load3DScene
+      ref="load3DSceneRef"
       :node="node"
       :type="type"
       :backgroundColor="backgroundColor"
@@ -12,6 +17,7 @@
       :backgroundImage="backgroundImage"
       :upDirection="upDirection"
       :materialMode="materialMode"
+      :edgeThreshold="edgeThreshold"
       @materialModeChange="listenMaterialModeChange"
       @backgroundColorChange="listenBackgroundColorChange"
       @lightIntensityChange="listenLightIntensityChange"
@@ -21,6 +27,7 @@
       @showPreviewChange="listenShowPreviewChange"
       @backgroundImageChange="listenBackgroundImageChange"
       @upDirectionChange="listenUpDirectionChange"
+      @edgeThresholdChange="listenEdgeThresholdChange"
     />
     <Load3DControls
       :backgroundColor="backgroundColor"
@@ -36,6 +43,7 @@
       :upDirection="upDirection"
       :materialMode="materialMode"
       :isAnimation="false"
+      :edgeThreshold="edgeThreshold"
       @updateBackgroundImage="handleBackgroundImageUpdate"
       @switchCamera="switchCamera"
       @toggleGrid="toggleGrid"
@@ -45,6 +53,7 @@
       @updateFOV="handleUpdateFOV"
       @updateUpDirection="handleUpdateUpDirection"
       @updateMaterialMode="handleUpdateMaterialMode"
+      @updateEdgeThreshold="handleUpdateEdgeThreshold"
     />
   </div>
 </template>
@@ -57,16 +66,22 @@ import Load3DScene from '@/components/load3d/Load3DScene.vue'
 import Load3dUtils from '@/extensions/core/load3d/Load3dUtils'
 import {
   CameraType,
+  Load3DNodeType,
   MaterialMode,
   UpDirection
 } from '@/extensions/core/load3d/interfaces'
+import type { CustomInputSpec } from '@/schemas/nodeDef/nodeDefSchemaV2'
+import type { ComponentWidget } from '@/scripts/domWidget'
 
-const props = defineProps<{
-  node: any
-  type: 'Load3D' | 'Preview3D'
+const { widget } = defineProps<{
+  widget: ComponentWidget<string[]>
 }>()
 
-const node = ref(props.node)
+const inputSpec = widget.inputSpec as CustomInputSpec
+
+const node = widget.node
+const type = inputSpec.type as Load3DNodeType
+
 const backgroundColor = ref('#000000')
 const showGrid = ref(true)
 const showPreview = ref(false)
@@ -79,10 +94,24 @@ const hasBackgroundImage = ref(false)
 const backgroundImage = ref('')
 const upDirection = ref<UpDirection>('original')
 const materialMode = ref<MaterialMode>('original')
+const edgeThreshold = ref(85)
+const load3DSceneRef = ref<InstanceType<typeof Load3DScene> | null>(null)
 
 const showPreviewButton = computed(() => {
-  return !props.type.includes('Preview')
+  return !type.includes('Preview')
 })
+
+const handleMouseEnter = () => {
+  if (load3DSceneRef.value?.load3d) {
+    load3DSceneRef.value.load3d.updateStatusMouseOnScene(true)
+  }
+}
+
+const handleMouseLeave = () => {
+  if (load3DSceneRef.value?.load3d) {
+    load3DSceneRef.value.load3d.updateStatusMouseOnScene(false)
+  }
+}
 
 const switchCamera = () => {
   cameraType.value =
@@ -90,62 +119,68 @@ const switchCamera = () => {
 
   showFOVButton.value = cameraType.value === 'perspective'
 
-  node.value.properties['Camera Type'] = cameraType.value
+  node.properties['Camera Type'] = cameraType.value
 }
 
 const togglePreview = (value: boolean) => {
   showPreview.value = value
 
-  node.value.properties['Show Preview'] = showPreview.value
+  node.properties['Show Preview'] = showPreview.value
 }
 
 const toggleGrid = (value: boolean) => {
   showGrid.value = value
 
-  node.value.properties['Show Grid'] = showGrid.value
+  node.properties['Show Grid'] = showGrid.value
 }
 
 const handleUpdateLightIntensity = (value: number) => {
   lightIntensity.value = value
 
-  node.value.properties['Light Intensity'] = lightIntensity.value
+  node.properties['Light Intensity'] = lightIntensity.value
 }
 
 const handleBackgroundImageUpdate = async (file: File | null) => {
   if (!file) {
     hasBackgroundImage.value = false
     backgroundImage.value = ''
-    node.value.properties['Background Image'] = ''
+    node.properties['Background Image'] = ''
     return
   }
 
   backgroundImage.value = await Load3dUtils.uploadFile(file)
 
-  node.value.properties['Background Image'] = backgroundImage.value
+  node.properties['Background Image'] = backgroundImage.value
 }
 
 const handleUpdateFOV = (value: number) => {
   fov.value = value
 
-  node.value.properties['FOV'] = fov.value
+  node.properties['FOV'] = fov.value
+}
+
+const handleUpdateEdgeThreshold = (value: number) => {
+  edgeThreshold.value = value
+
+  node.properties['Edge Threshold'] = edgeThreshold.value
 }
 
 const handleBackgroundColorChange = (value: string) => {
   backgroundColor.value = value
 
-  node.value.properties['Background Color'] = value
+  node.properties['Background Color'] = value
 }
 
 const handleUpdateUpDirection = (value: UpDirection) => {
   upDirection.value = value
 
-  node.value.properties['Up Direction'] = value
+  node.properties['Up Direction'] = value
 }
 
 const handleUpdateMaterialMode = (value: MaterialMode) => {
   materialMode.value = value
 
-  node.value.properties['Material Mode'] = value
+  node.properties['Material Mode'] = value
 }
 
 const listenMaterialModeChange = (mode: MaterialMode) => {
@@ -156,6 +191,10 @@ const listenMaterialModeChange = (mode: MaterialMode) => {
 
 const listenUpDirectionChange = (value: UpDirection) => {
   upDirection.value = value
+}
+
+const listenEdgeThresholdChange = (value: number) => {
+  edgeThreshold.value = value
 }
 
 const listenBackgroundColorChange = (value: string) => {

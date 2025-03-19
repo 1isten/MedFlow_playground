@@ -1,5 +1,7 @@
 import { debounce } from 'lodash'
 
+import { t } from '@/i18n'
+
 import { api } from '../../scripts/api'
 import { app } from '../../scripts/app'
 import { ComfyApp } from '../../scripts/app'
@@ -819,8 +821,11 @@ class MaskEditorDialog extends ComfyDialog {
 
   //new
   private uiManager!: UIManager
+  // @ts-expect-error unused variable
   private toolManager!: ToolManager
+  // @ts-expect-error unused variable
   private panAndZoomManager!: PanAndZoomManager
+  // @ts-expect-error unused variable
   private brushTool!: BrushTool
   private paintBucketTool!: PaintBucketTool
   private colorSelectTool!: ColorSelectTool
@@ -1086,7 +1091,7 @@ class MaskEditorDialog extends ComfyDialog {
     formData.append('type', 'input')
     formData.append('subfolder', 'clipspace')
 
-    this.uiManager.setSaveButtonText('Saving')
+    this.uiManager.setSaveButtonText(t('g.saving'))
     this.uiManager.setSaveButtonEnabled(false)
     this.keyboardManager.removeListeners()
 
@@ -1115,7 +1120,7 @@ class MaskEditorDialog extends ComfyDialog {
       this.close()
       this.isOpen = false
     } else {
-      this.uiManager.setSaveButtonText('Save')
+      this.uiManager.setSaveButtonText(t('g.save'))
       this.uiManager.setSaveButtonEnabled(true)
       this.keyboardManager.addListeners()
     }
@@ -1188,6 +1193,7 @@ class MaskEditorDialog extends ComfyDialog {
 }
 
 class CanvasHistory {
+  // @ts-expect-error unused variable
   private maskEditor!: MaskEditorDialog
   private messageBroker!: MessageBroker
 
@@ -1305,6 +1311,7 @@ class PaintBucketTool {
   private imageData: ImageData | null = null
   private data: Uint8ClampedArray | null = null
   private tolerance: number = 5
+  private fillOpacity: number = 255 // Add opacity property (default 100%)
 
   constructor(maskEditor: MaskEditorDialog) {
     this.maskEditor = maskEditor
@@ -1333,6 +1340,11 @@ class PaintBucketTool {
     )
 
     this.messageBroker.subscribe('invert', () => this.invertMask())
+
+    // Add new listener for opacity setting
+    this.messageBroker.subscribe('setFillOpacity', (opacity: number) =>
+      this.setFillOpacity(opacity)
+    )
   }
 
   private addPullTopics() {
@@ -1340,6 +1352,17 @@ class PaintBucketTool {
       'getTolerance',
       async () => this.tolerance
     )
+    // Add pull topic for fillOpacity
+    this.messageBroker.createPullTopic(
+      'getFillOpacity',
+      async () => (this.fillOpacity / 255) * 100
+    )
+  }
+
+  // Add method to set opacity
+  setFillOpacity(opacity: number): void {
+    // Convert from percentage (0-100) to alpha value (0-255)
+    this.fillOpacity = Math.floor((opacity / 100) * 255)
   }
 
   private getPixel(x: number, y: number): number {
@@ -1439,8 +1462,8 @@ class PaintBucketTool {
       }
 
       visited[visitedIndex] = 1
-      // Set alpha to 255 for fill mode, 0 for erase mode
-      this.setPixel(x, y, isFillMode ? 255 : 0, maskColor)
+      // Set alpha to fillOpacity for fill mode, 0 for erase mode
+      this.setPixel(x, y, isFillMode ? this.fillOpacity : 0, maskColor)
 
       // Check neighbors
       const checkNeighbor = (nx: number, ny: number) => {
@@ -1523,6 +1546,7 @@ class PaintBucketTool {
 }
 
 class ColorSelectTool {
+  // @ts-expect-error unused variable
   private maskEditor!: MaskEditorDialog
   private messageBroker!: MessageBroker
   private width: number | null = null
@@ -1540,6 +1564,7 @@ class ColorSelectTool {
   private applyWholeImage: boolean = false
   private maskBoundry: boolean = false
   private maskTolerance: number = 0
+  private selectOpacity: number = 255 // Add opacity property (default 100%)
 
   constructor(maskEditor: MaskEditorDialog) {
     this.maskEditor = maskEditor
@@ -1586,6 +1611,11 @@ class ColorSelectTool {
 
     this.messageBroker.subscribe('setMaskTolerance', (maskTolerance: number) =>
       this.setMaskTolerance(maskTolerance)
+    )
+
+    // Add new listener for opacity setting
+    this.messageBroker.subscribe('setSelectionOpacity', (opacity: number) =>
+      this.setSelectOpacity(opacity)
     )
   }
 
@@ -1805,7 +1835,7 @@ class ColorSelectTool {
           const x = pixelIndex % width
           const y = Math.floor(pixelIndex / width)
           if (this.isPixelInRange(this.getPixel(x, y), targetPixel)) {
-            this.setPixel(x, y, 255, maskColor)
+            this.setPixel(x, y, this.selectOpacity, maskColor) // Use selectOpacity instead of 255
           }
         }
         // Allow UI updates between chunks
@@ -1845,7 +1875,7 @@ class ColorSelectTool {
         }
 
         visited[visitedIndex] = 1
-        this.setPixel(x, y, 255, maskColor)
+        this.setPixel(x, y, this.selectOpacity, maskColor) // Use selectOpacity instead of 255
 
         // Inline direction checks for better performance
         if (
@@ -1940,6 +1970,18 @@ class ColorSelectTool {
 
   setMaskTolerance(maskTolerance: number): void {
     this.maskTolerance = maskTolerance
+  }
+
+  // Add method to set opacity
+  setSelectOpacity(opacity: number): void {
+    // Convert from percentage (0-100) to alpha value (0-255)
+    this.selectOpacity = Math.floor((opacity / 100) * 255)
+
+    // Update preview if applicable
+    if (this.lastPoint && this.livePreview) {
+      this.messageBroker.publish('undo')
+      this.fillColorSelection(this.lastPoint)
+    }
   }
 }
 
@@ -2292,9 +2334,6 @@ class BrushTool {
     const cappedDeltaY = Math.max(-100, Math.min(100, finalDeltaY))
 
     // Rest of the function remains the same
-    const sizeDelta = cappedDeltaX / 40
-    const hardnessDelta = cappedDeltaY / 800
-
     const newSize = Math.max(
       1,
       Math.min(
@@ -2413,90 +2452,6 @@ class BrushTool {
     }
   }
 
-  private calculateCubicSplinePoints(
-    points: Point[],
-    numSegments: number = 10
-  ): Point[] {
-    const result: Point[] = []
-
-    const xCoords = points.map((p) => p.x)
-    const yCoords = points.map((p) => p.y)
-
-    const xDerivatives = this.calculateSplineCoefficients(xCoords)
-    const yDerivatives = this.calculateSplineCoefficients(yCoords)
-
-    // Generate points along the spline
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i]
-      const p1 = points[i + 1]
-      const d0x = xDerivatives[i]
-      const d1x = xDerivatives[i + 1]
-      const d0y = yDerivatives[i]
-      const d1y = yDerivatives[i + 1]
-
-      for (let t = 0; t <= numSegments; t++) {
-        const t_normalized = t / numSegments
-
-        // Hermite basis functions
-        const h00 = 2 * t_normalized ** 3 - 3 * t_normalized ** 2 + 1
-        const h10 = t_normalized ** 3 - 2 * t_normalized ** 2 + t_normalized
-        const h01 = -2 * t_normalized ** 3 + 3 * t_normalized ** 2
-        const h11 = t_normalized ** 3 - t_normalized ** 2
-
-        const x = h00 * p0.x + h10 * d0x + h01 * p1.x + h11 * d1x
-        const y = h00 * p0.y + h10 * d0y + h01 * p1.y + h11 * d1y
-
-        result.push({ x, y })
-      }
-    }
-
-    return result
-  }
-
-  private generateEvenlyDistributedPoints(
-    splinePoints: Point[],
-    numPoints: number
-  ): Point[] {
-    const distances: number[] = [0]
-    for (let i = 1; i < splinePoints.length; i++) {
-      const dx = splinePoints[i].x - splinePoints[i - 1].x
-      const dy = splinePoints[i].y - splinePoints[i - 1].y
-      const dist = Math.hypot(dx, dy)
-      distances.push(distances[i - 1] + dist)
-    }
-
-    const totalLength = distances[distances.length - 1]
-    const interval = totalLength / (numPoints - 1)
-    const result: Point[] = []
-    let currentIndex = 0
-
-    for (let i = 0; i < numPoints; i++) {
-      const targetDistance = i * interval
-
-      while (
-        currentIndex < distances.length - 1 &&
-        distances[currentIndex + 1] < targetDistance
-      ) {
-        currentIndex++
-      }
-
-      const t =
-        (targetDistance - distances[currentIndex]) /
-        (distances[currentIndex + 1] - distances[currentIndex])
-
-      const x =
-        splinePoints[currentIndex].x +
-        t * (splinePoints[currentIndex + 1].x - splinePoints[currentIndex].x)
-      const y =
-        splinePoints[currentIndex].y +
-        t * (splinePoints[currentIndex + 1].y - splinePoints[currentIndex].y)
-
-      result.push({ x, y })
-    }
-
-    return result
-  }
-
   private generateEquidistantPoints(
     points: Point[],
     distance: number
@@ -2545,45 +2500,6 @@ class BrushTool {
     return result
   }
 
-  private calculateSplineCoefficients(values: number[]): number[] {
-    const n = values.length - 1
-    const matrix: number[][] = new Array(n + 1)
-      .fill(0)
-      .map(() => new Array(n + 1).fill(0))
-    const rhs: number[] = new Array(n + 1).fill(0)
-
-    // Set up tridiagonal matrix
-    for (let i = 1; i < n; i++) {
-      matrix[i][i - 1] = 1
-      matrix[i][i] = 4
-      matrix[i][i + 1] = 1
-      rhs[i] = 3 * (values[i + 1] - values[i - 1])
-    }
-
-    // Set boundary conditions (natural spline)
-    matrix[0][0] = 2
-    matrix[0][1] = 1
-    matrix[n][n - 1] = 1
-    matrix[n][n] = 2
-    rhs[0] = 3 * (values[1] - values[0])
-    rhs[n] = 3 * (values[n] - values[n - 1])
-
-    // Solve tridiagonal system using Thomas algorithm
-    for (let i = 1; i <= n; i++) {
-      const m = matrix[i][i - 1] / matrix[i - 1][i - 1]
-      matrix[i][i] -= m * matrix[i - 1][i]
-      rhs[i] -= m * rhs[i - 1]
-    }
-
-    const solution: number[] = new Array(n + 1)
-    solution[n] = rhs[n] / matrix[n][n]
-    for (let i = n - 1; i >= 0; i--) {
-      solution[i] = (rhs[i] - matrix[i][i + 1] * solution[i + 1]) / matrix[i][i]
-    }
-
-    return solution
-  }
-
   private setBrushSize(size: number) {
     this.brushSettings.size = size
     saveBrushToCache('maskeditor_brush_settings', this.brushSettings)
@@ -2621,13 +2537,16 @@ class UIManager {
   private brushSettingsHTML!: HTMLDivElement
   private paintBucketSettingsHTML!: HTMLDivElement
   private colorSelectSettingsHTML!: HTMLDivElement
+  // @ts-expect-error unused variable
   private maskOpacitySlider!: HTMLInputElement
   private brushHardnessSlider!: HTMLInputElement
   private brushSizeSlider!: HTMLInputElement
+  // @ts-expect-error unused variable
   private brushOpacitySlider!: HTMLInputElement
   private sidebarImage!: HTMLImageElement
   private saveButton!: HTMLButtonElement
   private toolPanel!: HTMLDivElement
+  // @ts-expect-error unused variable
   private sidePanel!: HTMLDivElement
   private pointerZone!: HTMLDivElement
   private canvasBackground!: HTMLDivElement
@@ -2811,7 +2730,7 @@ class UIManager {
   }
 
   async initUI() {
-    this.saveButton.innerText = 'Save'
+    this.saveButton.innerText = t('g.save')
     this.saveButton.disabled = false
 
     await this.setImages(this.imgCanvas) //probably change method to initImageCanvas
@@ -2852,11 +2771,15 @@ class UIManager {
       : 'maskEditor_brushShape_light'
     const brush_settings_container = this.createContainer(true)
 
-    const brush_settings_title = this.createHeadline('Brush Settings')
+    const brush_settings_title = this.createHeadline(
+      t('maskEditor.Brush Settings')
+    )
 
     const brush_shape_outer_container = this.createContainer(true)
 
-    const brush_shape_title = this.createContainerTitle('Brush Shape')
+    const brush_shape_title = this.createContainerTitle(
+      t('maskEditor.Brush Shape')
+    )
 
     const brush_shape_container = this.createContainer(false)
 
@@ -2904,12 +2827,12 @@ class UIManager {
     brush_shape_outer_container.appendChild(brush_shape_container)
 
     const thicknesSliderObj = this.createSlider(
-      'Thickness',
+      t('maskEditor.Thickness'),
       1,
       100,
       1,
       (await this.messageBroker.pull('brushSettings')).size,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setBrushSize', parseInt(value))
         this.updateBrushPreview()
       }
@@ -2917,12 +2840,12 @@ class UIManager {
     this.brushSizeSlider = thicknesSliderObj.slider
 
     const opacitySliderObj = this.createSlider(
-      'Opacity',
+      t('maskEditor.Opacity'),
       0,
       1,
       0.01,
       (await this.messageBroker.pull('brushSettings')).opacity,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setBrushOpacity', parseFloat(value))
         this.updateBrushPreview()
       }
@@ -2930,12 +2853,12 @@ class UIManager {
     this.brushOpacitySlider = opacitySliderObj.slider
 
     const hardnessSliderObj = this.createSlider(
-      'Hardness',
+      t('maskEditor.Hardness'),
       0,
       1,
       0.01,
       (await this.messageBroker.pull('brushSettings')).hardness,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setBrushHardness', parseFloat(value))
         this.updateBrushPreview()
       }
@@ -2943,12 +2866,12 @@ class UIManager {
     this.brushHardnessSlider = hardnessSliderObj.slider
 
     const brushSmoothingPrecisionSliderObj = this.createSlider(
-      'Smoothing Precision',
+      t('maskEditor.Smoothing Precision'),
       1,
       100,
       1,
       (await this.messageBroker.pull('brushSettings')).smoothingPrecision,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish(
           'setBrushSmoothingPrecision',
           parseInt(value)
@@ -2958,7 +2881,7 @@ class UIManager {
 
     const resetBrushSettingsButton = document.createElement('button')
     resetBrushSettingsButton.id = 'resetBrushSettingsButton'
-    resetBrushSettingsButton.innerText = 'Reset to Default'
+    resetBrushSettingsButton.innerText = t('maskEditor.Reset to Default')
 
     resetBrushSettingsButton.addEventListener('click', () => {
       this.messageBroker.publish('setBrushShape', BrushShape.Arc)
@@ -2996,18 +2919,31 @@ class UIManager {
     const paint_bucket_settings_container = this.createContainer(true)
 
     const paint_bucket_settings_title = this.createHeadline(
-      'Paint Bucket Settings'
+      t('maskEditor.Paint Bucket Settings')
     )
 
     const tolerance = await this.messageBroker.pull('getTolerance')
     const paintBucketToleranceSliderObj = this.createSlider(
-      'Tolerance',
+      t('maskEditor.Tolerance'),
       0,
       255,
       1,
       tolerance,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setPaintBucketTolerance', parseInt(value))
+      }
+    )
+
+    // Add new slider for fill opacity
+    const fillOpacity = (await this.messageBroker.pull('getFillOpacity')) || 100
+    const fillOpacitySliderObj = this.createSlider(
+      t('maskEditor.Fill Opacity'),
+      0,
+      100,
+      1,
+      fillOpacity,
+      (_, value) => {
+        this.messageBroker.publish('setFillOpacity', parseInt(value))
       }
     )
 
@@ -3015,6 +2951,8 @@ class UIManager {
     paint_bucket_settings_container.appendChild(
       paintBucketToleranceSliderObj.container
     )
+    // Add the new opacity slider to the UI
+    paint_bucket_settings_container.appendChild(fillOpacitySliderObj.container)
 
     return paint_bucket_settings_container
   }
@@ -3023,58 +2961,70 @@ class UIManager {
     const color_select_settings_container = this.createContainer(true)
 
     const color_select_settings_title = this.createHeadline(
-      'Color Select Settings'
+      t('maskEditor.Color Select Settings')
     )
 
     var tolerance = await this.messageBroker.pull('getTolerance')
     const colorSelectToleranceSliderObj = this.createSlider(
-      'Tolerance',
+      t('maskEditor.Tolerance'),
       0,
       255,
       1,
       tolerance,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setColorSelectTolerance', parseInt(value))
       }
     )
 
+    // Add new slider for selection opacity
+    const selectionOpacitySliderObj = this.createSlider(
+      t('maskEditor.Selection Opacity'),
+      0,
+      100,
+      1,
+      100, // Default to 100%
+      (_, value) => {
+        this.messageBroker.publish('setSelectionOpacity', parseInt(value))
+      }
+    )
+
     const livePreviewToggle = this.createToggle(
-      'Live Preview',
-      (event, value) => {
+      t('maskEditor.Live Preview'),
+      (_, value) => {
         this.messageBroker.publish('setLivePreview', value)
       }
     )
 
     const wholeImageToggle = this.createToggle(
-      'Apply to Whole Image',
-      (event, value) => {
+      t('maskEditor.Apply to Whole Image'),
+      (_, value) => {
         this.messageBroker.publish('setWholeImage', value)
       }
     )
 
     const methodOptions = Object.values(ColorComparisonMethod)
     const methodSelect = this.createDropdown(
-      'Method',
+      t('maskEditor.Method'),
       methodOptions,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setColorComparisonMethod', value)
       }
     )
 
     const maskBoundaryToggle = this.createToggle(
-      'Stop at mask',
-      (event, value) => {
+      t('maskEditor.Stop at mask'),
+      (_, value) => {
         this.messageBroker.publish('setMaskBoundary', value)
       }
     )
 
     const maskToleranceSliderObj = this.createSlider(
-      'Mask Tolerance',
+      t('maskEditor.Mask Tolerance'),
       0,
       255,
       1,
       0,
-      (event, value) => {
+      (_, value) => {
         this.messageBroker.publish('setMaskTolerance', parseInt(value))
       }
     )
@@ -3082,6 +3032,10 @@ class UIManager {
     color_select_settings_container.appendChild(color_select_settings_title)
     color_select_settings_container.appendChild(
       colorSelectToleranceSliderObj.container
+    )
+    // Add the new opacity slider to the UI
+    color_select_settings_container.appendChild(
+      selectionOpacitySliderObj.container
     )
     color_select_settings_container.appendChild(livePreviewToggle)
     color_select_settings_container.appendChild(wholeImageToggle)
@@ -3101,9 +3055,13 @@ class UIManager {
 
     const image_layer_settings_container = this.createContainer(true)
 
-    const image_layer_settings_title = this.createHeadline('Layers')
+    const image_layer_settings_title = this.createHeadline(
+      t('maskEditor.Layers')
+    )
 
-    const mask_layer_title = this.createContainerTitle('Mask Layer')
+    const mask_layer_title = this.createContainerTitle(
+      t('maskEditor.Mask Layer')
+    )
 
     const mask_layer_container = this.createContainer(false)
     mask_layer_container.classList.add(accentColor)
@@ -3162,12 +3120,12 @@ class UIManager {
     mask_layer_container.appendChild(mask_layer_dropdown)
 
     const mask_layer_opacity_sliderObj = this.createSlider(
-      'Mask Opacity',
+      t('maskEditor.Mask Opacity'),
       0.0,
       1.0,
       0.01,
       this.mask_opacity,
-      (event, value) => {
+      (_, value) => {
         this.mask_opacity = parseFloat(value)
         this.maskCanvas.style.opacity = String(this.mask_opacity)
 
@@ -3180,7 +3138,9 @@ class UIManager {
     )
     this.maskOpacitySlider = mask_layer_opacity_sliderObj.slider
 
-    const image_layer_title = this.createContainerTitle('Image Layer')
+    const image_layer_title = this.createContainerTitle(
+      t('maskEditor.Image Layer')
+    )
 
     const image_layer_container = this.createContainer(false)
     image_layer_container.classList.add(accentColor)
@@ -3405,7 +3365,7 @@ class UIManager {
     var top_bar_invert_button = document.createElement('button')
     top_bar_invert_button.id = 'maskEditor_topBarInvertButton'
     top_bar_invert_button.classList.add(buttonAccentColor)
-    top_bar_invert_button.innerText = 'Invert'
+    top_bar_invert_button.innerText = t('maskEditor.Invert')
     top_bar_invert_button.addEventListener('click', () => {
       this.messageBroker.publish('invert')
     })
@@ -3413,7 +3373,7 @@ class UIManager {
     var top_bar_clear_button = document.createElement('button')
     top_bar_clear_button.id = 'maskEditor_topBarClearButton'
     top_bar_clear_button.classList.add(buttonAccentColor)
-    top_bar_clear_button.innerText = 'Clear'
+    top_bar_clear_button.innerText = t('maskEditor.Clear')
 
     top_bar_clear_button.addEventListener('click', () => {
       this.maskCtx.clearRect(
@@ -3428,7 +3388,7 @@ class UIManager {
     var top_bar_save_button = document.createElement('button')
     top_bar_save_button.id = 'maskEditor_topBarSaveButton'
     top_bar_save_button.classList.add(buttonAccentColor)
-    top_bar_save_button.innerText = 'Save'
+    top_bar_save_button.innerText = t('g.save')
     this.saveButton = top_bar_save_button
 
     top_bar_save_button.addEventListener('click', () => {
@@ -3438,7 +3398,7 @@ class UIManager {
     var top_bar_cancel_button = document.createElement('button')
     top_bar_cancel_button.id = 'maskEditor_topBarCancelButton'
     top_bar_cancel_button.classList.add(buttonAccentColor)
-    top_bar_cancel_button.innerText = 'Cancel'
+    top_bar_cancel_button.innerText = t('g.cancel')
 
     top_bar_cancel_button.addEventListener('click', () => {
       this.maskEditor.close()
@@ -3675,7 +3635,7 @@ class UIManager {
       this.messageBroker.publish('pointerUp', event)
     })
 
-    pointer_zone.addEventListener('pointerleave', (event: PointerEvent) => {
+    pointer_zone.addEventListener('pointerleave', () => {
       this.brush.style.opacity = '0'
       this.pointerZone.style.cursor = ''
     })
@@ -3696,12 +3656,9 @@ class UIManager {
       this.messageBroker.publish('wheel', event)
     )
 
-    pointer_zone.addEventListener(
-      'pointerenter',
-      async (event: PointerEvent) => {
-        this.updateCursor()
-      }
-    )
+    pointer_zone.addEventListener('pointerenter', async () => {
+      this.updateCursor()
+    })
 
     return pointer_zone
   }
@@ -3739,7 +3696,7 @@ class UIManager {
 
   private async createBrush() {
     var brush = document.createElement('div')
-    const brushSettings = await this.messageBroker.pull('brushSettings')
+    await this.messageBroker.pull('brushSettings')
     brush.id = 'maskEditor_brush'
 
     var brush_preview_gradient = document.createElement('div')
@@ -4663,7 +4620,7 @@ class PanAndZoomManager {
   }
 
   private handlePanStart(event: PointerEvent) {
-    let coords_canvas = this.messageBroker.pull('screenToCanvas', {
+    this.messageBroker.pull('screenToCanvas', {
       x: event.offsetX,
       y: event.offsetY
     })
@@ -4753,6 +4710,8 @@ class MessageBroker {
     this.createPushTopic('setZoomText')
     this.createPushTopic('resetZoom')
     this.createPushTopic('invert')
+    this.createPushTopic('setSelectionOpacity')
+    this.createPushTopic('setFillOpacity')
   }
 
   /**
@@ -4867,6 +4826,7 @@ class MessageBroker {
 
 class KeyboardManager {
   private keysDown: string[] = []
+  // @ts-expect-error unused variable
   private maskEditor: MaskEditorDialog
   private messageBroker: MessageBroker
 
@@ -4914,24 +4874,6 @@ class KeyboardManager {
 
   private isKeyDown(key: string) {
     return this.keysDown.includes(key)
-  }
-
-  // combinations
-
-  private undoCombinationPressed() {
-    const combination = ['ctrl', 'z']
-    const keysDownLower = this.keysDown.map((key) => key.toLowerCase())
-    const result = combination.every((key) => keysDownLower.includes(key))
-    if (result) this.messageBroker.publish('undo')
-    return result
-  }
-
-  private redoCombinationPressed() {
-    const combination = ['ctrl', 'shift', 'z']
-    const keysDownLower = this.keysDown.map((key) => key.toLowerCase())
-    const result = combination.every((key) => keysDownLower.includes(key))
-    if (result) this.messageBroker.publish('redo')
-    return result
   }
 }
 

@@ -1,5 +1,5 @@
 <template>
-  <div ref="container" class="w-full h-full relative">
+  <div ref="container" class="w-full h-full relative comfy-load-3d">
     <LoadingOverlay ref="loadingOverlayRef" />
   </div>
 </template>
@@ -13,6 +13,8 @@ import Load3d from '@/extensions/core/load3d/Load3d'
 import Load3dAnimation from '@/extensions/core/load3d/Load3dAnimation'
 import {
   CameraType,
+  Load3DAnimationNodeType,
+  Load3DNodeType,
   MaterialMode,
   UpDirection
 } from '@/extensions/core/load3d/interfaces'
@@ -20,8 +22,8 @@ import { t } from '@/i18n'
 import { useLoad3dService } from '@/services/load3dService'
 
 const props = defineProps<{
-  node: any
-  type: 'Load3D' | 'Load3DAnimation' | 'Preview3D' | 'Preview3DAnimation'
+  node: LGraphNode
+  type: Load3DNodeType | Load3DAnimationNodeType
   backgroundColor: string
   showGrid: boolean
   lightIntensity: number
@@ -31,6 +33,7 @@ const props = defineProps<{
   backgroundImage: string
   upDirection: UpDirection
   materialMode: MaterialMode
+  edgeThreshold?: number
   extraListeners?: Record<string, (value: any) => void>
 }>()
 
@@ -51,6 +54,7 @@ const eventConfig = {
   backgroundImageChange: (value: string) =>
     emit('backgroundImageChange', value),
   upDirectionChange: (value: string) => emit('upDirectionChange', value),
+  edgeThresholdChange: (value: number) => emit('edgeThresholdChange', value),
   modelLoadingStart: () =>
     loadingOverlayRef.value?.startLoading(t('load3d.loadingModel')),
   modelLoadingEnd: () => loadingOverlayRef.value?.endLoading(),
@@ -85,6 +89,18 @@ watch(
   }
 )
 
+watch(
+  () => props.edgeThreshold,
+  (newValue) => {
+    if (load3d.value) {
+      const rawLoad3d = toRaw(load3d.value)
+
+      // @ts-expect-error fixme ts strict error
+      rawLoad3d.setEdgeThreshold(newValue)
+    }
+  }
+)
+
 const emit = defineEmits<{
   (e: 'materialModeChange', materialMode: string): void
   (e: 'backgroundColorChange', color: string): void
@@ -95,6 +111,7 @@ const emit = defineEmits<{
   (e: 'showPreviewChange', showPreview: boolean): void
   (e: 'backgroundImageChange', backgroundImage: string): void
   (e: 'upDirectionChange', upDirection: string): void
+  (e: 'edgeThresholdChange', threshold: number): void
 }>()
 
 const handleEvents = (action: 'add' | 'remove') => {
@@ -116,6 +133,7 @@ const handleEvents = (action: 'add' | 'remove') => {
 onMounted(() => {
   load3d.value = useLoad3dService().registerLoad3d(
     node.value as LGraphNode,
+    // @ts-expect-error fixme ts strict error
     container.value,
     props.type
   )

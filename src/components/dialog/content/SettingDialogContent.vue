@@ -15,7 +15,7 @@
         scrollHeight="100%"
         :optionDisabled="
           (option: SettingTreeNode) =>
-            !queryIsEmpty && !searchResultsCategories.has(option.label)
+            !queryIsEmpty && !searchResultsCategories.has(option.label ?? '')
         "
         class="border-none w-full"
       />
@@ -31,7 +31,7 @@
         <PanelTemplate
           v-for="category in settingCategories"
           :key="category.key"
-          :value="category.label"
+          :value="category.label ?? ''"
         >
           <template #header>
             <CurrentUserMessage v-if="tabValue === 'Comfy'" />
@@ -157,7 +157,9 @@ const categories = computed<SettingTreeNode[]>(() =>
   ].map((node) => ({
     ...node,
     translatedLabel: t(
+      // @ts-expect-error fixme ts strict error
       `settingsCategories.${normalizeI18nKey(node.label)}`,
+      // @ts-expect-error fixme ts strict error
       node.label
     )
   }))
@@ -175,12 +177,16 @@ onMounted(() => {
 })
 
 const sortedGroups = (category: SettingTreeNode): ISettingGroup[] => {
-  return [...(category.children ?? [])]
-    .sort((a, b) => a.label.localeCompare(b.label))
-    .map((group) => ({
-      label: group.label,
-      settings: flattenTree<SettingParams>(group)
-    }))
+  // @ts-expect-error fixme ts strict error
+  return (
+    [...(category.children ?? [])]
+      // @ts-expect-error fixme ts strict error
+      .sort((a, b) => a.label.localeCompare(b.label))
+      .map((group) => ({
+        label: group.label,
+        settings: flattenTree<SettingParams>(group)
+      }))
+  )
 }
 
 const searchQuery = ref<string>('')
@@ -266,8 +272,8 @@ const handleSearch = (query: string) => {
 
 const queryIsEmpty = computed(() => searchQuery.value.length === 0)
 const inSearch = computed(() => !queryIsEmpty.value && !searchInProgress.value)
-const tabValue = computed(() =>
-  inSearch.value ? 'Search Results' : activeCategory.value?.label
+const tabValue = computed<string>(() =>
+  inSearch.value ? 'Search Results' : activeCategory.value?.label ?? ''
 )
 // Don't allow null category to be set outside of search.
 // In search mode, the active category can be null to show all search results.
@@ -289,7 +295,7 @@ watch(activeCategory, (_, oldValue) => {
   display: flex;
   height: 70vh;
   width: 60vw;
-  max-width: 1024px;
+  max-width: 64rem;
   overflow: hidden;
 }
 

@@ -26,7 +26,7 @@
         class="node-lib-search-box p-2 2xl:p-4"
         v-model:modelValue="searchQuery"
         @search="handleSearch"
-        @show-filter="($event) => searchFilter.toggle($event)"
+        @show-filter="($event) => searchFilter?.toggle($event)"
         @remove-filter="onRemoveFilter"
         :placeholder="$t('g.searchNodes') + '...'"
         filter-icon="pi pi-filter"
@@ -49,7 +49,7 @@
       />
       <TreeExplorer
         class="node-lib-tree-explorer"
-        :roots="renderedRoot.children"
+        :root="renderedRoot"
         v-model:expandedKeys="expandedKeys"
       >
         <template #node="{ node }">
@@ -97,7 +97,7 @@ const { expandNode, toggleNodeOnEvent } = useTreeExpansion(expandedKeys)
 const nodeBookmarkTreeExplorerRef = ref<InstanceType<
   typeof NodeBookmarkTreeExplorer
 > | null>(null)
-const searchFilter = ref(null)
+const searchFilter = ref<InstanceType<typeof Popover> | null>(null)
 const alphabeticalSort = ref(false)
 
 const searchQuery = ref<string>('')
@@ -114,8 +114,10 @@ const renderedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(() => {
     return {
       key: node.key,
       label: node.leaf ? node.data.display_name : node.label,
+      // @ts-expect-error fixme ts strict error
       leaf: node.leaf,
       data: node.data,
+      // @ts-expect-error fixme ts strict error
       getIcon() {
         if (this.leaf) {
           return 'pi pi-circle-fill'
@@ -132,6 +134,7 @@ const renderedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(() => {
       },
       handleClick(e: MouseEvent) {
         if (this.leaf) {
+          // @ts-expect-error fixme ts strict error
           useLitegraphService().addNodeOnGraph(this.data)
         } else {
           toggleNodeOnEvent(e, this)
@@ -173,6 +176,7 @@ const handleSearch = (query: string) => {
   )
 
   nextTick(() => {
+    // @ts-expect-error fixme ts strict error
     expandNode(filteredRoot.value)
   })
 }
@@ -189,6 +193,7 @@ const onAddFilter = (filterAndValue: FilterAndValue) => {
   handleSearch(searchQuery.value)
 }
 
+// @ts-expect-error fixme ts strict error
 const onRemoveFilter = (filterAndValue) => {
   const index = filters.value.findIndex((f) => f === filterAndValue)
   if (index !== -1) {

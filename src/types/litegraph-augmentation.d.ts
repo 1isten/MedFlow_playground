@@ -26,6 +26,19 @@ declare module '@comfyorg/litegraph/dist/types/widgets' {
      * The minimum size of the node if the widget is present.
      */
     minNodeSize?: Size
+    /**
+     * Whether the widget is optional.
+     */
+    inputIsOptional?: boolean
+    /**
+     * Whether the widget is forced to be an input.
+     */
+    forceInput?: boolean
+    /**
+     * Whether the widget defaults to input state. Can still be converted back
+     * to widget state.
+     */
+    defaultInput?: boolean
   }
 
   interface IBaseWidget {
@@ -134,7 +147,7 @@ declare module '@comfyorg/litegraph' {
       name: string,
       type: string,
       element: T,
-      options?: DOMWidgetOptions<T, V>
+      options?: DOMWidgetOptions<V>
     ): DOMWidget<T, V>
 
     animatedImages?: boolean
@@ -153,7 +166,9 @@ declare module '@comfyorg/litegraph' {
     imageRects: Rect[]
     overIndex?: number | null
     pointerDown?: { index: number | null; pos: Point } | null
-
+    /**
+     * @deprecated No longer needed as we use {@link useImagePreviewWidget}
+     */
     setSizeForImage?(force?: boolean): void
     /** @deprecated Unused */
     inputHeight?: unknown

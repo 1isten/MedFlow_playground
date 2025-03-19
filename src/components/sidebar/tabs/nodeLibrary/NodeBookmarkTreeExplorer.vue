@@ -2,7 +2,7 @@
   <TreeExplorer
     class="node-lib-bookmark-tree-explorer"
     ref="treeExplorerRef"
-    :roots="renderedBookmarkedRoot.children"
+    :root="renderedBookmarkedRoot"
     :expandedKeys="expandedKeys"
   >
     <template #folder="{ node }">
@@ -40,7 +40,6 @@ import type {
   TreeExplorerDragAndDropData,
   TreeExplorerNode
 } from '@/types/treeExplorerTypes'
-import { findNodeByKey } from '@/utils/treeUtil'
 
 const props = defineProps<{
   filteredNodeDefs: ComfyNodeDefImpl[]
@@ -95,17 +94,11 @@ const extraMenuItems = (
   menuTargetNode: RenderedTreeExplorerNode<ComfyNodeDefImpl>
 ) => [
   {
-    label: t('g.newFolder'),
-    icon: 'pi pi-folder-plus',
-    command: () => {
-      addNewBookmarkFolder(menuTargetNode)
-    },
-    visible: !menuTargetNode?.leaf
-  },
-  {
     label: t('g.customize'),
     icon: 'pi pi-palette',
     command: () => {
+      if (!menuTargetNode.data) return
+
       const customization =
         nodeBookmarkStore.bookmarksCustomization[menuTargetNode.data.nodePath]
       initialIcon.value =
@@ -138,6 +131,7 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
       return {
         key: node.key,
         label: node.leaf ? node.data.display_name : node.label,
+        // @ts-expect-error fixme ts strict error
         leaf: node.leaf,
         data: node.data,
         getIcon() {
@@ -152,6 +146,11 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
         },
         children: sortedChildren,
         draggable: node.leaf,
+        handleAddFolder(newName: string) {
+          if (newName !== '') {
+            nodeBookmarkStore.addNewBookmarkFolder(this.data, newName)
+          }
+        },
         renderDragPreview(container) {
           const vnode = h(NodePreview, { nodeDef: node.data })
           render(vnode, container)
@@ -163,15 +162,19 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
         handleDrop(data: TreeExplorerDragAndDropData<ComfyNodeDefImpl>) {
           const nodeDefToAdd = data.data.data
           // Remove bookmark if the source is the top level bookmarked node.
+          // @ts-expect-error fixme ts strict error
           if (nodeBookmarkStore.isBookmarked(nodeDefToAdd)) {
+            // @ts-expect-error fixme ts strict error
             nodeBookmarkStore.toggleBookmark(nodeDefToAdd)
           }
           const folderNodeDef = node.data as ComfyNodeDefImpl
+          // @ts-expect-error fixme ts strict error
           const nodePath = folderNodeDef.category + '/' + nodeDefToAdd.name
           nodeBookmarkStore.addBookmark(nodePath)
         },
         handleClick(e: MouseEvent) {
           if (this.leaf) {
+            // @ts-expect-error fixme ts strict error
             useLitegraphService().addNodeOnGraph(this.data)
           } else {
             toggleNodeOnEvent(e, node)
@@ -187,6 +190,7 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
                 }
               },
               handleDelete() {
+                // @ts-expect-error fixme ts strict error
                 nodeBookmarkStore.deleteBookmarkFolder(this.data)
               }
             })
@@ -197,25 +201,8 @@ const renderedBookmarkedRoot = computed<TreeExplorerNode<ComfyNodeDefImpl>>(
 )
 
 const treeExplorerRef = ref<InstanceType<typeof TreeExplorer> | null>(null)
-const addNewBookmarkFolder = (
-  parent?: RenderedTreeExplorerNode<ComfyNodeDefImpl>
-) => {
-  const newFolderKey =
-    'root/' + nodeBookmarkStore.addNewBookmarkFolder(parent?.data).slice(0, -1)
-  nextTick(() => {
-    treeExplorerRef.value?.renameCommand(
-      findNodeByKey(
-        renderedBookmarkedRoot.value,
-        newFolderKey
-      ) as RenderedTreeExplorerNode
-    )
-    if (parent) {
-      expandedKeys.value[parent.key] = true
-    }
-  })
-}
 defineExpose({
-  addNewBookmarkFolder
+  addNewBookmarkFolder: () => treeExplorerRef.value?.addFolderCommand('root')
 })
 
 const showCustomizationDialog = ref(false)

@@ -38,15 +38,17 @@ const positionSelectionOverlay = (canvas: LGraphCanvas) => {
 
   visible.value = true
   const bounds = createBounds(selectedItems)
-  updatePosition({
-    pos: [bounds[0], bounds[1]],
-    size: [bounds[2], bounds[3]]
-  })
+  if (bounds) {
+    updatePosition({
+      pos: [bounds[0], bounds[1]],
+      size: [bounds[2], bounds[3]]
+    })
+  }
 }
 
 // Register listener on canvas creation.
 watch(
-  () => canvasStore.canvas,
+  () => canvasStore.canvas as LGraphCanvas | null,
   (canvas: LGraphCanvas | null) => {
     if (!canvas) return
 

@@ -2,9 +2,14 @@ import ConfirmationDialogContent from '@/components/dialog/content/ConfirmationD
 import ExecutionErrorDialogContent from '@/components/dialog/content/ExecutionErrorDialogContent.vue'
 import IssueReportDialogContent from '@/components/dialog/content/IssueReportDialogContent.vue'
 import LoadWorkflowWarning from '@/components/dialog/content/LoadWorkflowWarning.vue'
+import ManagerProgressDialogContent from '@/components/dialog/content/ManagerProgressDialogContent.vue'
 import MissingModelsWarning from '@/components/dialog/content/MissingModelsWarning.vue'
 import PromptDialogContent from '@/components/dialog/content/PromptDialogContent.vue'
 import SettingDialogContent from '@/components/dialog/content/SettingDialogContent.vue'
+import ManagerDialogContent from '@/components/dialog/content/manager/ManagerDialogContent.vue'
+import ManagerHeader from '@/components/dialog/content/manager/ManagerHeader.vue'
+import ManagerProgressFooter from '@/components/dialog/footer/ManagerProgressFooter.vue'
+import ManagerProgressHeader from '@/components/dialog/header/ManagerProgressHeader.vue'
 import SettingDialogHeader from '@/components/dialog/header/SettingDialogHeader.vue'
 import TemplateWorkflowsContent from '@/components/templates/TemplateWorkflowsContent.vue'
 import TemplateWorkflowsDialogHeader from '@/components/templates/TemplateWorkflowsDialogHeader.vue'
@@ -84,7 +89,7 @@ export const useDialogService = () => {
       headerComponent: TemplateWorkflowsDialogHeader,
       dialogComponentProps: {
         pt: {
-          content: { class: '!px-0' }
+          content: { class: '!px-0 overflow-y-hidden' }
         }
       },
       props
@@ -98,6 +103,47 @@ export const useDialogService = () => {
       key: 'global-issue-report',
       component: IssueReportDialogContent,
       props
+    })
+  }
+
+  function showManagerDialog(
+    props: InstanceType<typeof ManagerDialogContent>['$props'] = {}
+  ) {
+    dialogStore.showDialog({
+      key: 'global-manager',
+      component: ManagerDialogContent,
+      headerComponent: ManagerHeader,
+      dialogComponentProps: {
+        closable: false,
+        pt: {
+          header: { class: '!p-0 !m-0' },
+          content: { class: '!px-0 h-[83vh] w-[90vw] overflow-y-hidden' }
+        }
+      },
+      props
+    })
+  }
+
+  function showManagerProgressDialog(options?: {
+    props?: InstanceType<typeof ManagerProgressDialogContent>['$props']
+  }) {
+    return dialogStore.showDialog({
+      key: 'global-manager-progress-dialog',
+      component: ManagerProgressDialogContent,
+      headerComponent: ManagerProgressHeader,
+      footerComponent: ManagerProgressFooter,
+      props: options?.props,
+      dialogComponentProps: {
+        closable: false,
+        modal: false,
+        position: 'bottom',
+        pt: {
+          root: { class: 'w-[80%] max-w-2xl mx-auto border-none' },
+          content: { class: '!p-0' },
+          header: { class: '!p-0 border-none' },
+          footer: { class: '!p-0 border-none' }
+        }
+      }
     })
   }
 
@@ -182,6 +228,8 @@ export const useDialogService = () => {
     showExecutionErrorDialog,
     showTemplateWorkflowsDialog,
     showIssueReportDialog,
+    showManagerDialog,
+    showManagerProgressDialog,
     prompt,
     confirm
   }

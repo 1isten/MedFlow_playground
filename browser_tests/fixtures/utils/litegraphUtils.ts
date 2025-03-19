@@ -1,9 +1,16 @@
 import type { Page } from '@playwright/test'
 
-import type { NodeId } from '../../../src/types/comfyWorkflow'
+import type { NodeId } from '../../../src/schemas/comfyWorkflowSchema'
 import { ManageGroupNode } from '../../helpers/manageGroupNode'
 import type { ComfyPage } from '../ComfyPage'
 import type { Position, Size } from '../types'
+
+export const getMiddlePoint = (pos1: Position, pos2: Position) => {
+  return {
+    x: (pos1.x + pos2.x) / 2,
+    y: (pos1.y + pos2.y) / 2
+  }
+}
 
 export class NodeSlotReference {
   constructor(
@@ -108,8 +115,20 @@ export class NodeWidgetReference {
       }
     )
   }
-}
 
+  async getValue() {
+    return await this.node.comfyPage.page.evaluate(
+      ([id, index]) => {
+        const node = window['app'].graph.getNodeById(id)
+        if (!node) throw new Error(`Node ${id} not found.`)
+        const widget = node.widgets[index]
+        if (!widget) throw new Error(`Widget ${index} not found.`)
+        return widget.value
+      },
+      [this.node.id, this.index] as const
+    )
+  }
+}
 export class NodeReference {
   constructor(
     readonly id: NodeId,

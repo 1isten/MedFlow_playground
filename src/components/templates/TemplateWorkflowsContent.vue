@@ -1,6 +1,6 @@
 <template>
   <div
-    class="flex flex-col h-[83vh] w-[90vw] relative"
+    class="flex flex-col h-[83vh] w-[90vw] relative pb-6"
     data-testid="template-workflows-content"
   >
     <Button
@@ -60,7 +60,6 @@
 </template>
 
 <script setup lang="ts">
-import { useBreakpoints } from '@vueuse/core'
 import { useAsyncState } from '@vueuse/core'
 import Button from 'primevue/button'
 import Divider from 'primevue/divider'
@@ -70,6 +69,7 @@ import { useI18n } from 'vue-i18n'
 
 import TemplateWorkflowCard from '@/components/templates/TemplateWorkflowCard.vue'
 import TemplateWorkflowsSideNav from '@/components/templates/TemplateWorkflowsSideNav.vue'
+import { useResponsiveCollapse } from '@/composables/element/useResponsiveCollapse'
 import { api } from '@/scripts/api'
 import { app } from '@/scripts/app'
 import { useDialogStore } from '@/stores/dialogStore'
@@ -78,17 +78,11 @@ import type { WorkflowTemplates } from '@/types/workflowTemplateTypes'
 
 const { t } = useI18n()
 
-const breakpoints = useBreakpoints({
-  mobile: 0,
-  tablet: 768,
-  desktop: 1024
-})
-const isSmallScreen = breakpoints.between('mobile', 'desktop')
-const isSideNavOpen = ref(!isSmallScreen.value)
-const toggleSideNav = () => {
-  isSideNavOpen.value = !isSideNavOpen.value
-}
-watch(isSmallScreen, toggleSideNav)
+const {
+  isSmallScreen,
+  isOpen: isSideNavOpen,
+  toggle: toggleSideNav
+} = useResponsiveCollapse()
 
 const workflowTemplatesStore = useWorkflowTemplatesStore()
 const { isReady } = useAsyncState(
@@ -96,7 +90,7 @@ const { isReady } = useAsyncState(
   null
 )
 
-const selectedTab = ref<WorkflowTemplates | null>()
+const selectedTab = ref<WorkflowTemplates | null>(null)
 const selectFirstTab = () => {
   const firstTab = workflowTemplatesStore.groupedTemplates[0].modules[0]
   handleTabSelection(firstTab)
@@ -124,7 +118,7 @@ const loadWorkflow = async (id: string) => {
 
   workflowLoading.value = id
   let json
-  if (selectedTab.value.moduleName === 'default') {
+  if (selectedTab.value?.moduleName === 'default') {
     // Default templates provided by frontend are served on this separate endpoint
     json = await fetch(api.fileURL(`/templates/${id}.json`)).then((r) =>
       r.json()
@@ -132,13 +126,13 @@ const loadWorkflow = async (id: string) => {
   } else {
     json = await fetch(
       api.apiURL(
-        `/workflow_templates/${selectedTab.value.moduleName}/${id}.json`
+        `/workflow_templates/${selectedTab.value?.moduleName}/${id}.json`
       )
     ).then((r) => r.json())
   }
   useDialogStore().closeDialog()
   const workflowName =
-    selectedTab.value.moduleName === 'default'
+    selectedTab.value?.moduleName === 'default'
       ? t(`templateWorkflows.template.${id}`, id)
       : id
   await app.loadGraphData(json, true, true, workflowName)

@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import { LGraphNode, LiteGraph } from '@comfyorg/litegraph'
 import type {
   IFoundSlot,
@@ -7,7 +6,6 @@ import type {
   ISlotType,
   IWidget,
   LLink,
-  LiteGraphCanvasEvent,
   Vector2
 } from '@comfyorg/litegraph'
 import type { CanvasMouseEvent } from '@comfyorg/litegraph/dist/types/events'
@@ -36,10 +34,13 @@ const GET_CONFIG = Symbol()
 
 const replacePropertyName = 'Run widget replace on values'
 export class PrimitiveNode extends LGraphNode {
+  // @ts-expect-error fixme ts strict error
   controlValues: any[]
+  // @ts-expect-error fixme ts strict error
   lastType: string
   static category: string
   constructor(title?: string) {
+    // @ts-expect-error fixme ts strict error
     super(title)
     this.addOutput('connect to widget input', '*')
     this.serialize_widgets = true
@@ -64,11 +65,14 @@ export class PrimitiveNode extends LGraphNode {
 
     // For each output link copy our value over the original widget value
     for (const linkInfo of links) {
+      // @ts-expect-error fixme ts strict error
       const node = this.graph.getNodeById(linkInfo.target_id)
+      // @ts-expect-error fixme ts strict error
       const input = node.inputs[linkInfo.target_slot]
       let widget: IWidget | undefined
       const widgetName = (input.widget as { name: string }).name
       if (widgetName) {
+        // @ts-expect-error fixme ts strict error
         widget = node.widgets.find((w) => w.name === widgetName)
       }
 
@@ -78,6 +82,7 @@ export class PrimitiveNode extends LGraphNode {
           widget.callback(
             widget.value,
             app.canvas,
+            // @ts-expect-error fixme ts strict error
             node,
             app.canvas.graph_mouse,
             {} as CanvasMouseEvent
@@ -92,7 +97,9 @@ export class PrimitiveNode extends LGraphNode {
     if (widget?.type === 'combo') {
       widget.options.values = this.outputs[0].widget[GET_CONFIG]()[0]
 
+      // @ts-expect-error fixme ts strict error
       if (!widget.options.values.includes(widget.value as string)) {
+        // @ts-expect-error fixme ts strict error
         widget.value = widget.options.values[0]
         ;(widget.callback as Function)(widget.value)
       }
@@ -107,6 +114,7 @@ export class PrimitiveNode extends LGraphNode {
 
       // Populate widget values from config data
       if (this.widgets) {
+        // @ts-expect-error fixme ts strict error
         for (let i = 0; i < this.widgets_values.length; i++) {
           const w = this.widgets[i]
           if (w) {
@@ -121,7 +129,7 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  onConnectionsChange(type: ISlotType, index: number, connected: boolean) {
+  onConnectionsChange(_type: ISlotType, _index: number, connected: boolean) {
     if (app.configuringGraph) {
       // Dont run while the graph is still setting up
       return
@@ -142,9 +150,10 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
+  // @ts-expect-error fixme ts strict error
   onConnectOutput(
     slot: number,
-    type: string,
+    _type: string,
     input: INodeInputSlot,
     target_node: LGraphNode,
     target_slot: number
@@ -172,9 +181,11 @@ export class PrimitiveNode extends LGraphNode {
       return
     }
     const linkId = this.outputs[0].links[0]
+    // @ts-expect-error fixme ts strict error
     const link = this.graph.links[linkId]
     if (!link) return
 
+    // @ts-expect-error fixme ts strict error
     const theirNode = this.graph.getNodeById(link.target_id)
     if (!theirNode || !theirNode.inputs) return
 
@@ -189,6 +200,7 @@ export class PrimitiveNode extends LGraphNode {
       widget = input.widget
     }
 
+    // @ts-expect-error fixme ts strict error
     const config = widget[GET_CONFIG]?.()
     if (!config) return
 
@@ -199,9 +211,11 @@ export class PrimitiveNode extends LGraphNode {
     this.outputs[0].widget = widget
 
     this.#createWidget(
+      // @ts-expect-error fixme ts strict error
       widget[CONFIG] ?? config,
       theirNode,
       widget.name,
+      // @ts-expect-error fixme ts strict error
       recreating
     )
   }
@@ -222,6 +236,7 @@ export class PrimitiveNode extends LGraphNode {
     const [oldWidth, oldHeight] = this.size
     let widget: IWidget | undefined
     if (type in ComfyWidgets) {
+      // @ts-expect-error fixme ts strict error
       widget = (ComfyWidgets[type](this, 'value', inputData, app) || {}).widget
     } else {
       // @ts-expect-error InputSpec is not typed correctly
@@ -244,6 +259,7 @@ export class PrimitiveNode extends LGraphNode {
         control_value = 'fixed'
       }
       addValueControlWidgets(
+        // @ts-expect-error fixme ts strict error
         this,
         widget,
         control_value as string,
@@ -251,6 +267,7 @@ export class PrimitiveNode extends LGraphNode {
         inputData
       )
       let filter = this.widgets_values?.[2]
+      // @ts-expect-error fixme ts strict error
       if (filter && this.widgets.length === 3) {
         // @ts-expect-error change widget type from string to unknown
         this.widgets[2].value = filter
@@ -260,10 +277,13 @@ export class PrimitiveNode extends LGraphNode {
     // Restore any saved control values
     const controlValues = this.controlValues
     if (
+      // @ts-expect-error fixme ts strict error
       this.lastType === this.widgets[0].type &&
+      // @ts-expect-error fixme ts strict error
       controlValues?.length === this.widgets.length - 1
     ) {
       for (let i = 0; i < controlValues.length; i++) {
+        // @ts-expect-error fixme ts strict error
         this.widgets[i + 1].value = controlValues[i]
       }
     }
@@ -273,6 +293,7 @@ export class PrimitiveNode extends LGraphNode {
     const callback = widget.callback
     const self = this
     widget.callback = function () {
+      // @ts-expect-error fixme ts strict error
       const r = callback ? callback.apply(this, arguments) : undefined
       self.applyToGraph()
       return r
@@ -296,6 +317,7 @@ export class PrimitiveNode extends LGraphNode {
 
       requestAnimationFrame(() => {
         if (this.onResize) {
+          // @ts-expect-error fixme ts strict error
           this.onResize(this.size)
         }
       })
@@ -307,7 +329,9 @@ export class PrimitiveNode extends LGraphNode {
     this.#removeWidgets()
     this.#onFirstConnection(true)
     if (values?.length) {
+      // @ts-expect-error fixme ts strict error
       for (let i = 0; i < this.widgets?.length; i++)
+        // @ts-expect-error fixme ts strict error
         this.widgets[i].value = values[i]
     }
     return this.widgets?.[0]
@@ -323,8 +347,10 @@ export class PrimitiveNode extends LGraphNode {
       delete output.widget[CONFIG]
     }
 
+    // @ts-expect-error fixme ts strict error
     if (links?.length < 2 && hasConfig) {
       // Copy the widget options from the source
+      // @ts-expect-error fixme ts strict error
       if (links.length) {
         this.recreateWidget()
       }
@@ -336,11 +362,13 @@ export class PrimitiveNode extends LGraphNode {
     const isNumber = config1[0] === 'INT' || config1[0] === 'FLOAT'
     if (!isNumber) return
 
+    // @ts-expect-error fixme ts strict error
     for (const linkId of links) {
       const link = app.graph.links[linkId]
       if (!link) continue // Can be null when removing a node
 
       const theirNode = app.graph.getNodeById(link.target_id)
+      // @ts-expect-error fixme ts strict error
       const theirInput = theirNode.inputs[link.target_slot]
 
       // Call is valid connection so it can merge the configs when validating
@@ -371,6 +399,7 @@ export class PrimitiveNode extends LGraphNode {
   #isValidConnection(input: INodeInputSlot, forceUpdate?: boolean) {
     // Only allow connections where the configs match
     const output = this.outputs[0]
+    // @ts-expect-error fixme ts strict error
     const config2 = input.widget[GET_CONFIG]()
     return !!mergeIfValid.call(
       this,
@@ -398,7 +427,9 @@ export class PrimitiveNode extends LGraphNode {
         this.controlValues.push(this.widgets[i].value)
       }
       setTimeout(() => {
+        // @ts-expect-error fixme ts strict error
         delete this.lastType
+        // @ts-expect-error fixme ts strict error
         delete this.controlValues
       }, 15)
       this.widgets.length = 0
@@ -421,6 +452,7 @@ export function getWidgetConfig(slot: INodeInputSlot | INodeOutputSlot) {
 }
 
 function getConfig(widgetName: string) {
+  // @ts-expect-error fixme ts strict error
   const { nodeData } = this.constructor
   return (
     nodeData?.input?.required?.[widgetName] ??
@@ -514,7 +546,9 @@ export function convertToInput(
     ...(inputIsOptional ? { shape: LiteGraph.SlotShape.HollowCircle } : {})
   })
 
+  // @ts-expect-error fixme ts strict error
   for (const widget of node.widgets) {
+    // @ts-expect-error fixme ts strict error
     widget.last_y += LiteGraph.NODE_SLOT_HEIGHT
   }
 
@@ -531,7 +565,9 @@ function convertToWidget(node: LGraphNode, widget: IWidget) {
   const [oldWidth, oldHeight] = node.size
   node.removeInput(node.inputs.findIndex((i) => i.widget?.name === widget.name))
 
+  // @ts-expect-error fixme ts strict error
   for (const widget of node.widgets) {
+    // @ts-expect-error fixme ts strict error
     widget.last_y -= LiteGraph.NODE_SLOT_HEIGHT
   }
 
@@ -563,9 +599,11 @@ export function setWidgetConfig(
   }
 
   if ('link' in slot) {
+    // @ts-expect-error fixme ts strict error
     const link = app.graph.links[slot.link]
     if (link) {
       const originNode = app.graph.getNodeById(link.origin_id)
+      // @ts-expect-error fixme ts strict error
       if (isPrimitiveNode(originNode)) {
         if (config) {
           originNode.recreateWidget()
@@ -589,6 +627,7 @@ export function mergeIfValid(
     config1 = getWidgetConfig(output)
   }
 
+  // @ts-expect-error fixme ts strict error
   const customSpec = mergeInputSpec(config1, config2)
 
   if (customSpec || forceUpdate) {
@@ -596,17 +635,24 @@ export function mergeIfValid(
       output.widget[CONFIG] = customSpec
     }
 
+    // @ts-expect-error fixme ts strict error
     const widget = recreateWidget?.call(this)
     // When deleting a node this can be null
     if (widget) {
+      // @ts-expect-error fixme ts strict error
       const min = widget.options.min
+      // @ts-expect-error fixme ts strict error
       const max = widget.options.max
+      // @ts-expect-error fixme ts strict error
       if (min != null && widget.value < min) widget.value = min
+      // @ts-expect-error fixme ts strict error
       if (max != null && widget.value > max) widget.value = max
+      // @ts-expect-error fixme ts strict error
       widget.callback(widget.value)
     }
   }
 
+  // @ts-expect-error fixme ts strict error
   return { customConfig: customSpec[1] }
 }
 
@@ -623,38 +669,37 @@ app.registerExtension({
   setup() {
     app.canvas.getWidgetLinkType = function (widget, node) {
       const nodeDefStore = useNodeDefStore()
+      // @ts-expect-error fixme ts strict error
       const nodeDef = nodeDefStore.nodeDefsByName[node.type]
       const input = nodeDef.inputs[widget.name]
       return input?.type
     }
 
-    document.addEventListener(
-      'litegraph:canvas',
-      async (e: LiteGraphCanvasEvent) => {
-        if (e.detail.subType === 'connectingWidgetLink') {
-          const { node, link, widget } = e.detail
-          if (!node || !link || !widget) return
+    app.canvas.linkConnector.events.addEventListener(
+      'dropped-on-widget',
+      (e) => {
+        const { node, link, widget } = e.detail
+        if (!node || !link || !widget) return
 
-          const nodeData = node.constructor.nodeData
-          if (!nodeData) return
-          const all = {
-            ...nodeData?.input?.required,
-            ...nodeData?.input?.optional
-          }
-          const inputSpec = all[widget.name]
-          if (!inputSpec) return
-
-          const input = convertToInput(node, widget, inputSpec)
-          if (!input) return
-
-          const originNode = link.node
-
-          originNode.connect(link.slot, node, node.inputs.lastIndexOf(input))
+        const nodeData = node.constructor.nodeData
+        if (!nodeData) return
+        const all = {
+          ...nodeData?.input?.required,
+          ...nodeData?.input?.optional
         }
+        const inputSpec = all[widget.name]
+        if (!inputSpec) return
+
+        const input = convertToInput(node, widget, inputSpec)
+        if (!input) return
+
+        const originNode = link.node
+
+        originNode.connectSlots(link.fromSlot, node, input, undefined)
       }
     )
   },
-  async beforeRegisterNodeDef(nodeType, nodeData, app) {
+  async beforeRegisterNodeDef(nodeType, _nodeData, app) {
     // Add menu options to convert to/from widgets
     const origGetExtraMenuOptions = nodeType.prototype.getExtraMenuOptions
     // @ts-expect-error adding extra property
@@ -678,6 +723,7 @@ app.registerExtension({
     ) {
       if (!slot.input || !slot.input.widget) return []
 
+      // @ts-expect-error fixme ts strict error
       const widget = this.widgets.find((w) => w.name === slot.input.widget.name)
       if (!widget) return []
       return [
@@ -688,13 +734,15 @@ app.registerExtension({
       ]
     }
 
+    // @ts-expect-error fixme ts strict error
     nodeType.prototype.getExtraMenuOptions = function (
       this: LGraphNode,
       _,
       options
     ) {
       const r = origGetExtraMenuOptions
-        ? origGetExtraMenuOptions.apply(this, arguments)
+        ? // @ts-expect-error fixme ts strict error
+          origGetExtraMenuOptions.apply(this, arguments)
         : undefined
 
       const getPointerCanvasPos = () => {
@@ -703,6 +751,7 @@ app.registerExtension({
       }
 
       if (this.widgets) {
+        // @ts-expect-error fixme ts strict error
         const { canvasX, canvasY } = getPointerCanvasPos()
         const widget = this.getWidgetOnPos(canvasX, canvasY)
         // @ts-expect-error custom widget type
@@ -751,10 +800,12 @@ app.registerExtension({
             options.push({
               content: 'Convert Widget to Input',
               submenu: {
+                // @ts-expect-error fixme ts strict error
                 options: toInput
               }
             })
           } else {
+            // @ts-expect-error fixme ts strict error
             options.push(...toInput, null)
           }
         }
@@ -781,8 +832,11 @@ app.registerExtension({
 
       for (const input of this.inputs) {
         if (input.widget) {
+          // @ts-expect-error fixme ts strict error
           if (!input.widget[GET_CONFIG]) {
+            // @ts-expect-error fixme ts strict error
             input.widget[GET_CONFIG] = () =>
+              // @ts-expect-error fixme ts strict error
               getConfig.call(this, input.widget.name)
           }
 
@@ -794,6 +848,7 @@ app.registerExtension({
               // If we are an old converted combo then replace the input type and the stored link data
               input.type = 'COMBO'
 
+              // @ts-expect-error fixme ts strict error
               const link = app.graph.links[input.link]
               if (link) {
                 link.type = input.type
@@ -803,11 +858,12 @@ app.registerExtension({
             delete input.widget.config
           }
 
+          // @ts-expect-error fixme ts strict error
           const w = this.widgets.find((w) => w.name === input.widget.name)
           if (w) {
             hideWidget(this, w)
           } else {
-            convertToWidget(this, w)
+            this.removeInput(this.inputs.findIndex((i) => i === input))
           }
         }
       }
@@ -836,14 +892,19 @@ app.registerExtension({
     const origOnConfigure = nodeType.prototype.onConfigure
     nodeType.prototype.onConfigure = function (this: LGraphNode) {
       const r = origOnConfigure
-        ? origOnConfigure.apply(this, arguments)
+        ? // @ts-expect-error fixme ts strict error
+          origOnConfigure.apply(this, arguments)
         : undefined
       if (!app.configuringGraph && this.inputs) {
         // On copy + paste of nodes, ensure that widget configs are set up
         for (const input of this.inputs) {
+          // @ts-expect-error fixme ts strict error
           if (input.widget && !input.widget[GET_CONFIG]) {
+            // @ts-expect-error fixme ts strict error
             input.widget[GET_CONFIG] = () =>
+              // @ts-expect-error fixme ts strict error
               getConfig.call(this, input.widget.name)
+            // @ts-expect-error fixme ts strict error
             const w = this.widgets.find((w) => w.name === input.widget.name)
             if (w) {
               hideWidget(this, w)
@@ -871,7 +932,8 @@ app.registerExtension({
       slot: number
     ) {
       const r = origOnInputDblClick
-        ? origOnInputDblClick.apply(this, arguments)
+        ? // @ts-expect-error fixme ts strict error
+          origOnInputDblClick.apply(this, arguments)
         : undefined
 
       const input = this.inputs[slot]
@@ -879,6 +941,7 @@ app.registerExtension({
         // Not a widget input or already handled input
         if (
           !(input.type in ComfyWidgets) &&
+          // @ts-expect-error fixme ts strict error
           !(input.widget?.[GET_CONFIG]?.()?.[0] instanceof Array)
         ) {
           return r //also Not a ComfyWidgets input or combo (do nothing)
@@ -887,10 +950,12 @@ app.registerExtension({
 
       // Create a primitive node
       const node = LiteGraph.createNode('PrimitiveNode')
+      // @ts-expect-error fixme ts strict error
       app.graph.add(node)
 
       // Calculate a position that wont directly overlap another node
       const pos: [number, number] = [
+        // @ts-expect-error fixme ts strict error
         this.pos[0] - node.size[0] - 30,
         this.pos[1]
       ]
@@ -898,8 +963,11 @@ app.registerExtension({
         pos[1] += LiteGraph.NODE_TITLE_HEIGHT
       }
 
+      // @ts-expect-error fixme ts strict error
       node.pos = pos
+      // @ts-expect-error fixme ts strict error
       node.connect(0, this, slot)
+      // @ts-expect-error fixme ts strict error
       node.title = input.name
 
       return r
@@ -908,6 +976,7 @@ app.registerExtension({
   registerCustomNodes() {
     LiteGraph.registerNodeType(
       'PrimitiveNode',
+      // @ts-expect-error fixme ts strict error
       Object.assign(PrimitiveNode, {
         title: 'Primitive'
       })

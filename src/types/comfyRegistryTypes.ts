@@ -703,6 +703,23 @@ export interface paths {
     patch?: never
     trace?: never
   }
+  '/nodes/{nodeId}/translations': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Create Node Translations */
+    post: operations['CreateNodeTranslations']
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
   '/nodes/{nodeId}/versions': {
     parameters: {
       query?: never
@@ -748,6 +765,23 @@ export interface paths {
     get: operations['listAllNodeVersions']
     put?: never
     post?: never
+    delete?: never
+    options?: never
+    head?: never
+    patch?: never
+    trace?: never
+  }
+  '/admin/nodes': {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    get?: never
+    put?: never
+    /** Create a new custom node using admin priviledge */
+    post: operations['adminCreateNode']
     delete?: never
     options?: never
     head?: never
@@ -1058,6 +1092,11 @@ export interface components {
       status?: components['schemas']['NodeStatus']
       /** @description The status detail of the node. */
       status_detail?: string
+      translations?: {
+        [key: string]: {
+          [key: string]: unknown
+        }
+      }
     }
     NodeVersion: {
       id?: string
@@ -2423,6 +2462,10 @@ export interface operations {
         timestamp?: string
         /** @description Whether to fetch fresh result from database or use cached one if false */
         latest?: boolean
+        /** @description Database column to use as ascending ordering. Add `;desc` as suffix on each column for descending sort */
+        sort?: string[]
+        /** @description The platform requesting the nodes */
+        form_factor?: string
       }
       header?: never
       path?: never
@@ -2476,7 +2519,10 @@ export interface operations {
   }
   getNode: {
     parameters: {
-      query?: never
+      query?: {
+        /** @description Whether to include the translation or not */
+        include_translations?: boolean
+      }
       header?: never
       path: {
         nodeId: string
@@ -2622,6 +2668,62 @@ export interface operations {
         }
         content: {
           'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
+  CreateNodeTranslations: {
+    parameters: {
+      query?: never
+      header?: never
+      path: {
+        /** @description The unique identifier of the node. */
+        nodeId: string
+      }
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': {
+          data?: {
+            [key: string]: {
+              [key: string]: unknown
+            }
+          }
+        }
+      }
+    }
+    responses: {
+      /** @description Detailed information about a specific node */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Bad Request */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Node version not found */
+      404: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Error']
         }
       }
       /** @description Internal server error */
@@ -2794,6 +2896,64 @@ export interface operations {
       }
     }
   }
+  adminCreateNode: {
+    parameters: {
+      query?: never
+      header?: never
+      path?: never
+      cookie?: never
+    }
+    requestBody: {
+      content: {
+        'application/json': components['schemas']['Node']
+      }
+    }
+    responses: {
+      /** @description Node created successfully */
+      201: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['Node']
+        }
+      }
+      /** @description Bad request, invalid input data. */
+      400: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Unauthorized */
+      401: {
+        headers: {
+          [name: string]: unknown
+        }
+        content?: never
+      }
+      /** @description Duplicate error. */
+      409: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+      /** @description Internal server error */
+      500: {
+        headers: {
+          [name: string]: unknown
+        }
+        content: {
+          'application/json': components['schemas']['ErrorResponse']
+        }
+      }
+    }
+  }
   adminUpdateNodeVersion: {
     parameters: {
       query?: never
@@ -2872,6 +3032,7 @@ export interface operations {
     parameters: {
       query?: {
         minAge?: string
+        minSecurityScanAge?: string
         maxNodes?: number
       }
       header?: never

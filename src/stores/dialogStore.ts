@@ -7,10 +7,24 @@ import { type Component, markRaw, ref } from 'vue'
 
 import type GlobalDialog from '@/components/dialog/GlobalDialog.vue'
 
+type DialogPosition =
+  | 'center'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+  | 'topleft'
+  | 'topright'
+  | 'bottomleft'
+  | 'bottomright'
+
 interface CustomDialogComponentProps {
   maximizable?: boolean
   maximized?: boolean
   onClose?: () => void
+  closable?: boolean
+  modal?: boolean
+  position?: DialogPosition
   pt?: DialogPassThroughOptions
 }
 
@@ -24,6 +38,7 @@ interface DialogInstance {
   headerComponent?: Component
   component: Component
   contentProps: Record<string, any>
+  footerComponent?: Component
   dialogComponentProps: DialogComponentProps
 }
 
@@ -31,6 +46,7 @@ export interface ShowDialogOptions {
   key?: string
   title?: string
   headerComponent?: Component
+  footerComponent?: Component
   component: Component
   props?: Record<string, any>
   dialogComponentProps?: DialogComponentProps
@@ -65,6 +81,7 @@ export const useDialogStore = defineStore('dialog', () => {
     key: string
     title?: string
     headerComponent?: Component
+    footerComponent?: Component
     component: Component
     props?: Record<string, any>
     dialogComponentProps?: DialogComponentProps
@@ -79,6 +96,9 @@ export const useDialogStore = defineStore('dialog', () => {
       title: options.title,
       headerComponent: options.headerComponent
         ? markRaw(options.headerComponent)
+        : undefined,
+      footerComponent: options.footerComponent
+        ? markRaw(options.footerComponent)
         : undefined,
       component: markRaw(options.component),
       contentProps: { ...options.props },

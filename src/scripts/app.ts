@@ -1,4 +1,3 @@
-// @ts-strict-ignore
 import {
   LGraph,
   LGraphCanvas,
@@ -7,13 +6,14 @@ import {
   LiteGraph,
   strokeShape
 } from '@comfyorg/litegraph'
-import type { Rect, Vector2 } from '@comfyorg/litegraph'
+import type { IWidget, Rect, Vector2 } from '@comfyorg/litegraph'
 import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { reactive } from 'vue'
 
 import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st } from '@/i18n'
+import type { ResultItem } from '@/schemas/apiSchema'
 import {
   type ComfyWorkflowJSON,
   type ModelFile,
@@ -62,6 +62,7 @@ import { type ComfyWidgetConstructor, ComfyWidgets } from './widgets'
 
 export const ANIM_PREVIEW_WIDGET = '$$comfy_animation_preview'
 
+// @ts-expect-error fixme ts strict error
 function sanitizeNodeName(string) {
   let entityMap = {
     '&': '',
@@ -73,12 +74,13 @@ function sanitizeNodeName(string) {
     '=': ''
   }
   return String(string).replace(/[&<>"'`=]/g, function fromEntityMap(s) {
+    // @ts-expect-error fixme ts strict error
     return entityMap[s]
   })
 }
 
 type Clipspace = {
-  widgets?: { type?: string; name?: string; value?: any }[] | null
+  widgets?: Pick<IWidget, 'type' | 'name' | 'value'>[] | null
   imgs?: HTMLImageElement[] | null
   original_imgs?: HTMLImageElement[] | null
   images?: any[] | null
@@ -110,17 +112,27 @@ export class ComfyApp {
   vueAppReady: boolean
   api: ComfyApi
   ui: ComfyUI
+  // @ts-expect-error fixme ts strict error
   extensionManager: ExtensionManager
+  // @ts-expect-error fixme ts strict error
   _nodeOutputs: Record<string, any>
   nodePreviewImages: Record<string, string[]>
+  // @ts-expect-error fixme ts strict error
   graph: LGraph
+  // @ts-expect-error fixme ts strict error
   canvas: LGraphCanvas
+  // @ts-expect-error fixme ts strict error
   dragOverNode: LGraphNode | null
+  // @ts-expect-error fixme ts strict error
   canvasEl: HTMLCanvasElement
+  // @ts-expect-error fixme ts strict error
   lastNodeErrors: any[] | null
   /** @type {ExecutionErrorWsMessage} */
+  // @ts-expect-error fixme ts strict error
   lastExecutionError: { node_id?: NodeId } | null
+  // @ts-expect-error fixme ts strict error
   configuringGraph: boolean
+  // @ts-expect-error fixme ts strict error
   ctx: CanvasRenderingContext2D
   bodyTop: HTMLElement
   bodyLeft: HTMLElement
@@ -258,9 +270,11 @@ export class ComfyApp {
     ComfyApp.clipspace_return_node = null
   }
 
+  // @ts-expect-error fixme ts strict error
   static copyToClipspace(node) {
     var widgets = null
     if (node.widgets) {
+      // @ts-expect-error fixme ts strict error
       widgets = node.widgets.map(({ type, name, value }) => ({
         type,
         name,
@@ -302,7 +316,7 @@ export class ComfyApp {
     }
   }
 
-  static pasteFromClipspace(node) {
+  static pasteFromClipspace(node: LGraphNode) {
     if (ComfyApp.clipspace) {
       // image paste
       if (ComfyApp.clipspace.imgs && node.imgs) {
@@ -345,6 +359,7 @@ export class ComfyApp {
           const index = node.widgets.findIndex((obj) => obj.name === 'image')
           if (index >= 0) {
             if (
+              // @ts-expect-error custom widget type
               node.widgets[index].type != 'image' &&
               typeof node.widgets[index].value == 'string' &&
               clip_image.filename
@@ -360,29 +375,27 @@ export class ComfyApp {
         }
         if (ComfyApp.clipspace.widgets) {
           ComfyApp.clipspace.widgets.forEach(({ type, name, value }) => {
+            // @ts-expect-error fixme ts strict error
             const prop = Object.values(node.widgets).find(
-              // @ts-expect-errorg
               (obj) => obj.type === type && obj.name === name
             )
-            // @ts-expect-error
             if (prop && prop.type != 'button') {
               if (
-                // @ts-expect-error
+                // @ts-expect-error Custom widget type
                 prop.type != 'image' &&
-                // @ts-expect-error
                 typeof prop.value == 'string' &&
+                // @ts-expect-error Custom widget value
                 value.filename
               ) {
-                // @ts-expect-error
+                const resultItem = value as ResultItem
                 prop.value =
-                  (value.subfolder ? value.subfolder + '/' : '') +
-                  value.filename +
-                  (value.type ? ` [${value.type}]` : '')
+                  (resultItem.subfolder ? resultItem.subfolder + '/' : '') +
+                  resultItem.filename +
+                  (resultItem.type ? ` [${resultItem.type}]` : '')
               } else {
-                // @ts-expect-error
+                // @ts-expect-error fixme ts strict error
                 prop.value = value
-                // @ts-expect-error
-                prop.callback(value)
+                prop.callback?.(value)
               }
             }
           })
@@ -397,6 +410,7 @@ export class ComfyApp {
     const serialize = LGraph.prototype.serialize
     const self = this
     LGraph.prototype.serialize = function () {
+      // @ts-expect-error fixme ts strict error
       const workflow = serialize.apply(this, arguments)
 
       // Store the drag & scale info in the serialized workflow if the setting is enabled
@@ -435,18 +449,22 @@ export class ComfyApp {
       }
       // Dragging from Chrome->Firefox there is a file but its a bmp, so ignore that
       if (
+        // @ts-expect-error fixme ts strict error
         event.dataTransfer.files.length &&
-        event.dataTransfer.files[0].type &&
+        // @ts-expect-error fixme ts strict error
         event.dataTransfer.files[0].type !== 'image/bmp'
       ) {
+        // @ts-expect-error fixme ts strict error
         await this.handleFile(event.dataTransfer.files[0])
       } else {
         // Try loading the first URI in the transfer list
         const validTypes = ['text/uri-list', 'text/x-moz-url']
+        // @ts-expect-error fixme ts strict error
         const match = [...event.dataTransfer.types].find((t) =>
           validTypes.find((v) => t === v)
         )
         if (match) {
+          // @ts-expect-error fixme ts strict error
           const uri = event.dataTransfer.getData(match)?.split('\n')?.[0]
           if (uri) {
             await this.handleFile(await (await fetch(uri)).blob())
@@ -537,6 +555,7 @@ export class ComfyApp {
       }
 
       // Fall through to Litegraph defaults
+      // @ts-expect-error fixme ts strict error
       return origProcessKey.apply(this, arguments)
     }
   }
@@ -551,16 +570,18 @@ export class ComfyApp {
       node,
       ctx,
       size,
-      fgcolor,
-      bgcolor,
-      selected
+      _fgcolor,
+      bgcolor
     ) {
+      // @ts-expect-error fixme ts strict error
       const res = origDrawNodeShape.apply(this, arguments)
 
+      // @ts-expect-error fixme ts strict error
       const nodeErrors = self.lastNodeErrors?.[node.id]
 
       let color = null
       let lineWidth = 1
+      // @ts-expect-error fixme ts strict error
       if (node.id === +self.runningNodeId) {
         color = '#0f0'
       } else if (self.dragOverNode && node.id === self.dragOverNode.id) {
@@ -570,6 +591,7 @@ export class ComfyApp {
         lineWidth = 2
       } else if (
         self.lastExecutionError &&
+        // @ts-expect-error fixme ts strict error
         +self.lastExecutionError.node_id === node.id
       ) {
         color = '#f0f'
@@ -603,6 +625,7 @@ export class ComfyApp {
         })
       }
 
+      // @ts-expect-error fixme ts strict error
       if (self.progress && node.id === +self.runningNodeId) {
         ctx.fillStyle = 'green'
         ctx.fillRect(
@@ -642,7 +665,7 @@ export class ComfyApp {
     }
 
     const origDrawNode = LGraphCanvas.prototype.drawNode
-    LGraphCanvas.prototype.drawNode = function (node, ctx) {
+    LGraphCanvas.prototype.drawNode = function (node) {
       const editor_alpha = this.editor_alpha
       const old_color = node.color
       const old_bgcolor = node.bgcolor
@@ -675,6 +698,7 @@ export class ComfyApp {
 
       node.bgcolor = adjustColor(bgColor, adjustments)
 
+      // @ts-expect-error fixme ts strict error
       const res = origDrawNode.apply(this, arguments)
 
       this.editor_alpha = editor_alpha
@@ -693,13 +717,15 @@ export class ComfyApp {
       this.ui.setStatus(detail)
     })
 
-    api.addEventListener('progress', ({ detail }) => {
+    api.addEventListener('progress', () => {
       this.graph.setDirtyCanvas(true, false)
     })
 
-    api.addEventListener('executing', ({ detail }) => {
+    api.addEventListener('executing', () => {
       this.graph.setDirtyCanvas(true, false)
+      // @ts-expect-error fixme ts strict error
       this.revokePreviews(this.runningNodeId)
+      // @ts-expect-error fixme ts strict error
       delete this.nodePreviewImages[this.runningNodeId]
     })
 
@@ -723,7 +749,7 @@ export class ComfyApp {
       }
     })
 
-    api.addEventListener('execution_start', ({ detail }) => {
+    api.addEventListener('execution_start', () => {
       this.lastExecutionError = null
       this.graph.nodes.forEach((node) => {
         if (node.onExecutionStart) node.onExecutionStart()
@@ -757,6 +783,7 @@ export class ComfyApp {
     LGraph.prototype.configure = function () {
       app.configuringGraph = true
       try {
+        // @ts-expect-error fixme ts strict error
         return configure.apply(this, arguments)
       } finally {
         app.configuringGraph = false
@@ -773,6 +800,7 @@ export class ComfyApp {
         node.onGraphConfigured?.()
       }
 
+      // @ts-expect-error fixme ts strict error
       const r = onConfigure?.apply(this, arguments)
 
       // Fire after onConfigure, used by primitives to generate widget using input nodes config
@@ -788,10 +816,15 @@ export class ComfyApp {
    * Set up the app on the page
    */
   async setup(canvasEl: HTMLCanvasElement) {
+    // @ts-expect-error fixme ts strict error
     this.bodyTop = document.getElementById('comfyui-body-top')
+    // @ts-expect-error fixme ts strict error
     this.bodyLeft = document.getElementById('comfyui-body-left')
+    // @ts-expect-error fixme ts strict error
     this.bodyRight = document.getElementById('comfyui-body-right')
+    // @ts-expect-error fixme ts strict error
     this.bodyBottom = document.getElementById('comfyui-body-bottom')
+    // @ts-expect-error fixme ts strict error
     this.canvasContainer = document.getElementById('graph-canvas-container')
 
     this.canvasEl = canvasEl
@@ -814,6 +847,7 @@ export class ComfyApp {
     this.canvas.state = reactive(this.canvas.state)
     this.canvas.ds.state = reactive(this.canvas.ds.state)
 
+    // @ts-expect-error fixme ts strict error
     this.ctx = canvasEl.getContext('2d')
 
     LiteGraph.alt_drag_do_clone_nodes = true
@@ -847,6 +881,7 @@ export class ComfyApp {
     const { width, height } = this.canvasEl.getBoundingClientRect()
     this.canvasEl.width = Math.round(width * scale)
     this.canvasEl.height = Math.round(height * scale)
+    // @ts-expect-error fixme ts strict error
     this.canvasEl.getContext('2d').scale(scale, scale)
     this.canvas?.draw(true, true)
   }
@@ -856,6 +891,7 @@ export class ComfyApp {
   ) {
     // Frontend only nodes registered by custom nodes.
     // Example: https://github.com/rgthree/rgthree-comfy/blob/dd534e5384be8cf0c0fa35865afe2126ba75ac55/src_web/comfyui/fast_groups_bypasser.ts#L10
+    // @ts-expect-error fixme ts strict error
     const rawDefs: Record<string, ComfyNodeDefV1> = Object.fromEntries(
       Object.entries(LiteGraph.registered_node_types).map(([name, node]) => [
         name,
@@ -896,6 +932,7 @@ export class ComfyApp {
         `nodeDefs.${def.name}.display_name`,
         def.display_name ?? def.name
       ),
+      // @ts-expect-error fixme ts strict error
       description: def.description
         ? st(`nodeDefs.${def.name}.description`, def.description)
         : undefined,
@@ -922,6 +959,7 @@ export class ComfyApp {
     await this.registerNodesFromDefs(defs)
     await useExtensionService().invokeExtensionsAsync('registerCustomNodes')
     if (this.vueAppReady) {
+      // @ts-expect-error fixme ts strict error
       this.updateVueAppNodeDefs(defs)
     }
   }
@@ -939,6 +977,7 @@ export class ComfyApp {
     }
   }
 
+  // @ts-expect-error fixme ts strict error
   loadTemplateData(templateData) {
     if (!templateData?.templates) {
       return
@@ -971,14 +1010,17 @@ export class ComfyApp {
 
         nodeBottom = node.pos[1] + node.size[1]
 
+        // @ts-expect-error fixme ts strict error
         if (maxY === false || nodeBottom > maxY) {
           maxY = nodeBottom
         }
       }
 
+      // @ts-expect-error fixme ts strict error
       app.canvas.graph_mouse[1] = maxY + 50
     }
 
+    // @ts-expect-error fixme ts strict error
     localStorage.setItem('litegrapheditor_clipboard', old)
   }
 
@@ -988,6 +1030,7 @@ export class ComfyApp {
     }
   }
 
+  // @ts-expect-error fixme ts strict error
   #showMissingModelsError(missingModels, paths) {
     if (useSettingStore().get('Comfy.Workflow.ShowMissingModelsWarning')) {
       useDialogService().showMissingModelsWarning({
@@ -1108,7 +1151,9 @@ export class ComfyApp {
       let errorHint = []
       // Try extracting filename to see if it was caused by an extension script
       const filename =
+        // @ts-expect-error fixme ts strict error
         error.fileName ||
+        // @ts-expect-error fixme ts strict error
         (error.stack || '').match(/(\/extensions\/.*\.js)/)?.[1]
       const pos = (filename || '').indexOf('/extensions/')
       if (pos > -1) {
@@ -1134,6 +1179,7 @@ export class ComfyApp {
           }),
           $el('pre', {
             style: { padding: '5px', backgroundColor: 'rgba(255,0,0,0.2)' },
+            // @ts-expect-error fixme ts strict error
             textContent: error.toString()
           }),
           $el('pre', {
@@ -1145,6 +1191,7 @@ export class ComfyApp {
               overflow: 'auto',
               backgroundColor: 'rgba(0,0,0,0.2)'
             },
+            // @ts-expect-error fixme ts strict error
             textContent: error.stack || 'No stacktrace available'
           }),
           ...errorHint
@@ -1179,10 +1226,10 @@ export class ComfyApp {
           ) {
             if (widget.name == 'control_after_generate') {
               if (widget.value === true) {
-                // @ts-expect-error change widget type from boolean to string
+                // @ts-expect-error string is not assignable to boolean
                 widget.value = 'randomize'
               } else if (widget.value === false) {
-                // @ts-expect-error change widget type from boolean to string
+                // @ts-expect-error string is not assignable to boolean
                 widget.value = 'fixed'
               }
             }
@@ -1190,9 +1237,12 @@ export class ComfyApp {
           if (reset_invalid_values) {
             if (widget.type == 'combo') {
               if (
+                // @ts-expect-error fixme ts strict error
                 !widget.options.values.includes(widget.value as string) &&
+                // @ts-expect-error fixme ts strict error
                 widget.options.values.length > 0
               ) {
+                // @ts-expect-error fixme ts strict error
                 widget.value = widget.options.values[0]
               }
             }
@@ -1241,6 +1291,7 @@ export class ComfyApp {
     })
   }
 
+  // @ts-expect-error fixme ts strict error
   #formatPromptError(error) {
     if (error == null) {
       return '(unknown error)'
@@ -1252,9 +1303,7 @@ export class ComfyApp {
       let message = error.response.error.message
       if (error.response.error.details)
         message += ': ' + error.response.error.details
-      for (const [nodeID, nodeError] of Object.entries(
-        error.response.node_errors
-      )) {
+      for (const [_, nodeError] of Object.entries(error.response.node_errors)) {
         // @ts-expect-error
         message += '\n' + nodeError.class_type + ':'
         // @ts-expect-error
@@ -1269,10 +1318,12 @@ export class ComfyApp {
   }
 
   async queuePrompt(number: number, batchCount: number = 1): Promise<boolean> {
+    // @ts-expect-error fixme ts strict error
     this.#queueItems.push({ number, batchCount })
 
     // Only have one action process the items so each one gets a unique seed correctly
     if (this.#processingQueue) {
+      // @ts-expect-error fixme ts strict error
       return
     }
 
@@ -1281,6 +1332,7 @@ export class ComfyApp {
 
     try {
       while (this.#queueItems.length) {
+        // @ts-expect-error fixme ts strict error
         ;({ number, batchCount } = this.#queueItems.pop())
 
         for (let i = 0; i < batchCount; i++) {
@@ -1291,12 +1343,15 @@ export class ComfyApp {
           const p = await this.graphToPrompt()
           try {
             const res = await api.queuePrompt(number, p)
+            // @ts-expect-error fixme ts strict error
             this.lastNodeErrors = res.node_errors
+            // @ts-expect-error fixme ts strict error
             if (this.lastNodeErrors.length > 0) {
               this.canvas.draw(true, true)
             } else {
               try {
                 useExecutionStore().storePrompt({
+                  // @ts-expect-error fixme ts strict error
                   id: res.prompt_id,
                   nodes: Object.keys(p.output),
                   workflow: useWorkspaceStore().workflow
@@ -1307,7 +1362,9 @@ export class ComfyApp {
           } catch (error) {
             const formattedError = this.#formatPromptError(error)
             this.ui.dialog.show(formattedError)
+            // @ts-expect-error fixme ts strict error
             if (error.response) {
+              // @ts-expect-error fixme ts strict error
               this.lastNodeErrors = error.response.node_errors
               this.canvas.draw(true, true)
             }
@@ -1317,6 +1374,7 @@ export class ComfyApp {
           // Allow widgets to run callbacks after a prompt has been queued
           // e.g. random seed after every gen
           executeWidgetsCallback(
+            // @ts-expect-error fixme ts strict error
             p.workflow.nodes.map((n) => this.graph.getNodeById(n.id)),
             'afterQueued'
           )
@@ -1331,6 +1389,7 @@ export class ComfyApp {
     return !this.lastNodeErrors
   }
 
+  // @ts-expect-error fixme ts strict error
   showErrorOnFileLoad(file) {
     this.ui.dialog.show(
       $el('div', [
@@ -1343,7 +1402,9 @@ export class ComfyApp {
    * Loads workflow data from the specified file
    * @param {File} file
    */
+  // @ts-expect-error fixme ts strict error
   async handleFile(file) {
+    // @ts-expect-error fixme ts strict error
     const removeExt = (f) => {
       if (!f) return f
       const p = f.lastIndexOf('.')
@@ -1457,11 +1518,13 @@ export class ComfyApp {
     }
   }
 
+  // @ts-expect-error fixme ts strict error
   isApiJson(data) {
     // @ts-expect-error
     return Object.values(data).every((v) => v.class_type)
   }
 
+  // @ts-expect-error fixme ts strict error
   loadApiJson(apiData, fileName: string) {
     useWorkflowService().beforeLoadNewGraph()
 
@@ -1482,8 +1545,11 @@ export class ComfyApp {
     for (const id of ids) {
       const data = apiData[id]
       const node = LiteGraph.createNode(data.class_type)
+      // @ts-expect-error fixme ts strict error
       node.id = isNaN(+id) ? id : +id
+      // @ts-expect-error fixme ts strict error
       node.title = data._meta?.title ?? node.title
+      // @ts-expect-error fixme ts strict error
       app.graph.add(node)
     }
 
@@ -1495,21 +1561,26 @@ export class ComfyApp {
         if (value instanceof Array) {
           const [fromId, fromSlot] = value
           const fromNode = app.graph.getNodeById(fromId)
+          // @ts-expect-error fixme ts strict error
           let toSlot = node.inputs?.findIndex((inp) => inp.name === input)
           if (toSlot == null || toSlot === -1) {
             try {
               // Target has no matching input, most likely a converted widget
+              // @ts-expect-error fixme ts strict error
               const widget = node.widgets?.find((w) => w.name === input)
               // @ts-expect-error
               if (widget && node.convertWidgetToInput?.(widget)) {
+                // @ts-expect-error fixme ts strict error
                 toSlot = node.inputs?.length - 1
               }
             } catch (error) {}
           }
           if (toSlot != null || toSlot !== -1) {
+            // @ts-expect-error fixme ts strict error
             fromNode.connect(fromSlot, node, toSlot)
           }
         } else {
+          // @ts-expect-error fixme ts strict error
           const widget = node.widgets?.find((w) => w.name === input)
           if (widget) {
             widget.value = value
@@ -1528,21 +1599,26 @@ export class ComfyApp {
         if (value instanceof Array) {
           const [fromId, fromSlot] = value
           const fromNode = app.graph.getNodeById(fromId)
+          // @ts-expect-error fixme ts strict error
           let toSlot = node.inputs?.findIndex((inp) => inp.name === input)
           if (toSlot == null || toSlot === -1) {
             try {
               // Target has no matching input, most likely a converted widget
+              // @ts-expect-error fixme ts strict error
               const widget = node.widgets?.find((w) => w.name === input)
               // @ts-expect-error
               if (widget && node.convertWidgetToInput?.(widget)) {
+                // @ts-expect-error fixme ts strict error
                 toSlot = node.inputs?.length - 1
               }
             } catch (error) {}
           }
           if (toSlot != null || toSlot !== -1) {
+            // @ts-expect-error fixme ts strict error
             fromNode.connect(fromSlot, node, toSlot)
           }
         } else {
+          // @ts-expect-error fixme ts strict error
           const widget = node.widgets?.find((w) => w.name === input)
           if (widget) {
             widget.value = value
@@ -1585,19 +1661,19 @@ export class ComfyApp {
       this.registerNodeDef(nodeId, defs[nodeId])
     }
     for (const node of this.graph.nodes) {
+      // @ts-expect-error fixme ts strict error
       const def = defs[node.type]
       // Allow primitive nodes to handle refresh
       node.refreshComboInNode?.(defs)
 
       if (!def?.input) continue
 
+      // @ts-expect-error fixme ts strict error
       for (const widget of node.widgets) {
         if (widget.type === 'combo') {
           if (def['input'].required?.[widget.name] !== undefined) {
-            // @ts-expect-error InputSpec is not typed correctly
             widget.options.values = def['input'].required[widget.name][0]
           } else if (def['input'].optional?.[widget.name] !== undefined) {
-            // @ts-expect-error InputSpec is not typed correctly
             widget.options.values = def['input'].optional[widget.name][0]
           }
         }
@@ -1610,6 +1686,7 @@ export class ComfyApp {
     )
 
     if (this.vueAppReady) {
+      // @ts-expect-error fixme ts strict error
       this.updateVueAppNodeDefs(defs)
       useToastStore().remove(requestToastMessage)
       useToastStore().add({
@@ -1648,6 +1725,7 @@ export class ComfyApp {
     const rect = this.canvasContainer.getBoundingClientRect()
     const containerOffsets = [rect.left, rect.top]
     return _.zip(pos, this.canvas.ds.offset, containerOffsets).map(
+      // @ts-expect-error fixme ts strict error
       ([p, o1, o2]) => (p - o2) / this.canvas.ds.scale - o1
     ) as Vector2
   }
@@ -1656,6 +1734,7 @@ export class ComfyApp {
     const rect = this.canvasContainer.getBoundingClientRect()
     const containerOffsets = [rect.left, rect.top]
     return _.zip(pos, this.canvas.ds.offset, containerOffsets).map(
+      // @ts-expect-error fixme ts strict error
       ([p, o1, o2]) => (p + o1) * this.canvas.ds.scale + o2
     ) as Vector2
   }

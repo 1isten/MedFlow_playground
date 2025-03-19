@@ -12,11 +12,14 @@ const zRemoteWidgetConfig = z.object({
   timeout: z.number().gte(0).optional(),
   max_retries: z.number().gte(0).optional()
 })
+const zMultiSelectOption = z.object({
+  placeholder: z.string().optional(),
+  chip: z.boolean().optional()
+})
 
 export const zBaseInputOptions = z
   .object({
     default: z.any().optional(),
-    /** @deprecated Group node uses this field. Remove when group node feature is removed. */
     defaultInput: z.boolean().optional(),
     forceInput: z.boolean().optional(),
     tooltip: z.string().optional(),
@@ -72,7 +75,9 @@ export const zComboInputOptions = zBaseInputOptions.extend({
   allow_batch: z.boolean().optional(),
   video_upload: z.boolean().optional(),
   options: z.array(zComboOption).optional(),
-  remote: zRemoteWidgetConfig.optional()
+  remote: zRemoteWidgetConfig.optional(),
+  /** Whether the widget is a multi-select widget. */
+  multi_select: zMultiSelectOption.optional()
 })
 
 const zIntInputSpec = z.tuple([z.literal('INT'), zIntInputOptions.optional()])

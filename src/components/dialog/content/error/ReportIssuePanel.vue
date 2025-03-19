@@ -4,7 +4,7 @@
     @submit="submit"
     :resolver="zodResolver(issueReportSchema)"
   >
-    <Panel :pt="$attrs.pt">
+    <Panel :pt="$attrs.pt as any">
       <template #header>
         <div class="flex items-center gap-2">
           <span class="font-bold">{{ title }}</span>
@@ -187,7 +187,7 @@ const createUser = (formData: IssueReportFormData): User => ({
 })
 
 const createExtraData = async (formData: IssueReportFormData) => {
-  const result = {}
+  const result: Record<string, unknown> = {}
   const isChecked = (fieldValue: string) => formData[fieldValue]
 
   await Promise.all(
@@ -243,7 +243,7 @@ const submit = async (event: FormSubmitEvent) => {
       toast.add({
         severity: 'error',
         summary: t('g.error'),
-        detail: error.message,
+        detail: error instanceof Error ? error.message : String(error),
         life: 3000
       })
     }

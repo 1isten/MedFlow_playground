@@ -24,7 +24,7 @@ useExtensionService().registerExtension({
           ? document.location.hash.split('?')[1] || ''
           : document.location.search
       )
-      let search = `?defaultTool=Paint&drawer=permanent`
+      let search = `?drawer=permanent&defaultTool=Paint&roi=true&heatmap=true`
       const pipelineId = query.get('pipelineId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''
       // search += `&manualNodeId=${node.id}`

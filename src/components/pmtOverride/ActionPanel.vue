@@ -326,7 +326,9 @@ onMounted(async () => {
   const hideTypes = [
     'input.load_image',
     'input.load_nifti',
-    ...Object.keys(SYSTEM_NODE_DEFS)
+    ...Object.keys(SYSTEM_NODE_DEFS).filter(
+      (type) => !['PrimitiveNode', 'Reroute'].includes(type)
+    )
   ]
   hideTypes.forEach((type) => {
     if (LiteGraph.getNodeType(type)) {

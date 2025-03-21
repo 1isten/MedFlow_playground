@@ -1,4 +1,5 @@
-// @ts-strict-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({

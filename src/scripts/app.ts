@@ -601,8 +601,8 @@ export class ComfyApp {
       if ('pmt_fields' in node) {
         const pmt_fields = node.pmt_fields as object
         if ('status' in pmt_fields) {
-          const status = pmt_fields.status as string
-          if (status && NODE_STATUS_COLOR[status]) {
+          const status = pmt_fields.status as keyof typeof NODE_STATUS_COLOR
+          if (status && NODE_STATUS_COLOR[status] !== undefined) {
             color = NODE_STATUS_COLOR[status]
             lineWidth = 2
           }

@@ -35,9 +35,9 @@
           <div class="flex-1 overflow-auto">
             <div
               v-if="isLoading"
-              class="flex justify-center items-center h-full"
+              class="w-full h-full overflow-auto scrollbar-hide"
             >
-              <ProgressSpinner />
+              <GridSkeleton :grid-style="GRID_STYLE" :skeleton-card-count />
             </div>
             <NoResultsPlaceholder
               v-else-if="searchResults.length === 0"
@@ -56,12 +56,7 @@
               <VirtualGrid
                 :items="resultsWithKeys"
                 :buffer-rows="3"
-                :gridStyle="{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(19rem, 1fr))',
-                  padding: '0.5rem',
-                  gap: '1.5rem'
-                }"
+                :gridStyle="GRID_STYLE"
                 @approach-end="onApproachEnd"
               >
                 <template #item="{ item }">
@@ -96,9 +91,9 @@
 
 <script setup lang="ts">
 import { whenever } from '@vueuse/core'
+import { merge } from 'lodash'
 import Button from 'primevue/button'
-import ProgressSpinner from 'primevue/progressspinner'
-import { computed, ref, watch } from 'vue'
+import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import ContentDivider from '@/components/common/ContentDivider.vue'
@@ -109,11 +104,13 @@ import InfoPanel from '@/components/dialog/content/manager/infoPanel/InfoPanel.v
 import InfoPanelMultiItem from '@/components/dialog/content/manager/infoPanel/InfoPanelMultiItem.vue'
 import PackCard from '@/components/dialog/content/manager/packCard/PackCard.vue'
 import RegistrySearchBar from '@/components/dialog/content/manager/registrySearchBar/RegistrySearchBar.vue'
+import GridSkeleton from '@/components/dialog/content/manager/skeleton/GridSkeleton.vue'
 import { useResponsiveCollapse } from '@/composables/element/useResponsiveCollapse'
 import { useInstalledPacks } from '@/composables/nodePack/useInstalledPacks'
 import { useWorkflowPacks } from '@/composables/nodePack/useWorkflowPacks'
 import { useRegistrySearch } from '@/composables/useRegistrySearch'
 import { useComfyManagerStore } from '@/stores/comfyManagerStore'
+import { useComfyRegistryStore } from '@/stores/comfyRegistryStore'
 import type { TabItem } from '@/types/comfyManagerTypes'
 import { components } from '@/types/comfyRegistryTypes'
 
@@ -126,6 +123,14 @@ enum ManagerTab {
 
 const { t } = useI18n()
 const comfyManagerStore = useComfyManagerStore()
+const { getPackById } = useComfyRegistryStore()
+
+const GRID_STYLE = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(19rem, 1fr))',
+  padding: '0.5rem',
+  gap: '1.5rem'
+} as const
 
 const {
   isSmallScreen,
@@ -204,7 +209,22 @@ const getInWorkflowResults = () => {
 const filterMissingPacks = (packs: components['schemas']['Node'][]) =>
   packs.filter((pack) => !comfyManagerStore.isPackInstalled(pack.id))
 
-const getMissingPacks = () => filterMissingPacks(getInWorkflowResults())
+const setMissingPacks = () => {
+  displayPacks.value = filterMissingPacks(workflowPacks.value)
+}
+
+const getMissingPacks = () => {
+  if (isEmptySearch.value) {
+    startFetchWorkflowPacks()
+    whenever(() => workflowPacks.value.length, setMissingPacks, {
+      immediate: true,
+      once: true
+    })
+    return filterMissingPacks(workflowPacks.value)
+  } else {
+    return filterMissingPacks(filterWorkflowPack(searchResults.value))
+  }
+}
 
 const onTabChange = () => {
   switch (selectedTab.value?.id) {
@@ -231,7 +251,9 @@ const onResultsChange = () => {
       displayPacks.value = filterWorkflowPack(searchResults.value)
       break
     case ManagerTab.Missing:
-      displayPacks.value = filterMissingPacks(searchResults.value)
+      displayPacks.value = filterMissingPacks(
+        filterWorkflowPack(searchResults.value)
+      )
       break
     default:
       displayPacks.value = searchResults.value
@@ -240,10 +262,10 @@ const onResultsChange = () => {
 
 whenever(selectedTab, onTabChange)
 watch(searchResults, onResultsChange, { flush: 'pre' })
+watch(() => comfyManagerStore.installedPacksIds, onResultsChange)
 
 const isLoading = computed(() => {
-  if (isSearchLoading.value)
-    return searchResults.value.length === 0 || isInitialLoad.value
+  if (isSearchLoading.value) return searchResults.value.length === 0
   if (selectedTab.value?.id === ManagerTab.Installed) {
     return isLoadingInstalled.value
   }
@@ -253,7 +275,7 @@ const isLoading = computed(() => {
   ) {
     return isLoadingWorkflow.value
   }
-  return false
+  return isInitialLoad.value
 })
 
 const resultsWithKeys = computed(
@@ -268,6 +290,27 @@ const selectedNodePacks = ref<components['schemas']['Node'][]>([])
 const selectedNodePack = computed<components['schemas']['Node'] | null>(() =>
   selectedNodePacks.value.length === 1 ? selectedNodePacks.value[0] : null
 )
+
+const getLoadingCount = () => {
+  switch (selectedTab.value?.id) {
+    case ManagerTab.Installed:
+      return comfyManagerStore.installedPacksIds?.size
+    case ManagerTab.Workflow:
+      return workflowPacks.value?.length
+    case ManagerTab.Missing:
+      return workflowPacks.value?.filter?.(
+        (pack) => !comfyManagerStore.isPackInstalled(pack.id)
+      )?.length
+    default:
+      return searchResults.value.length
+  }
+}
+
+const skeletonCardCount = computed(() => {
+  const loadingCount = getLoadingCount()
+  if (loadingCount) return loadingCount
+  return isSmallScreen.value ? 12 : 16
+})
 
 const selectNodePack = (
   nodePack: components['schemas']['Node'],
@@ -303,4 +346,24 @@ const handleGridContainerClick = (event: MouseEvent) => {
 }
 
 const hasMultipleSelections = computed(() => selectedNodePacks.value.length > 1)
+
+whenever(selectedNodePack, async () => {
+  // Cancel any in-flight requests from previously selected node pack
+  getPackById.cancel()
+
+  if (!selectedNodePack.value?.id) return
+
+  // If only a single node pack is selected, fetch full node pack info from registry
+  if (hasMultipleSelections.value) return
+  const data = await getPackById.call(selectedNodePack.value.id)
+
+  if (data?.id === selectedNodePack.value?.id) {
+    // If selected node hasn't changed since request, merge registry & Algolia data
+    selectedNodePacks.value = [merge(selectedNodePack.value, data)]
+  }
+})
+
+onUnmounted(() => {
+  getPackById.cancel()
+})
 </script>

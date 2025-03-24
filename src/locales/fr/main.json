@@ -74,6 +74,7 @@
     "LOAD_3D": "CHARGER_3D",
     "LOAD_3D_ANIMATION": "CHARGER_ANIMATION_3D",
     "MASK": "MASQUE",
+    "MESH": "MAILLAGE",
     "MODEL": "MODÈLE",
     "NOISE": "BRUIT",
     "PHOTOMAKER": "PHOTOMAKER",
@@ -84,6 +85,7 @@
     "TIMESTEPS_RANGE": "PLAGE_DES_ÉTAPES_TEMPORELLES",
     "UPSCALE_MODEL": "MODÈLE_DE_MISE_À_L'ÉCHELLE",
     "VAE": "VAE",
+    "VOXEL": "VOXEL",
     "WEBCAM": "WEBCAM"
   },
   "desktopMenu": {
@@ -128,6 +130,7 @@
     "comingSoon": "Bientôt disponible",
     "command": "Commande",
     "community": "Communauté",
+    "completed": "Terminé",
     "confirm": "Confirmer",
     "continue": "Continuer",
     "control_after_generate": "contrôle après génération",
@@ -157,6 +160,7 @@
     "icon": "Icône",
     "imageFailedToLoad": "Échec du chargement de l'image",
     "import": "Importer",
+    "inProgress": "En cours",
     "insert": "Insérer",
     "install": "Installer",
     "installed": "Installé",
@@ -345,6 +349,9 @@
     "backgroundColor": "Couleur de fond",
     "camera": "Caméra",
     "edgeThreshold": "Seuil de Bordure",
+    "export": "Exportation",
+    "exportModel": "Exportation du modèle",
+    "exportingModel": "Exportation du modèle en cours...",
     "fov": "FOV",
     "light": "Lumière",
     "lightIntensity": "Intensité de la lumière",
@@ -889,6 +896,9 @@
     },
     "template": {
       "3D": {
+        "hunyuan-3d-multiview-elf": "Hunyuan3D Multivue",
+        "hunyuan-3d-turbo": "Hunyuan3D Turbo",
+        "hunyuan3d-non-multiview-train": "Hunyuan3D",
         "stable_zero123_example": "Stable Zero123"
       },
       "Area Composition": {

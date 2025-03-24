@@ -1,17 +1,27 @@
 import type { MenuItem } from 'primevue/menuitem'
+import type { TreeNode as PrimeVueTreeNode } from 'primevue/treenode'
 import type { InjectionKey, ModelRef } from 'vue'
 
-export interface TreeExplorerNode<T = any> {
-  key: string
+export interface TreeNode extends PrimeVueTreeNode {
   label: string
-  leaf: boolean
+  children?: TreeNode[]
+}
+
+export interface TreeExplorerNode<T = any> extends TreeNode {
   data?: T
   children?: TreeExplorerNode<T>[]
   icon?: string
-  /** Function to override what icon to use for the node */
-  getIcon?: (this: TreeExplorerNode<T>) => string
-  /** Function to override what text to use for the leaf-count badge on a folder node */
-  getBadgeText?: (this: TreeExplorerNode<T>) => string
+  /**
+   * Function to override what icon to use for the node.
+   * Return undefined to fallback to {@link icon} property.
+   */
+  getIcon?: (this: TreeExplorerNode<T>) => string | undefined
+  /**
+   * Function to override what text to use for the leaf-count badge on a folder node.
+   * Return undefined to fallback to default badge text, which is the subtree's leaf count.
+   * Return empty string to hide the badge.
+   */
+  getBadgeText?: (this: TreeExplorerNode<T>) => string | undefined
   /** Function to handle renaming the node */
   handleRename?: (
     this: TreeExplorerNode<T>,

@@ -74,6 +74,7 @@
     "LOAD_3D": "加载3D",
     "LOAD_3D_ANIMATION": "加载3D动画",
     "MASK": "遮罩",
+    "MESH": "网格",
     "MODEL": "模型",
     "NOISE": "噪波",
     "PHOTOMAKER": "PhotoMaker",
@@ -84,6 +85,7 @@
     "TIMESTEPS_RANGE": "时间间隔范围",
     "UPSCALE_MODEL": "放大模型",
     "VAE": "VAE",
+    "VOXEL": "体素",
     "WEBCAM": "摄像头"
   },
   "desktopMenu": {
@@ -128,6 +130,7 @@
     "comingSoon": "即将推出",
     "command": "指令",
     "community": "社区",
+    "completed": "已完成",
     "confirm": "确认",
     "continue": "继续",
     "control_after_generate": "生成后控制",
@@ -157,6 +160,7 @@
     "icon": "图标",
     "imageFailedToLoad": "图像加载失败",
     "import": "导入",
+    "inProgress": "进行中",
     "insert": "插入",
     "install": "安装",
     "installed": "已安装",
@@ -345,6 +349,9 @@
     "backgroundColor": "背景颜色",
     "camera": "相机",
     "edgeThreshold": "边缘阈值",
+    "export": "导出",
+    "exportModel": "导出模型",
+    "exportingModel": "正在导出模型...",
     "fov": "视场",
     "light": "灯光",
     "lightIntensity": "光照强度",
@@ -889,6 +896,9 @@
     },
     "template": {
       "3D": {
+        "hunyuan-3d-multiview-elf": "Hunyuan3D多视图",
+        "hunyuan-3d-turbo": "Hunyuan3D Turbo",
+        "hunyuan3d-non-multiview-train": "Hunyuan3D",
         "stable_zero123_example": "稳定Zero123"
       },
       "Area Composition": {

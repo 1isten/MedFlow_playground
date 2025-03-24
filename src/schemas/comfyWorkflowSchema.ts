@@ -26,7 +26,7 @@ const zVector2 = z.union([
   z
     .object({ 0: z.number(), 1: z.number() })
     .passthrough()
-    .transform((v) => [v[0], v[1]]),
+    .transform((v) => [v[0], v[1]] as [number, number]),
   z.tuple([z.number(), z.number()])
 ])
 
@@ -155,9 +155,10 @@ const zAuxId = z
   )
   .transform(([username, repo]) => `${username}/${repo}`)
 
-const zSemVer = z
-  .string()
-  .regex(semverPattern, 'Invalid semantic version (x.y.z)')
+const zSemVer = z.union([
+  z.string().regex(semverPattern, 'Invalid semantic version (x.y.z)'),
+  z.literal('unknown')
+])
 const zGitHash = z.string().regex(gitHashPattern, 'Invalid Git commit hash')
 const zVersion = z.union([zSemVer, zGitHash])
 
@@ -277,6 +278,9 @@ export type NodeInput = z.infer<typeof zNodeInput>
 export type NodeOutput = z.infer<typeof zNodeOutput>
 export type ComfyLink = z.infer<typeof zComfyLink>
 export type ComfyNode = z.infer<typeof zComfyNode>
+export type Reroute = z.infer<typeof zReroute>
+export type WorkflowJSON04 = z.infer<typeof zComfyWorkflow>
+export type WorkflowJSON10 = z.infer<typeof zComfyWorkflow1>
 export type ComfyWorkflowJSON = z.infer<
   typeof zComfyWorkflow | typeof zComfyWorkflow1
 >

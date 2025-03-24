@@ -107,7 +107,8 @@ export class ChangeTracker {
 
   checkState() {
     if (!this.app.graph || this.changeCount) return
-    // @ts-expect-error zod types issue. Will be fixed after we enable ts-strict
+    // @ts-expect-error zod type issue on ComfyWorkflowJSON. ComfyWorkflowJSON
+    // is stricter than LiteGraph's serialisation schema.
     const currentState = clone(this.app.graph.serialize()) as ComfyWorkflowJSON
     if (!this.activeState) {
       this.activeState = currentState
@@ -397,7 +398,7 @@ export class ChangeTracker {
         return false
 
       // Compare other properties normally
-      for (const key of ['links', 'reroutes', 'groups']) {
+      for (const key of ['links', 'floatingLinks', 'reroutes', 'groups']) {
         if (!_.isEqual(a[key], b[key])) {
           return false
         }

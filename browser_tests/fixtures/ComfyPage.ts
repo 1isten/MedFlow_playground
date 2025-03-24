@@ -214,6 +214,10 @@ export class ComfyPage {
         `Failed to setup workflows directory: ${await resp.text()}`
       )
     }
+
+    await this.page.evaluate(async () => {
+      await window['app'].extensionManager.workflow.syncWorkflows()
+    })
   }
 
   async setupUser(username: string) {
@@ -478,6 +482,7 @@ export class ComfyPage {
       if (fileName.endsWith('.webp')) return 'image/webp'
       if (fileName.endsWith('.webm')) return 'video/webm'
       if (fileName.endsWith('.json')) return 'application/json'
+      if (fileName.endsWith('.glb')) return 'model/gltf-binary'
       return 'application/octet-stream'
     }
 

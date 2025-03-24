@@ -13,17 +13,16 @@ import Load3d from '@/extensions/core/load3d/Load3d'
 import Load3dAnimation from '@/extensions/core/load3d/Load3dAnimation'
 import {
   CameraType,
-  Load3DAnimationNodeType,
-  Load3DNodeType,
   MaterialMode,
   UpDirection
 } from '@/extensions/core/load3d/interfaces'
 import { t } from '@/i18n'
+import type { CustomInputSpec } from '@/schemas/nodeDef/nodeDefSchemaV2'
 import { useLoad3dService } from '@/services/load3dService'
 
 const props = defineProps<{
   node: LGraphNode
-  type: Load3DNodeType | Load3DAnimationNodeType
+  inputSpec: CustomInputSpec
   backgroundColor: string
   showGrid: boolean
   lightIntensity: number
@@ -60,7 +59,13 @@ const eventConfig = {
   modelLoadingEnd: () => loadingOverlayRef.value?.endLoading(),
   materialLoadingStart: () =>
     loadingOverlayRef.value?.startLoading(t('load3d.switchingMaterialMode')),
-  materialLoadingEnd: () => loadingOverlayRef.value?.endLoading()
+  materialLoadingEnd: () => loadingOverlayRef.value?.endLoading(),
+  exportLoadingStart: (message: string) => {
+    loadingOverlayRef.value?.startLoading(message || t('load3d.exportingModel'))
+  },
+  exportLoadingEnd: () => {
+    loadingOverlayRef.value?.endLoading()
+  }
 } as const
 
 watchEffect(() => {
@@ -135,7 +140,7 @@ onMounted(() => {
     node.value as LGraphNode,
     // @ts-expect-error fixme ts strict error
     container.value,
-    props.type
+    props.inputSpec
   )
   handleEvents('add')
 })

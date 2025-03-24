@@ -96,7 +96,9 @@
     "enabled": "Enabled",
     "installed": "Installed",
     "restart": "Restart",
-    "missing": "Missing"
+    "missing": "Missing",
+    "inProgress": "In progress",
+    "completed": "Completed"
   },
   "manager": {
     "title": "Custom Nodes Manager",
@@ -514,7 +516,10 @@
         "area_composition_square_area_for_subject": "Area Composition Square Area for Subject"
       },
       "3D": {
-        "stable_zero123_example": "Stable Zero123"
+        "stable_zero123_example": "Stable Zero123",
+        "hunyuan3d-non-multiview-train": "Hunyuan3D 2.0",
+        "hunyuan-3d-multiview-elf": "Hunyuan3D 2.0 MV",
+        "hunyuan-3d-turbo": "Hunyuan3D 2.0 MV Turbo"
       },
       "Audio": {
         "stable_audio_example": "Stable Audio"
@@ -855,6 +860,7 @@
     "latent": "latent",
     "video": "video",
     "audio": "audio",
+    "3d": "3d",
     "ltxv": "ltxv",
     "sd3": "sd3",
     "sigmas": "sigmas",
@@ -870,7 +876,6 @@
     "compositing": "compositing",
     "samplers": "samplers",
     "operations": "operations",
-    "3d": "3d",
     "debug": "debug",
     "model": "model",
     "model_specific": "model_specific",
@@ -907,6 +912,7 @@
     "LOAD_3D": "LOAD_3D",
     "LOAD_3D_ANIMATION": "LOAD_3D_ANIMATION",
     "MASK": "MASK",
+    "MESH": "MESH",
     "MODEL": "MODEL",
     "NOISE": "NOISE",
     "PHOTOMAKER": "PHOTOMAKER",
@@ -917,6 +923,7 @@
     "TIMESTEPS_RANGE": "TIMESTEPS_RANGE",
     "UPSCALE_MODEL": "UPSCALE_MODEL",
     "VAE": "VAE",
+    "VOXEL": "VOXEL",
     "WEBCAM": "WEBCAM"
   },
   "maintenance": {
@@ -971,6 +978,9 @@
     "camera": "Camera",
     "light": "Light",
     "switchingMaterialMode": "Switching Material Mode...",
-    "edgeThreshold": "Edge Threshold"
+    "edgeThreshold": "Edge Threshold",
+    "export": "Export",
+    "exportModel": "Export Model",
+    "exportingModel": "Exporting model..."
   }
 }

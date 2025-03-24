@@ -1,11 +1,14 @@
 import { LGraphNode } from '@comfyorg/litegraph'
 import * as THREE from 'three'
 
+import { CustomInputSpec } from '@/schemas/nodeDef/nodeDefSchemaV2'
+
 import { CameraManager } from './CameraManager'
 import { ControlsManager } from './ControlsManager'
 import { EventManager } from './EventManager'
 import { LightingManager } from './LightingManager'
 import { LoaderManager } from './LoaderManager'
+import { ModelExporter } from './ModelExporter'
 import { ModelManager } from './ModelManager'
 import { NodeStorage } from './NodeStorage'
 import { PreviewManager } from './PreviewManager'
@@ -43,7 +46,8 @@ class Load3d {
   constructor(
     container: Element | HTMLElement,
     options: Load3DOptions = {
-      node: {} as LGraphNode
+      node: {} as LGraphNode,
+      inputSpec: {} as CustomInputSpec
     }
   ) {
     this.node = options.node || ({} as LGraphNode)
@@ -108,7 +112,8 @@ class Load3d {
       this.renderer,
       this.eventManager,
       this.getActiveCamera.bind(this),
-      this.setupCamera.bind(this)
+      this.setupCamera.bind(this),
+      options
     )
 
     this.loaderManager = new LoaderManager(this.modelManager, this.eventManager)
@@ -123,7 +128,7 @@ class Load3d {
     this.viewHelperManager.createViewHelper(container)
     this.viewHelperManager.init()
 
-    if (options && options.createPreview) {
+    if (options && !options.inputSpec?.isPreview) {
       this.previewManager.createCapturePreview(container)
       this.previewManager.init()
     }
@@ -219,6 +224,47 @@ class Load3d {
       this.STATUS_MOUSE_ON_SCENE ||
       !this.INITIAL_RENDER_DONE
     )
+  }
+
+  async exportModel(format: string): Promise<void> {
+    if (!this.modelManager.currentModel) {
+      throw new Error('No model to export')
+    }
+
+    const exportMessage = `Exporting as ${format.toUpperCase()}...`
+    this.eventManager.emitEvent('exportLoadingStart', exportMessage)
+
+    try {
+      const model = this.modelManager.currentModel.clone()
+
+      const originalFileName = this.modelManager.originalFileName || 'model'
+      const filename = `${originalFileName}.${format}`
+
+      const originalURL = this.modelManager.originalURL
+
+      await new Promise((resolve) => setTimeout(resolve, 10))
+
+      switch (format) {
+        case 'glb':
+          await ModelExporter.exportGLB(model, filename, originalURL)
+          break
+        case 'obj':
+          await ModelExporter.exportOBJ(model, filename, originalURL)
+          break
+        case 'stl':
+          await ModelExporter.exportSTL(model, filename), originalURL
+          break
+        default:
+          throw new Error(`Unsupported export format: ${format}`)
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 10))
+    } catch (error) {
+      console.error(`Error exporting model as ${format}:`, error)
+      throw error
+    } finally {
+      this.eventManager.emitEvent('exportLoadingEnd', null)
+    }
   }
 
   setBackgroundColor(color: string): void {

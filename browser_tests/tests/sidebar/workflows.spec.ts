@@ -34,7 +34,6 @@ test.describe('Workflows sidebar', () => {
       'workflow1.json': 'default.json',
       'workflow2.json': 'default.json'
     })
-    await comfyPage.setup()
 
     const tab = comfyPage.menu.workflowsTab
     await tab.open()
@@ -77,7 +76,6 @@ test.describe('Workflows sidebar', () => {
     await comfyPage.setupWorkflowsDirectory({
       'workflow1.json': 'single_ksampler.json'
     })
-    await comfyPage.setup()
 
     const tab = comfyPage.menu.workflowsTab
     await tab.open()
@@ -101,7 +99,6 @@ test.describe('Workflows sidebar', () => {
         'bar.json': 'default.json'
       }
     })
-    await comfyPage.setup()
 
     const tab = comfyPage.menu.workflowsTab
     await tab.open()
@@ -230,6 +227,7 @@ test.describe('Workflows sidebar', () => {
 
     await topbar.saveWorkflowAs('workflow1.json')
     await comfyPage.confirmDialog.click('overwrite')
+    await comfyPage.page.waitForTimeout(200)
     // The old workflow1.json should be deleted and the new one should be saved.
     expect(await comfyPage.menu.workflowsTab.getOpenedWorkflowNames()).toEqual([
       'workflow2.json',
@@ -323,7 +321,7 @@ test.describe('Workflows sidebar', () => {
     await comfyPage.setupWorkflowsDirectory({
       'workflow1.json': 'default.json'
     })
-    await comfyPage.setup()
+
     await comfyPage.menu.workflowsTab.open()
 
     const nodeCount = await comfyPage.getGraphNodesCount()

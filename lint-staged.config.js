@@ -5,8 +5,7 @@ export default {
 
   './**/*.{ts,tsx,vue,mts}': (stagedFiles) => [
     ...formatAndEslint(stagedFiles),
-    'vue-tsc --noEmit',
-    'tsc --noEmit'
+    'vue-tsc --noEmit'
   ]
 }
 

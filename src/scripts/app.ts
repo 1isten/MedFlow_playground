@@ -23,6 +23,7 @@ import {
 import { type ComfyNodeDef as ComfyNodeDefV2 } from '@/schemas/nodeDef/nodeDefSchemaV2'
 import type { ComfyNodeDef as ComfyNodeDefV1 } from '@/schemas/nodeDefSchema'
 import { getFromWebmFile } from '@/scripts/metadata/ebml'
+import { getGltfBinaryMetadata } from '@/scripts/metadata/gltf'
 import { useDialogService } from '@/services/dialogService'
 import { useExtensionService } from '@/services/extensionService'
 import { useLitegraphService } from '@/services/litegraphService'
@@ -44,6 +45,7 @@ import { ExtensionManager } from '@/types/extensionTypes'
 import { ColorAdjustOptions, adjustColor } from '@/utils/colorUtil'
 import { graphToPrompt } from '@/utils/executionUtil'
 import { executeWidgetsCallback, isImageNode } from '@/utils/litegraphUtil'
+import { migrateLegacyRerouteNodes } from '@/utils/migration/migrateReroute'
 import { deserialiseAndCreate } from '@/utils/vintageClipboard'
 
 import { type ComfyApi, api } from './api'
@@ -437,39 +439,44 @@ export class ComfyApp {
   #addDropHandler() {
     // Get prompt from dropped PNG or json
     document.addEventListener('drop', async (event) => {
-      event.preventDefault()
-      event.stopPropagation()
+      try {
+        event.preventDefault()
+        event.stopPropagation()
 
-      const n = this.dragOverNode
-      this.dragOverNode = null
-      // Node handles file drop, we dont use the built in onDropFile handler as its buggy
-      // If you drag multiple files it will call it multiple times with the same file
-      if (n && n.onDragDrop && (await n.onDragDrop(event))) {
-        return
-      }
-      // Dragging from Chrome->Firefox there is a file but its a bmp, so ignore that
-      if (
-        // @ts-expect-error fixme ts strict error
-        event.dataTransfer.files.length &&
-        // @ts-expect-error fixme ts strict error
-        event.dataTransfer.files[0].type !== 'image/bmp'
-      ) {
-        // @ts-expect-error fixme ts strict error
-        await this.handleFile(event.dataTransfer.files[0])
-      } else {
-        // Try loading the first URI in the transfer list
-        const validTypes = ['text/uri-list', 'text/x-moz-url']
-        // @ts-expect-error fixme ts strict error
-        const match = [...event.dataTransfer.types].find((t) =>
-          validTypes.find((v) => t === v)
-        )
-        if (match) {
+        const n = this.dragOverNode
+        this.dragOverNode = null
+        // Node handles file drop, we dont use the built in onDropFile handler as its buggy
+        // If you drag multiple files it will call it multiple times with the same file
+        if (n && n.onDragDrop && (await n.onDragDrop(event))) {
+          return
+        }
+        // Dragging from Chrome->Firefox there is a file but its a bmp, so ignore that
+        if (
           // @ts-expect-error fixme ts strict error
-          const uri = event.dataTransfer.getData(match)?.split('\n')?.[0]
-          if (uri) {
-            await this.handleFile(await (await fetch(uri)).blob())
+          event.dataTransfer.files.length &&
+          // @ts-expect-error fixme ts strict error
+          event.dataTransfer.files[0].type !== 'image/bmp'
+        ) {
+          // @ts-expect-error fixme ts strict error
+          await this.handleFile(event.dataTransfer.files[0])
+        } else {
+          // Try loading the first URI in the transfer list
+          const validTypes = ['text/uri-list', 'text/x-moz-url']
+          // @ts-expect-error fixme ts strict error
+          const match = [...event.dataTransfer.types].find((t) =>
+            validTypes.find((v) => t === v)
+          )
+          if (match) {
+            // @ts-expect-error fixme ts strict error
+            const uri = event.dataTransfer.getData(match)?.split('\n')?.[0]
+            if (uri) {
+              await this.handleFile(await (await fetch(uri)).blob())
+            }
           }
         }
+      } catch (err: any) {
+        console.error('Unable to process dropped item:', err)
+        useToastStore().addAlert(`Unable to process dropped item: ${err}`)
       }
     })
 
@@ -1072,6 +1079,11 @@ export class ComfyApp {
       graphData = validatedGraphData ?? graphData
     }
 
+    // Migrate legacy reroute nodes to the new format
+    if (graphData.version === 0.4) {
+      graphData = migrateLegacyRerouteNodes(graphData)
+    }
+
     useWorkflowService().beforeLoadNewGraph()
 
     const missingNodeTypes: MissingNodeType[] = []
@@ -1080,7 +1092,6 @@ export class ComfyApp {
       'beforeConfigureGraph',
       graphData,
       missingNodeTypes
-      // TODO: missingModels
     )
 
     const embeddedModels: ModelFile[] = []
@@ -1141,9 +1152,6 @@ export class ComfyApp {
         useSettingStore().get('Comfy.EnableWorkflowViewRestore') &&
         graphData.extra?.ds
       ) {
-        // @ts-expect-error
-        // Need to set strict: true for zod to match the type [number, number]
-        // https://github.com/colinhacks/zod/issues/3056
         this.canvas.ds.offset = graphData.extra.ds.offset
         this.canvas.ds.scale = graphData.extra.ds.scale
       }
@@ -1253,7 +1261,6 @@ export class ComfyApp {
       useExtensionService().invokeExtensions('loadedGraphNode', node)
     }
 
-    // TODO: Properly handle if both nodes and models are missing (sequential dialogs?)
     if (missingNodeTypes.length && showMissingNodesDialog) {
       this.#showMissingNodesError(missingNodeTypes)
     }
@@ -1468,6 +1475,18 @@ export class ComfyApp {
         this.showErrorOnFileLoad(file)
       }
     } else if (
+      file.type === 'model/gltf-binary' ||
+      file.name?.endsWith('.glb')
+    ) {
+      const gltfInfo = await getGltfBinaryMetadata(file)
+      if (gltfInfo.workflow) {
+        this.loadGraphData(gltfInfo.workflow, true, true, fileName)
+      } else if (gltfInfo.prompt) {
+        this.loadApiJson(gltfInfo.prompt, fileName)
+      } else {
+        this.showErrorOnFileLoad(file)
+      }
+    } else if (
       file.type === 'application/json' ||
       file.name?.endsWith('.json')
     ) {
@@ -1630,7 +1649,8 @@ export class ComfyApp {
 
     app.graph.arrange()
 
-    // @ts-expect-error zod type issue on ComfyWorkflowJSON. Should be resolved after enabling ts-strict globally.
+    // @ts-expect-error zod type issue on ComfyWorkflowJSON. ComfyWorkflowJSON
+    // is stricter than LiteGraph's serialisation schema.
     useWorkflowService().afterLoadNewGraph(fileName, this.serializeGraph())
   }
 
@@ -1661,7 +1681,6 @@ export class ComfyApp {
       this.registerNodeDef(nodeId, defs[nodeId])
     }
     for (const node of this.graph.nodes) {
-      // @ts-expect-error fixme ts strict error
       const def = defs[node.type]
       // Allow primitive nodes to handle refresh
       node.refreshComboInNode?.(defs)
@@ -1672,8 +1691,10 @@ export class ComfyApp {
       for (const widget of node.widgets) {
         if (widget.type === 'combo') {
           if (def['input'].required?.[widget.name] !== undefined) {
+            // @ts-expect-error Requires discriminated union
             widget.options.values = def['input'].required[widget.name][0]
           } else if (def['input'].optional?.[widget.name] !== undefined) {
+            // @ts-expect-error Requires discriminated union
             widget.options.values = def['input'].optional[widget.name][0]
           }
         }

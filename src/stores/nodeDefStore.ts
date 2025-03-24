@@ -1,7 +1,6 @@
 import type { LGraphNode } from '@comfyorg/litegraph'
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import type { TreeNode } from 'primevue/treenode'
 import { computed, ref } from 'vue'
 
 import { transformNodeDefV1ToV2 } from '@/schemas/nodeDef/migration'
@@ -24,6 +23,7 @@ import {
   NodeSourceType,
   getNodeSource
 } from '@/types/nodeSource'
+import type { TreeNode } from '@/types/treeExplorerTypes'
 import { buildTree } from '@/utils/treeUtil'
 
 export class ComfyNodeDefImpl implements ComfyNodeDefV1, ComfyNodeDefV2 {
@@ -139,18 +139,6 @@ export const SYSTEM_NODE_DEFS: Record<string, ComfyNodeDefV1> = {
     output_node: false,
     python_module: 'nodes',
     description: 'Primitive values like numbers, strings, and booleans.'
-  },
-  Reroute: {
-    name: 'Reroute',
-    display_name: 'Reroute',
-    category: 'utils',
-    input: { required: { '': ['*', {}] }, optional: {} },
-    output: ['*'],
-    output_name: [''],
-    output_is_list: [false],
-    output_node: false,
-    python_module: 'nodes',
-    description: 'Reroute the connection to another node.'
   },
   Note: {
     name: 'Note',

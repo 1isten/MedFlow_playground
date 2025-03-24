@@ -1,8 +1,10 @@
 <template>
   <template v-if="nodePack">
-    <div class="flex flex-col h-full z-40 hidden-scrollbar w-80">
-      <div class="p-6 flex-1 overflow-hidden text-sm">
+    <div class="flex flex-col h-full z-40 w-80 overflow-hidden relative">
+      <div class="top-0 z-10 px-6 pt-6 w-full">
         <InfoPanelHeader :node-packs="[nodePack]" />
+      </div>
+      <div class="p-6 pt-2 overflow-y-auto flex-1 text-sm hidden-scrollbar">
         <div class="mb-6">
           <MetadataRow
             v-if="isPackInstalled(nodePack.id)"
@@ -44,7 +46,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { whenever } from '@vueuse/core'
+import { computed, provide, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 
 import PackStatusMessage from '@/components/dialog/content/manager/PackStatusMessage.vue'
@@ -54,6 +57,7 @@ import InfoPanelHeader from '@/components/dialog/content/manager/infoPanel/InfoP
 import InfoTabs from '@/components/dialog/content/manager/infoPanel/InfoTabs.vue'
 import MetadataRow from '@/components/dialog/content/manager/infoPanel/MetadataRow.vue'
 import { useComfyManagerStore } from '@/stores/comfyManagerStore'
+import { IsInstallingKey } from '@/types/comfyManagerTypes'
 import { components } from '@/types/comfyRegistryTypes'
 
 interface InfoItem {
@@ -65,6 +69,14 @@ interface InfoItem {
 const { nodePack } = defineProps<{
   nodePack: components['schemas']['Node']
 }>()
+
+const managerStore = useComfyManagerStore()
+const isInstalled = computed(() => managerStore.isPackInstalled(nodePack.id))
+const isInstalling = ref(false)
+provide(IsInstallingKey, isInstalling)
+whenever(isInstalled, () => {
+  isInstalling.value = false
+})
 
 const { isPackInstalled } = useComfyManagerStore()
 
@@ -94,9 +106,6 @@ const infoItems = computed<InfoItem[]>(() => [
 </script>
 <style scoped>
 .hidden-scrollbar {
-  height: 100%;
-  overflow-y: auto;
-
   /* Firefox */
   scrollbar-width: none;
 

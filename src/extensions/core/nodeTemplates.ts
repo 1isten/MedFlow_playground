@@ -352,6 +352,8 @@ class ManageTemplates extends ComfyDialog {
 app.registerExtension({
   name: id,
   setup() {
+    return
+
     const manage = new ManageTemplates()
 
     // @ts-expect-error fixme ts strict error

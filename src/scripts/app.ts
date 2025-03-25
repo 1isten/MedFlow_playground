@@ -11,6 +11,7 @@ import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { reactive } from 'vue'
 
+import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st, t } from '@/i18n'
 import type { ResultItem } from '@/schemas/apiSchema'
 import {
@@ -604,6 +605,17 @@ export class ComfyApp {
         lineWidth = 2
       }
 
+      if ('pmt_fields' in node) {
+        const pmt_fields = node.pmt_fields as object
+        if ('status' in pmt_fields) {
+          const status = pmt_fields.status as keyof typeof NODE_STATUS_COLOR
+          if (status && NODE_STATUS_COLOR[status] !== undefined) {
+            color = NODE_STATUS_COLOR[status]
+            lineWidth = 2
+          }
+        }
+      }
+
       if (color) {
         const area: Rect = [
           0,
@@ -948,9 +960,9 @@ export class ComfyApp {
   /**
    * Registers nodes with the graph
    */
-  async registerNodes() {
+  async registerNodes(customNodeDefs?: Record<string, ComfyNodeDefV1>) {
     // Load node definitions from the backend
-    const defs = await this.#getNodeDefs()
+    const defs = customNodeDefs || (await this.#getNodeDefs())
     await this.registerNodesFromDefs(defs)
     await useExtensionService().invokeExtensionsAsync('registerCustomNodes')
     if (this.vueAppReady) {
@@ -1435,7 +1447,9 @@ export class ComfyApp {
       reader.onload = async () => {
         const readerResult = reader.result as string
         const jsonContent = JSON.parse(readerResult)
-        if (jsonContent?.templates) {
+        if (jsonContent?.plugin_name) {
+          // pmt plugin config
+        } else if (jsonContent?.templates) {
           this.loadTemplateData(jsonContent)
         } else if (this.isApiJson(jsonContent)) {
           this.loadApiJson(jsonContent, fileName)

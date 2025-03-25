@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>test embedded page</title>
+</head>
+<body>
+  <button>click</button>
+  <script>
+    (function () {
+      window.addEventListener('message', (e) => {
+        if (e.data?.from === 'test-id-parent') {
+          console.log('msg from parent:', e.data.msg)
+        }
+      })
+
+      document.querySelector('button').addEventListener('click', function (e) {
+        window.parent.postMessage({ from: 'test-id', msg: 'button clicked' }, '*')
+      })
+    })()
+  </script>
+</body>
+</html>

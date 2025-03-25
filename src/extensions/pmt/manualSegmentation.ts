@@ -2,6 +2,7 @@
 // @ts-nocheck
 import { LiteGraph } from '@comfyorg/litegraph'
 
+import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
@@ -22,16 +23,32 @@ useExtensionService().registerExtension({
         switch (type) {
           case LiteGraph.INPUT: {
             if (isConnected) {
-              while (node.inputs.find((i) => i.type !== inputOrOutput.type)) {
-                const i = node.inputs.findIndex(
-                  (i) => i.type !== inputOrOutput.type
+              if (link_info) {
+                if (link_info.type !== inputOrOutput.type) {
+                  const inputNode = app.graph.getNodeById(link_info.origin_id)
+                  const adjusted_target_slot = node.inputs.findIndex(
+                    (i) => i.type === link_info.type
+                  )
+                  if (adjusted_target_slot !== -1) {
+                    inputNode?.connect(
+                      link_info.origin_slot,
+                      node,
+                      adjusted_target_slot
+                    )
+                  }
+                }
+              } else {
+                break
+              }
+              while (node.inputs.find((i) => i.type !== link_info.type)) {
+                node.removeInput(
+                  node.inputs.findIndex((i) => i.type !== link_info.type)
                 )
-                node.removeInput(i)
               }
               const input = node.inputs[0]
               input.localized_name = undefined
               const output = node.outputs[0]
-              if (inputOrOutput.type === 'DICOM_FILE') {
+              if (link_info.type === 'DICOM_FILE') {
                 if (!output || output.type !== 'DICOM_FILE') {
                   node.addOutput('labelmap.dcm', 'DICOM_FILE')
                 }
@@ -41,6 +58,10 @@ useExtensionService().registerExtension({
                 }
               }
             } else {
+              const linkedInputSlot = node.inputs.findIndex((i) => !!i.link)
+              if (linkedInputSlot !== -1) {
+                break
+              }
               while (node.outputs.length > 0) {
                 node.removeOutput(node.outputs.length - 1)
               }

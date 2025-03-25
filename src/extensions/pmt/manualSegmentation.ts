@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { LiteGraph } from '@comfyorg/litegraph'
+
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
@@ -7,9 +9,61 @@ useExtensionService().registerExtension({
   nodeCreated(node) {
     if (node?.comfyClass !== 'manual.segmentation') {
       return
+    } else {
+      const _inputs = node.inputs.map((i) => {
+        i.localized_name = `* ${i.name}`
+        return { name: i.name, type: i.type }
+      })
+      node.setDirtyCanvas(true)
+
+      const _onConnectionsChange = node.onConnectionsChange
+      node.onConnectionsChange = function (...args) {
+        const [type, index, isConnected, link_info, inputOrOutput] = args
+        switch (type) {
+          case LiteGraph.INPUT: {
+            if (isConnected) {
+              while (node.inputs.find((i) => i.type !== inputOrOutput.type)) {
+                const i = node.inputs.findIndex(
+                  (i) => i.type !== inputOrOutput.type
+                )
+                node.removeInput(i)
+              }
+              const input = node.inputs[0]
+              input.localized_name = undefined
+              const output = node.outputs[0]
+              if (inputOrOutput.type === 'DICOM_FILE') {
+                if (!output || output.type !== 'DICOM_FILE') {
+                  node.addOutput('labelmap.dcm', 'DICOM_FILE')
+                }
+              } else {
+                if (!output || output.type !== 'NIFTI_FILE') {
+                  node.addOutput('labelmap.nii.gz', 'NIFTI_FILE')
+                }
+              }
+            } else {
+              while (node.outputs.length > 0) {
+                node.removeOutput(node.outputs.length - 1)
+              }
+              while (node.inputs.length > 0) {
+                node.removeInput(node.inputs.length - 1)
+              }
+              _inputs.forEach(({ name, type }) => {
+                const input = node.addInput(name, type)
+                input.localized_name = `* ${name}`
+              })
+            }
+            node.setDirtyCanvas(true)
+            break
+          }
+          case LiteGraph.OUTPUT: {
+            break
+          }
+        }
+        return _onConnectionsChange?.apply(this, args)
+      }
     }
 
-    const getVolViewUrl = () => {
+    const getVolViewUrl = (labelmapFormat = 'nii.gz') => {
       // eslint-disable-next-line prefer-const
       let { origin, port, pathname } = document.location
       if (origin === 'file://') {
@@ -25,7 +79,7 @@ useExtensionService().registerExtension({
           ? document.location.hash.split('?')[1] || ''
           : document.location.search
       )
-      let search = `?drawer=permanent&defaultTool=Paint&roi=true&heatmap=true`
+      let search = `?drawer=permanent&defaultTool=Paint&labelmapFormat=${labelmapFormat}&roi=true&heatmap=true`
       const pipelineId = query.get('pipelineId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''
       // search += `&manualNodeId=${node.id}`
@@ -51,7 +105,10 @@ useExtensionService().registerExtension({
     const getOutputs = () => {
       const outputs = []
       const outputInfo = node.getOutputInfo(0)
-      if (outputInfo?.type === 'NIFTI_FILE') {
+      if (
+        outputInfo?.type === 'NIFTI_FILE' ||
+        outputInfo?.type === 'DICOM_FILE'
+      ) {
         // @ts-expect-error custom pmt_fields
         const pmt_fields = node.pmt_fields as any
         if (pmt_fields) {
@@ -114,7 +171,18 @@ useExtensionService().registerExtension({
           countEl.textContent = `${outputCount}/${inputCount}`
           if (!toggleEl['openVolView']) {
             toggleEl['openVolView'] = (e) => {
-              const VOLVIEW_URL = getVolViewUrl() + `&manualNodeId=${node.id}`
+              let labelmapFormat = 'nii.gz'
+              const inputInfo = node.getInputInfo(0)
+              if (inputInfo?.type === 'DICOM_FILE') {
+                labelmapFormat = 'dcm'
+              } else if (
+                inputInfo?.type === 'NIFTI_FILE' ||
+                inputInfo?.type === 'SERIES_FILE_LIST'
+              ) {
+                labelmapFormat = 'nii.gz'
+              }
+              const VOLVIEW_URL =
+                getVolViewUrl(labelmapFormat) + `&manualNodeId=${node.id}`
               window.open(VOLVIEW_URL, '_blank')
             }
             toggleEl.onclick = toggleEl['openVolView']

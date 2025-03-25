@@ -738,21 +738,25 @@
     "name": "manual.segmentation",
     "category": "manual",
     "display_name": "Segmentation",
-    "description": "Manual segmentations.",
+    "description": "Manual segmentation.",
     "python_module": "custom_nodes.manual.segmentation",
     "input": {
       "required": {
-        "DICOM_FILE": ["DICOM_FILE"]
+        "DICOM_FILE": ["DICOM_FILE"],
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
       }
     },
     "input_order": {
       "required": [
-        "DICOM_FILE"
+        "DICOM_FILE",
+        "NIFTI_FILE",
+        "SERIES_FILE_LIST"
       ]
     },
-    "output": ["NIFTI_FILE"],
-    "output_name": ["labelmap.nii.gz"],
-    "output_is_list": [false],
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
     "output_node": false
   },
 

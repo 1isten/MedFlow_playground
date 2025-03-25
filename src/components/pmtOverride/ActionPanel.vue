@@ -1880,7 +1880,10 @@ div.comfy-menu.no-drag {
   display: none !important;
 }
 
-[data-testid='bypass-button'] {
+.selection-toolbox {
+  visibility: hidden !important;
+}
+.selection-toolbox [data-testid='bypass-button'] {
   display: none !important;
 }
 </style>

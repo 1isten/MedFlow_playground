@@ -199,5 +199,18 @@ useExtensionService().registerExtension({
       }
       return _onDrawBackground?.apply(this, args)
     }
+
+    const _onConnectInput = node.onConnectInput
+    node.onConnectInput = function (...args) {
+      const [target_slot, type, output, inputNode, origin_slot] = args
+      const pmt_fields = inputNode.pmt_fields as any
+      if (pmt_fields?.status === 'done') {
+        const pmt_fields = node.pmt_fields as any
+        if (pmt_fields.status !== 'current' || pmt_fields.status !== 'done') {
+          pmt_fields.status = 'current'
+        }
+      }
+      return _onConnectInput?.apply(this, args)
+    }
   }
 })

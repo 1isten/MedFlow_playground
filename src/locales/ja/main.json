@@ -115,6 +115,12 @@
     "paused": "一時停止",
     "resume": "ダウンロードを再開"
   },
+  "errorDialog": {
+    "defaultTitle": "エラーが発生しました",
+    "extensionFileHint": "これは次のスクリプトが原因かもしれません",
+    "loadWorkflowTitle": "ワークフローデータの再読み込みエラーにより、読み込みが中止されました",
+    "noStackTrace": "スタックトレースは利用できません"
+  },
   "g": {
     "about": "情報",
     "add": "追加",
@@ -346,6 +352,7 @@
     }
   },
   "load3d": {
+    "applyingTexture": "テクスチャを適用中...",
     "backgroundColor": "背景色",
     "camera": "カメラ",
     "edgeThreshold": "エッジ閾値",
@@ -365,7 +372,8 @@
     "switchCamera": "カメラを切り替える",
     "switchingMaterialMode": "マテリアルモードの切り替え中...",
     "upDirection": "上方向",
-    "uploadBackgroundImage": "背景画像をアップロード"
+    "uploadBackgroundImage": "背景画像をアップロード",
+    "uploadTexture": "テクスチャをアップロード"
   },
   "maintenance": {
     "None": "なし",

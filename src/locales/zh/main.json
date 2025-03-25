@@ -115,6 +115,12 @@
     "paused": "已暂停",
     "resume": "恢复下载"
   },
+  "errorDialog": {
+    "defaultTitle": "发生错误",
+    "extensionFileHint": "这可能是由于以下脚本",
+    "loadWorkflowTitle": "由于重新加载工作流数据出错，加载被中止",
+    "noStackTrace": "无可用堆栈跟踪"
+  },
   "g": {
     "about": "关于",
     "add": "添加",
@@ -346,6 +352,7 @@
     }
   },
   "load3d": {
+    "applyingTexture": "应用纹理中...",
     "backgroundColor": "背景颜色",
     "camera": "相机",
     "edgeThreshold": "边缘阈值",
@@ -365,7 +372,8 @@
     "switchCamera": "切换摄像头",
     "switchingMaterialMode": "切换材质模式中...",
     "upDirection": "向上方向",
-    "uploadBackgroundImage": "上传背景图片"
+    "uploadBackgroundImage": "上传背景图片",
+    "uploadTexture": "上传纹理"
   },
   "maintenance": {
     "None": "无",

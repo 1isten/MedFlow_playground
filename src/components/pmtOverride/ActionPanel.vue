@@ -1696,11 +1696,14 @@ function handleGetManualList(payload) {
       const outputs = manualNode['getOutputs_']()
       inputs.forEach((input, i) => {
         const output = outputs[i]
-        const item = {
-          oid: input.oid || null,
-          path: input.path || null,
-          labelmap: output?.path || null
-        }
+        const item = JSON.parse(
+          JSON.stringify({
+            level: input.level || undefined,
+            oid: input.oid || null,
+            path: input.path || null,
+            labelmap: output?.path || null
+          })
+        )
         manualList.push(item)
       })
     }
@@ -1733,9 +1736,18 @@ function handleCreateManualSegmentation(payload) {
         const output = outputs[i]
         if (output) {
           const { oid, labelmap } = payload
-          if (input.oid === oid && labelmap) {
-            output.path = labelmap
-            manualNode.setDirtyCanvas(true)
+          if (labelmap) {
+            if (input.oid) {
+              if (input.oid === oid) {
+                output.path = labelmap
+                manualNode.setDirtyCanvas(true)
+              }
+            } else if (input.path) {
+              if (input.path === oid || input.path === window.atob(oid)) {
+                output.path = labelmap
+                manualNode.setDirtyCanvas(true)
+              }
+            }
           }
         }
       })

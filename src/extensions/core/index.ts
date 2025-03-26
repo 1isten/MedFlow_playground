@@ -4,6 +4,7 @@ import '../pmt/previewVolView'
 import '../pmt/statusFloat'
 import '../pmt/uploadDicom'
 import '../pmt/uploadImage'
+import '../pmt/uploadJson'
 import '../pmt/uploadNifti'
 import '../pmt/uploadStudy'
 // ...

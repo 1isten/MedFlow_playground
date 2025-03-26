@@ -785,6 +785,10 @@ onUnmounted(() => {
 })
 
 function onDrop(e) {
+  if (window['__drag_over_node']) {
+    delete window['__drag_over_node']
+    return
+  }
   if (e.dataTransfer.files.length) {
     const file = e.dataTransfer.files[0]
     if (file.type === 'application/json' || file.name?.endsWith('.json')) {
@@ -1315,6 +1319,13 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         if (subtype === 'textarea') {
           pmt_fields.outputs[0].value =
             pmt_fields.outputs[0].value || pmt_fields.args.textarea
+        }
+        if (subtype === 'load_json') {
+          if (node?.pmt_fields?.outputs) {
+            if (node.pmt_fields.outputs[0].value) {
+              pmt_fields.outputs = node.pmt_fields.outputs
+            }
+          }
         }
       } else {
         delete pmt_fields.outputs[0].level

@@ -629,6 +629,32 @@
     "output_is_list": [false],
     "output_node": false
   },
+  "input.load_json": {
+    "name": "input.load_json",
+    "category": "input",
+    "display_name": "Load JSON",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "file": [
+          [
+            "file.json"
+          ],
+          {
+            "json_upload": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["file"]
+    },
+    "output": ["DICT"],
+    "output_name": ["DICT"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "input.load_image": {
     "name": "input.load_image",
     "category": "input",

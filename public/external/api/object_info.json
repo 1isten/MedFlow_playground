@@ -681,6 +681,32 @@
     "output_is_list": [false],
     "output_node": false
   },
+  "input.load_nifti": {
+    "name": "input.load_nifti",
+    "category": "input",
+    "display_name": "Load NIFTI",
+    "description": "",
+    "python_module": "nodes",
+    "input": {
+      "required": {
+        "oid": [
+          [
+            ""
+          ],
+          {
+            "nifti_upload": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["oid"]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "input.load_series": {
     "name": "input.load_series",
     "category": "input",
@@ -707,29 +733,22 @@
     "output_is_list": [false],
     "output_node": false
   },
-  "input.load_nifti": {
-    "name": "input.load_nifti",
+  "input.load_study": {
+    "name": "input.load_study",
     "category": "input",
-    "display_name": "Load NIFTI",
+    "display_name": "Load Study",
     "description": "",
     "python_module": "nodes",
     "input": {
       "required": {
-        "oid": [
-          [
-            ""
-          ],
-          {
-            "nifti_upload": false
-          }
-        ]
+        "oid": ["STRING"]
       }
     },
     "input_order": {
       "required": ["oid"]
     },
-    "output": ["NIFTI_FILE"],
-    "output_name": ["NIFTI_FILE"],
+    "output": ["STUDY_FILE_LIST"],
+    "output_name": ["STUDY_FILE_LIST"],
     "output_is_list": [false],
     "output_node": false
   },

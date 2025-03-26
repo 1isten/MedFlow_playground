@@ -326,9 +326,10 @@ onMounted(async () => {
   const hideTypes = [
     'input.load_image',
     'input.load_nifti',
-    ...Object.keys(SYSTEM_NODE_DEFS).filter(
-      (type) => !['PrimitiveNode', 'Reroute'].includes(type)
-    )
+    ...Object.keys(SYSTEM_NODE_DEFS).filter((type) => {
+      // return !['PrimitiveNode', 'Reroute'].includes(type)
+      return true
+    })
   ]
   hideTypes.forEach((type) => {
     if (LiteGraph.getNodeType(type)) {
@@ -1257,16 +1258,43 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       if (keepStatus) {
         const oid = pmt_fields.args.oid || pmt_fields.args.source
         if (oid) {
+          let handled = false
           if (subtype === 'load_dicom') {
             pmt_fields.outputs[0].level = ParsedLevel.INSTANCE
           } else if (subtype === 'load_series') {
-            pmt_fields.outputs[0].level = ParsedLevel.SERIES
+            if (node?.pmt_fields?.outputs) {
+              if (
+                node.pmt_fields.outputs[0]?.level === ParsedLevel.INSTANCE &&
+                node.pmt_fields.outputs[0].oid
+              ) {
+                pmt_fields.outputs = node.pmt_fields.outputs
+                handled = true
+              }
+            }
+            if (!handled) {
+              pmt_fields.outputs[0].level = ParsedLevel.SERIES
+            }
+          } else if (subtype === 'load_study') {
+            if (node?.pmt_fields?.outputs) {
+              if (
+                node.pmt_fields.outputs[0]?.level === ParsedLevel.SERIES &&
+                node.pmt_fields.outputs[0].oid
+              ) {
+                pmt_fields.outputs = node.pmt_fields.outputs
+                handled = true
+              }
+            }
+            if (!handled) {
+              pmt_fields.outputs[0].level = ParsedLevel.STUDY
+            }
           } else {
             delete pmt_fields.outputs[0].level
           }
-          pmt_fields.outputs[0].oid = oid
-          pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || null
-          pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || null
+          if (!handled) {
+            pmt_fields.outputs[0].oid = oid
+            pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || null
+            pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || null
+          }
         }
         if (subtype === 'boolean') {
           pmt_fields.outputs[0].value =

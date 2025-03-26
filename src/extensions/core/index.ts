@@ -1,10 +1,11 @@
+// import '../pmt/testUi'
 import '../pmt/manualSegmentation'
 import '../pmt/previewVolView'
 import '../pmt/statusFloat'
-import '../pmt/testUi'
 import '../pmt/uploadDicom'
 import '../pmt/uploadImage'
 import '../pmt/uploadNifti'
+import '../pmt/uploadStudy'
 // ...
 import './clipspace'
 import './contextMenuFilter'

@@ -778,6 +778,35 @@
     "output_is_list": [],
     "output_node": false
   },
+  "manual.qna": {
+    "name": "manual.qna",
+    "category": "manual",
+    "display_name": "Q&A",
+    "description": "Manual Q A",
+    "python_module": "custom_nodes.manual.qna",
+    "input": {
+      "required": {
+        "questions.json": ["DICT"]
+      },
+      "optional": {
+        "DICOM_FILE": ["DICOM_FILE"],
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["questions.json"],
+      "optional": [
+        "DICOM_FILE",
+        "NIFTI_FILE",
+        "SERIES_FILE_LIST"
+      ]
+    },
+    "output": ["DICT"],
+    "output_name": ["answers.json"],
+    "output_is_list": [false],
+    "output_node": false
+  },
 
   "plugin.tags_deident.main": {
     "name": "plugin.tags_deident.main",

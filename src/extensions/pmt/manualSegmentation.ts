@@ -100,7 +100,7 @@ useExtensionService().registerExtension({
           ? document.location.hash.split('?')[1] || ''
           : document.location.search
       )
-      let search = `?drawer=permanent&defaultTool=Paint&labelmapFormat=${labelmapFormat}&roi=true&heatmap=true`
+      let search = `?manualType=segmentation&drawer=permanent&defaultTool=Paint&labelmapFormat=${labelmapFormat}&roi=true&heatmap=true`
       const pipelineId = query.get('pipelineId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''
       // search += `&manualNodeId=${node.id}`

@@ -1234,8 +1234,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         function_name: function_name || null,
         inputs: (inputs || []).map((i) => {
           let optional = false
-          const optionalInput = nodeDef.inputs.optional?.[i.name]
-          if (optionalInput && optionalInput.type === i.type) {
+          if (nodeDef.inputs[i.name]?.isOptional) {
+            optional = true
+          } else if (nodeDef.inputs.optional?.[i.name]?.type === i.type) {
             optional = true
           }
           return {

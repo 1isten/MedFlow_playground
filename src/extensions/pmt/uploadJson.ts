@@ -18,7 +18,11 @@ useExtensionService().registerExtension({
   },
   nodeCreated(node) {
     if (node?.comfyClass !== 'input.load_json') {
-      return
+      if (node?.comfyClass === 'manual.qna') {
+        // ...
+      } else {
+        return
+      }
     }
 
     // const _onConnectOutput = node.onConnectOutput

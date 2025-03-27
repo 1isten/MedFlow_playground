@@ -1,4 +1,5 @@
 // import '../pmt/testUi'
+import '../pmt/manualQna'
 import '../pmt/manualSegmentation'
 import '../pmt/previewVolView'
 import '../pmt/statusFloat'

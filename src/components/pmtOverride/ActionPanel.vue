@@ -1443,6 +1443,14 @@ onMounted(async () => {
               handleCreateManualSegmentation(payload)
               break
             }
+            case 'get-manual-qna': {
+              handleGetManualQnA(payload)
+              break
+            }
+            case 'saved-qna-answers': {
+              handleSaveQnAnswers(payload)
+              break
+            }
             // ...
           }
         }
@@ -1747,7 +1755,8 @@ function handleGetManualList(payload) {
             level: input.level || undefined,
             oid: input.oid || null,
             path: input.path || null,
-            labelmap: output?.path || null
+            value: output?.value || undefined,
+            labelmap: output?.path || undefined
           })
         )
         manualList.push(item)
@@ -1791,6 +1800,65 @@ function handleCreateManualSegmentation(payload) {
             } else if (input.path) {
               if (input.path === oid || input.path === window.atob(oid)) {
                 output.path = labelmap
+                manualNode.setDirtyCanvas(true)
+              }
+            }
+          }
+        }
+      })
+    }
+  }
+  return handleGetManualList({ pipelineId: payload.pipelineId, manualNodeId })
+}
+
+function handleGetManualQnA(payload) {
+  if (payload?.pipelineId === pipeline.value.id) {
+    //
+  } else {
+    return
+  }
+  const manualNodeId = payload.manualNodeId
+  const manualNode = comfyApp.graph.getNodeById(manualNodeId)
+  if (manualNode) {
+    const port =
+      ports[`tab-volview-${payload.pipelineId}-manual-${manualNodeId}`]
+    if (port) {
+      port.postMessage({
+        type: 'got-manual-qna',
+        payload: manualNode.pmt_fields?.qna || null
+      })
+    }
+  }
+}
+
+function handleSaveQnAnswers(payload) {
+  if (payload?.pipelineId === pipeline.value.id) {
+    console.log('manual qna:', payload)
+  } else {
+    return
+  }
+  const manualNodeId = payload.manualNodeId
+  const manualNode = comfyApp.graph.getNodeById(manualNodeId)
+  if (manualNode) {
+    if (
+      typeof manualNode['getInputs_'] === 'function' &&
+      typeof manualNode['getOutputs_'] === 'function'
+    ) {
+      const inputs = manualNode['getInputs_']()
+      const outputs = manualNode['getOutputs_']()
+      inputs.forEach((input, i) => {
+        const output = outputs[i]
+        if (output) {
+          const { oid, answers } = payload
+          if (answers) {
+            if (input.oid) {
+              if (input.oid === oid) {
+                output.value = answers
+                manualNode.setDirtyCanvas(true)
+              }
+            } else if (input.path) {
+              if (input.path === oid || input.path === window.atob(oid)) {
+                output.value = answers
                 manualNode.setDirtyCanvas(true)
               }
             }

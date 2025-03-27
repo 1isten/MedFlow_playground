@@ -812,7 +812,14 @@
     "python_module": "custom_nodes.manual.qna",
     "input": {
       "required": {
-        "questions.json": ["DICT"]
+        "questions.json": [
+          [
+            "questions.json"
+          ],
+          {
+            "json_upload": true
+          }
+        ]
       },
       "optional": {
         "DICOM_FILE": ["DICOM_FILE"],

@@ -21,16 +21,16 @@ useExtensionService().registerExtension({
       return
     }
 
-    const _onConnectOutput = node.onConnectOutput
-    node.onConnectOutput = function (...args) {
-      const pmt_fields = node.pmt_fields as any
-      const json = pmt_fields?.outputs?.[0]?.value
-      if (json) {
-        const [slot, type, input, target_node, target_slot] = args
-        console.log(target_node, target_node.inputs?.[target_slot], json)
-      }
-      return _onConnectOutput?.apply(this, args)
-    }
+    // const _onConnectOutput = node.onConnectOutput
+    // node.onConnectOutput = function (...args) {
+    //   const pmt_fields = node.pmt_fields as any
+    //   const json = pmt_fields?.outputs?.[0]?.value
+    //   if (json) {
+    //     const [slot, type, input, target_node, target_slot] = args
+    //     console.log(target_node, target_node.inputs?.[target_slot], json)
+    //   }
+    //   return _onConnectOutput?.apply(this, args)
+    // }
 
     // ...
   },
@@ -66,9 +66,19 @@ useExtensionService().registerExtension({
         function loadDict(json) {
           if (json) {
             const pmt_fields = node.pmt_fields as any
-            node.pmt_fields = {
-              ...(pmt_fields || {}),
-              outputs: [{ oid: null, path: null, value: json }]
+            if (
+              // json.type === 'manual.qna' ||
+              node.comfyClass === 'manual.qna'
+            ) {
+              node.pmt_fields = {
+                ...(pmt_fields || {}),
+                qna: json
+              }
+            } else {
+              node.pmt_fields = {
+                ...(pmt_fields || {}),
+                outputs: [{ oid: null, path: null, value: json }]
+              }
             }
             node.setDirtyCanvas(true)
           }

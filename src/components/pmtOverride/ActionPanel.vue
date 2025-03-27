@@ -324,6 +324,12 @@ const toggleTerminal = (val) => {
 
 onMounted(async () => {
   const hideTypes = [
+    'input.boolean',
+    'input.int',
+    'input.float',
+    'input.text',
+    'input.textarea',
+    'input.load_json',
     'input.load_image',
     'input.load_nifti',
     ...Object.keys(SYSTEM_NODE_DEFS).filter((type) => {

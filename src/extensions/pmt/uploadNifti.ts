@@ -236,29 +236,24 @@ useExtensionService().registerExtension({
             node.setSize([node.size[0], 60])
             node.setDirtyCanvas(true)
             node.addOutputs(
-              instancesList.map(({ tagInstanceNumber }) => [
-                `instance #${tagInstanceNumber}`,
-                'DICOM_FILE'
-              ])
+              instancesList.map(
+                ({ tagInstanceNumber, tagImageType, tagSliceLocation }) => [
+                  `#${tagInstanceNumber} (Slice Location: ${tagSliceLocation}, Image Type: ${tagImageType})`,
+                  'DICOM_FILE'
+                ]
+              )
             )
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
               ...(pmt_fields || {}),
-              outputs: instancesList.map(
-                ({
-                  id,
-                  tagInstanceNumber,
-                  tagImageType,
-                  tagSliceLocation
-                }) => ({
-                  level: ParsedLevel.INSTANCE,
-                  series_oid: seriesOid,
-                  tag_instance_number: tagInstanceNumber,
-                  oid: null,
-                  path: null,
-                  value: null
-                })
-              )
+              outputs: instancesList.map(({ id, tagInstanceNumber }) => ({
+                level: ParsedLevel.INSTANCE,
+                series_oid: seriesOid,
+                tag_instance_number: tagInstanceNumber,
+                oid: null,
+                path: null,
+                value: null
+              }))
             }
           }
         })

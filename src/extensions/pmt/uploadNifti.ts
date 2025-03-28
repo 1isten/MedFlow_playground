@@ -233,9 +233,14 @@ useExtensionService().registerExtension({
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }
-            instancesList.forEach(({ tagInstanceNumber }, o) => {
-              node.addOutput(`instance #${tagInstanceNumber}`, 'DICOM_FILE')
-            })
+            node.setSize([node.size[0], 60])
+            node.setDirtyCanvas(true)
+            node.addOutputs(
+              instancesList.map(({ tagInstanceNumber }) => [
+                `instance #${tagInstanceNumber}`,
+                'DICOM_FILE'
+              ])
+            )
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
               ...(pmt_fields || {}),

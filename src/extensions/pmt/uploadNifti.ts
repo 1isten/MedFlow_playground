@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { ParsedLevel } from '@/constants/pmtCore'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
@@ -68,6 +69,7 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
+              fetchInstancesList(json)
             }
             handled = true
           }
@@ -90,12 +92,59 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
+              fetchInstancesList(json)
             }
             handled = true
           }
         }
         return handled
       }
+    }
+
+    function fetchInstancesList(params: any, tags: any[] = []) {
+      const { oid: seriesOid, datasetId, projectId, level } = params
+      if (seriesOid && level !== ParsedLevel.SERIES) {
+        return
+      }
+      const formData = {
+        datasetId,
+        projectId,
+        tags:
+          tags.length > 0
+            ? tags
+            : [
+                {
+                  key: 'ImageType',
+                  value: '*'
+                },
+                {
+                  key: 'SliceLocation',
+                  value: '*'
+                }
+              ],
+        level: ParsedLevel.INSTANCE,
+        seriesOid
+      }
+      return fetch('connect://localhost/api/data-cleaning-search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      })
+        .then((res) => {
+          if (res.ok) {
+            return res.json()
+          } else {
+            throw new Error('Failed to fetch instances list')
+          }
+        })
+        .then((data) => {
+          console.log(data)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
     }
 
     // ...

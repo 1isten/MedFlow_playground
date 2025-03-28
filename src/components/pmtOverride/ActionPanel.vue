@@ -1275,8 +1275,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           } else if (subtype === 'load_series') {
             if (node?.pmt_fields?.outputs) {
               if (
-                node.pmt_fields.outputs[0]?.level === ParsedLevel.INSTANCE &&
-                node.pmt_fields.outputs[0].oid
+                node.pmt_fields.outputs.findIndex(
+                  (o) => o.level === ParsedLevel.INSTANCE
+                ) !== -1
               ) {
                 pmt_fields.outputs = node.pmt_fields.outputs
                 handled = true
@@ -1288,8 +1289,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           } else if (subtype === 'load_study') {
             if (node?.pmt_fields?.outputs) {
               if (
-                node.pmt_fields.outputs[0]?.level === ParsedLevel.SERIES &&
-                node.pmt_fields.outputs[0].oid
+                node.pmt_fields.outputs.findIndex(
+                  (o) => o.level === ParsedLevel.SERIES
+                ) !== -1
               ) {
                 pmt_fields.outputs = node.pmt_fields.outputs
                 handled = true

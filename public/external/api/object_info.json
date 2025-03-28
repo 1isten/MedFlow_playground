@@ -749,10 +749,19 @@
             "nifti_upload": false
           }
         ]
+      },
+      "optional": {
+        "filter": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ]
       }
     },
     "input_order": {
-      "required": ["oid"]
+      "required": ["oid"],
+      "optional": ["filter"]
     },
     "output": ["SERIES_FILE_LIST"],
     "output_name": ["SERIES_FILE_LIST"],

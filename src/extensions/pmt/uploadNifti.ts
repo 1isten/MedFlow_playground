@@ -18,9 +18,85 @@ useExtensionService().registerExtension({
     })
   },
   nodeCreated(node) {
+    let filterEnabled = false
+    let filterParams = null
+
     if (node?.comfyClass !== 'input.load_nifti') {
       if (node?.comfyClass === 'input.load_series') {
-        //
+        const [_w, _h] = node.size
+        const _outputs = node.outputs.slice()
+
+        const filterWidget = node.widgets.find((w) => {
+          return w.name === 'filter'
+        })
+        if (filterWidget) {
+          const cb = filterWidget.callback
+          filterWidget.callback = function (...args) {
+            const [value, canvas, node, pos, e] = args
+            filterEnabled = value
+            while (node.outputs.length > 0) {
+              node.removeOutput(node.outputs.length - 1)
+            }
+            if (filterEnabled) {
+              node.setSize([_w, 60])
+              node.setDirtyCanvas(true)
+              if (filterParams) {
+                fetchInstancesList(filterParams)
+              }
+            } else {
+              const pmt_fields = node.pmt_fields as any
+              if (pmt_fields) {
+                pmt_fields.outputs = []
+                _outputs.forEach(({ name, type }) => {
+                  node.addOutput(name, type)
+                  pmt_fields.outputs.push({
+                    oid: null,
+                    path: null,
+                    value: null
+                  })
+                })
+                node.setSize([_w, 80])
+                node.setDirtyCanvas(true)
+              }
+            }
+            return cb?.apply(this, args)
+          }
+        }
+
+        const oidWidget = node.widgets.find((w) => {
+          return w.name === 'oid'
+        })
+        if (oidWidget) {
+          const cb = oidWidget.callback
+          oidWidget.callback = function (...args) {
+            const [value, canvas, node, pos, e] = args
+            if (!value) {
+              const pmt_fields = node.pmt_fields as any
+              if (pmt_fields?.outputs?.[0]?.level) {
+                pmt_fields.outputs = []
+                while (node.outputs.length > 0) {
+                  node.removeOutput(node.outputs.length - 1)
+                }
+                pmt_fields.outputs = []
+                _outputs.forEach(({ name, type }) => {
+                  node.addOutput(name, type)
+                  pmt_fields.outputs.push({
+                    oid: null,
+                    path: null,
+                    value: null
+                  })
+                })
+                node.setSize([_w, 80])
+                node.setDirtyCanvas(true)
+              }
+              filterParams = null
+              if (filterEnabled) {
+                filterWidget.value = false
+              }
+            }
+            return cb?.apply(this, args)
+          }
+        }
       } else {
         return
       }
@@ -69,7 +145,10 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              fetchInstancesList(json)
+              filterParams = json
+              if (filterEnabled) {
+                fetchInstancesList(json)
+              }
             }
             handled = true
           }
@@ -92,7 +171,10 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              fetchInstancesList(json)
+              filterParams = json
+              if (filterEnabled) {
+                fetchInstancesList(json)
+              }
             }
             handled = true
           }
@@ -113,14 +195,14 @@ useExtensionService().registerExtension({
           tags.length > 0
             ? tags
             : [
-                {
-                  key: 'ImageType',
-                  value: '*'
-                },
-                {
-                  key: 'SliceLocation',
-                  value: '*'
-                }
+                // {
+                //   key: 'ImageType',
+                //   value: '*'
+                // },
+                // {
+                //   key: 'SliceLocation',
+                //   value: '*'
+                // }
               ],
         level: ParsedLevel.INSTANCE,
         seriesOid
@@ -139,8 +221,41 @@ useExtensionService().registerExtension({
             throw new Error('Failed to fetch instances list')
           }
         })
-        .then((data) => {
-          console.log(data)
+        .then(({ data, error, message }) => {
+          if (error) {
+            throw new Error(message)
+          }
+          const instancesList = (data.instances || []).map(
+            ({ $typeName, ...instance }) => instance
+          )
+          if (instancesList.length > 0) {
+            // instancesList.sort((a, b) => +a.tagInstanceNumber - +b.tagInstanceNumber)
+            while (node.outputs.length > 0) {
+              node.removeOutput(node.outputs.length - 1)
+            }
+            instancesList.forEach(({ tagInstanceNumber }, o) => {
+              node.addOutput(`instance #${tagInstanceNumber}`, 'DICOM_FILE')
+            })
+            const pmt_fields = node.pmt_fields as any
+            node.pmt_fields = {
+              ...(pmt_fields || {}),
+              outputs: instancesList.map(
+                ({
+                  id,
+                  tagInstanceNumber,
+                  tagImageType,
+                  tagSliceLocation
+                }) => ({
+                  level: ParsedLevel.INSTANCE,
+                  series_oid: seriesOid,
+                  tag_instance_number: tagInstanceNumber,
+                  oid: null,
+                  path: null,
+                  value: null
+                })
+              )
+            }
+          }
         })
         .catch((err) => {
           console.error(err)

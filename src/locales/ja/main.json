@@ -119,7 +119,8 @@
     "defaultTitle": "エラーが発生しました",
     "extensionFileHint": "これは次のスクリプトが原因かもしれません",
     "loadWorkflowTitle": "ワークフローデータの再読み込みエラーにより、読み込みが中止されました",
-    "noStackTrace": "スタックトレースは利用できません"
+    "noStackTrace": "スタックトレースは利用できません",
+    "promptExecutionError": "プロンプトの実行に失敗しました"
   },
   "g": {
     "about": "情報",
@@ -180,6 +181,7 @@
     "loadWorkflow": "ワークフローを読み込む",
     "loading": "読み込み中",
     "logs": "ログ",
+    "migrate": "移行する",
     "missing": "不足している",
     "name": "名前",
     "newFolder": "新しいフォルダー",
@@ -995,9 +997,11 @@
     "failedToApplyTexture": "テクスチャの適用に失敗しました",
     "failedToDownloadFile": "ファイルのダウンロードに失敗しました",
     "failedToExportModel": "{format}としてモデルのエクスポートに失敗しました",
+    "failedToFetchLogs": "サーバーログの取得に失敗しました",
     "fileLoadError": "{fileName}でワークフローが見つかりません",
     "fileUploadFailed": "ファイルのアップロードに失敗しました",
     "interrupted": "実行が中断されました",
+    "migrateToLitegraphReroute": "将来のバージョンではRerouteノードが削除されます。litegraph-native rerouteに移行するにはクリックしてください。",
     "no3dScene": "テクスチャを適用する3Dシーンがありません",
     "no3dSceneToExport": "エクスポートする3Dシーンがありません",
     "noTemplatesToExport": "エクスポートするテンプレートがありません",

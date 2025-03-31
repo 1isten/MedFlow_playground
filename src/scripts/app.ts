@@ -3,17 +3,20 @@ import {
   LGraphCanvas,
   LGraphEventMode,
   LGraphNode,
-  LiteGraph,
-  strokeShape
+  LiteGraph
 } from '@comfyorg/litegraph'
-import type { IWidget, Rect, Vector2 } from '@comfyorg/litegraph'
+import type { IWidget, Vector2 } from '@comfyorg/litegraph'
 import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { reactive } from 'vue'
 
 // import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st, t } from '@/i18n'
-import type { ResultItem } from '@/schemas/apiSchema'
+import type {
+  ExecutionErrorWsMessage,
+  NodeError,
+  ResultItem
+} from '@/schemas/apiSchema'
 import {
   ComfyApiWorkflow,
   type ComfyWorkflowJSON,
@@ -45,10 +48,10 @@ import { ExtensionManager } from '@/types/extensionTypes'
 import { ColorAdjustOptions, adjustColor } from '@/utils/colorUtil'
 import { graphToPrompt } from '@/utils/executionUtil'
 import { executeWidgetsCallback, isImageNode } from '@/utils/litegraphUtil'
-import { migrateLegacyRerouteNodes } from '@/utils/migration/migrateReroute'
+import { findLegacyRerouteNodes } from '@/utils/migration/migrateReroute'
 import { deserialiseAndCreate } from '@/utils/vintageClipboard'
 
-import { type ComfyApi, api } from './api'
+import { type ComfyApi, PromptExecutionError, api } from './api'
 import { defaultGraph } from './defaultGraph'
 import {
   getFlacMetadata,
@@ -122,9 +125,6 @@ export class ComfyApp {
   dragOverNode: LGraphNode | null = null
   // @ts-expect-error fixme ts strict error
   canvasEl: HTMLCanvasElement
-  lastNodeErrors: any[] | null = null
-  /** @type {ExecutionErrorWsMessage} */
-  lastExecutionError: { node_id?: NodeId } | null = null
   configuringGraph: boolean = false
   // @ts-expect-error fixme ts strict error
   ctx: CanvasRenderingContext2D
@@ -137,6 +137,22 @@ export class ComfyApp {
   bypassBgColor: string
   // Set by Comfy.Clipspace extension
   openClipspace: () => void = () => {}
+
+  /**
+   * The node errors from the previous execution.
+   * @deprecated Use useExecutionStore().lastNodeErrors instead
+   */
+  get lastNodeErrors(): Record<NodeId, NodeError> | null {
+    return useExecutionStore().lastNodeErrors
+  }
+
+  /**
+   * The error from the previous execution.
+   * @deprecated Use useExecutionStore().lastExecutionError instead
+   */
+  get lastExecutionError(): ExecutionErrorWsMessage | null {
+    return useExecutionStore().lastExecutionError
+  }
 
   /**
    * @deprecated Use useExecutionStore().executingNodeId instead
@@ -245,7 +261,7 @@ export class ComfyApp {
   }
 
   getPreviewFormatParam() {
-    let preview_format = this.ui.settings.getSettingValue('Comfy.PreviewFormat')
+    let preview_format = useSettingStore().get('Comfy.PreviewFormat')
     if (preview_format) return `&preview=${preview_format}`
     else return ''
   }
@@ -555,99 +571,7 @@ export class ComfyApp {
     }
   }
 
-  /**
-   * Draws node highlights (executing, drag drop) and progress bar
-   */
   #addDrawNodeHandler() {
-    const origDrawNodeShape = LGraphCanvas.prototype.drawNodeShape
-    const self = this
-    LGraphCanvas.prototype.drawNodeShape = function (
-      node,
-      ctx,
-      size,
-      _fgcolor,
-      bgcolor
-    ) {
-      // @ts-expect-error fixme ts strict error
-      const res = origDrawNodeShape.apply(this, arguments)
-
-      // @ts-expect-error fixme ts strict error
-      const nodeErrors = self.lastNodeErrors?.[node.id]
-
-      let color = null
-      let lineWidth = 1
-      // @ts-expect-error fixme ts strict error
-      if (node.id === +self.runningNodeId) {
-        color = '#0f0'
-      } else if (self.dragOverNode && node.id === self.dragOverNode.id) {
-        color = 'dodgerblue'
-      } else if (nodeErrors?.errors) {
-        color = 'red'
-        lineWidth = 2
-      } else if (
-        self.lastExecutionError &&
-        // @ts-expect-error fixme ts strict error
-        +self.lastExecutionError.node_id === node.id
-      ) {
-        color = '#f0f'
-        lineWidth = 2
-      }
-
-      if (color) {
-        const area: Rect = [
-          0,
-          -LiteGraph.NODE_TITLE_HEIGHT,
-          size[0],
-          size[1] + LiteGraph.NODE_TITLE_HEIGHT
-        ]
-        strokeShape(ctx, area, {
-          shape: node._shape || node.constructor.shape || LiteGraph.ROUND_SHAPE,
-          thickness: lineWidth,
-          colour: color,
-          title_height: LiteGraph.NODE_TITLE_HEIGHT,
-          collapsed: node.collapsed
-        })
-      }
-
-      // @ts-expect-error fixme ts strict error
-      if (self.progress && node.id === +self.runningNodeId) {
-        ctx.fillStyle = 'green'
-        ctx.fillRect(
-          0,
-          0,
-          size[0] * (self.progress.value / self.progress.max),
-          6
-        )
-        ctx.fillStyle = bgcolor
-      }
-
-      // Highlight inputs that failed validation
-      if (nodeErrors) {
-        ctx.lineWidth = 2
-        ctx.strokeStyle = 'red'
-        for (const error of nodeErrors.errors) {
-          if (error.extra_info && error.extra_info.input_name) {
-            const inputIndex = node.findInputSlot(error.extra_info.input_name)
-            if (inputIndex !== -1) {
-              let pos = node.getConnectionPos(true, inputIndex)
-              ctx.beginPath()
-              ctx.arc(
-                pos[0] - node.pos[0],
-                pos[1] - node.pos[1],
-                12,
-                0,
-                2 * Math.PI,
-                false
-              )
-              ctx.stroke()
-            }
-          }
-        }
-      }
-
-      return res
-    }
-
     const origDrawNode = LGraphCanvas.prototype.drawNode
     LGraphCanvas.prototype.drawNode = function (node) {
       const editor_alpha = this.editor_alpha
@@ -734,15 +658,13 @@ export class ComfyApp {
     })
 
     api.addEventListener('execution_start', () => {
-      this.lastExecutionError = null
       this.graph.nodes.forEach((node) => {
         if (node.onExecutionStart) node.onExecutionStart()
       })
     })
 
     api.addEventListener('execution_error', ({ detail }) => {
-      this.lastExecutionError = detail
-      useDialogService().showExecutionErrorDialog({ error: detail })
+      useDialogService().showExecutionErrorDialog(detail)
       this.canvas.draw(true, true)
     })
 
@@ -1024,7 +946,11 @@ export class ComfyApp {
     clean: boolean = true,
     restore_view: boolean = true,
     workflow: string | null | ComfyWorkflow = null,
-    { showMissingNodesDialog = true, showMissingModelsDialog = true } = {}
+    {
+      showMissingNodesDialog = true,
+      showMissingModelsDialog = true,
+      checkForRerouteMigration = true
+    } = {}
   ) {
     if (clean !== false) {
       this.clean()
@@ -1051,11 +977,16 @@ export class ComfyApp {
       graphData = validatedGraphData ?? graphData
     }
 
-    // Migrate legacy reroute nodes to the new format
-    if (graphData.version === 0.4) {
-      graphData = migrateLegacyRerouteNodes(graphData)
+    if (
+      checkForRerouteMigration &&
+      graphData.version === 0.4 &&
+      findLegacyRerouteNodes(graphData).length
+    ) {
+      useToastStore().add({
+        group: 'reroute-migration',
+        severity: 'warn'
+      })
     }
-
     useWorkflowService().beforeLoadNewGraph()
 
     const missingNodeTypes: MissingNodeType[] = []
@@ -1130,7 +1061,7 @@ export class ComfyApp {
     } catch (error) {
       useDialogService().showErrorDialog(error, {
         title: t('errorDialog.loadWorkflowTitle'),
-        errorType: 'loadWorkflowError'
+        reportType: 'loadWorkflowError'
       })
       return
     }
@@ -1224,32 +1155,6 @@ export class ComfyApp {
     })
   }
 
-  // @ts-expect-error fixme ts strict error
-  #formatPromptError(error) {
-    if (error == null) {
-      return '(unknown error)'
-    } else if (typeof error === 'string') {
-      return error
-    } else if (error.stack && error.message) {
-      return error.toString()
-    } else if (error.response) {
-      let message = error.response.error.message
-      if (error.response.error.details)
-        message += ': ' + error.response.error.details
-      for (const [_, nodeError] of Object.entries(error.response.node_errors)) {
-        // @ts-expect-error
-        message += '\n' + nodeError.class_type + ':'
-        // @ts-expect-error
-        for (const errorReason of nodeError.errors) {
-          message +=
-            '\n    - ' + errorReason.message + ': ' + errorReason.details
-        }
-      }
-      return message
-    }
-    return '(unknown error)'
-  }
-
   async queuePrompt(number: number, batchCount: number = 1): Promise<boolean> {
     this.#queueItems.push({ number, batchCount })
 
@@ -1259,7 +1164,8 @@ export class ComfyApp {
     }
 
     this.#processingQueue = true
-    this.lastNodeErrors = null
+    const executionStore = useExecutionStore()
+    executionStore.lastNodeErrors = null
 
     try {
       while (this.#queueItems.length) {
@@ -1273,13 +1179,13 @@ export class ComfyApp {
           const p = await this.graphToPrompt()
           try {
             const res = await api.queuePrompt(number, p)
-            this.lastNodeErrors = res.node_errors ?? null
-            if (this.lastNodeErrors?.length) {
+            executionStore.lastNodeErrors = res.node_errors ?? null
+            if (executionStore.lastNodeErrors?.length) {
               this.canvas.draw(true, true)
             } else {
               try {
                 if (res.prompt_id) {
-                  useExecutionStore().storePrompt({
+                  executionStore.storePrompt({
                     id: res.prompt_id,
                     nodes: Object.keys(p.output),
                     workflow: useWorkspaceStore().workflow
@@ -1288,13 +1194,14 @@ export class ComfyApp {
                 }
               } catch (error) {}
             }
-          } catch (error) {
-            const formattedError = this.#formatPromptError(error)
-            this.ui.dialog.show(formattedError)
-            // @ts-expect-error fixme ts strict error
-            if (error.response) {
-              // @ts-expect-error fixme ts strict error
-              this.lastNodeErrors = error.response.node_errors
+          } catch (error: unknown) {
+            useDialogService().showErrorDialog(error, {
+              title: t('errorDialog.promptExecutionError'),
+              reportType: 'promptExecutionError'
+            })
+
+            if (error instanceof PromptExecutionError) {
+              executionStore.lastNodeErrors = error.response.node_errors ?? null
               this.canvas.draw(true, true)
             }
             break
@@ -1316,7 +1223,7 @@ export class ComfyApp {
       this.#processingQueue = false
     }
     api.dispatchCustomEvent('promptQueued', { number, batchCount })
-    return !this.lastNodeErrors
+    return !executionStore.lastNodeErrors
   }
 
   showErrorOnFileLoad(file: File) {
@@ -1646,8 +1553,9 @@ export class ComfyApp {
       this.revokePreviews(id)
     }
     this.nodePreviewImages = {}
-    this.lastNodeErrors = null
-    this.lastExecutionError = null
+    const executionStore = useExecutionStore()
+    executionStore.lastNodeErrors = null
+    executionStore.lastExecutionError = null
   }
 
   clientPosToCanvasPos(pos: Vector2): Vector2 {

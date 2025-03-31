@@ -119,7 +119,8 @@
     "defaultTitle": "Ocurrió un error",
     "extensionFileHint": "Esto puede deberse al siguiente script",
     "loadWorkflowTitle": "La carga se interrumpió debido a un error al recargar los datos del flujo de trabajo",
-    "noStackTrace": "No hay seguimiento de pila disponible"
+    "noStackTrace": "No hay seguimiento de pila disponible",
+    "promptExecutionError": "La ejecución del prompt falló"
   },
   "g": {
     "about": "Acerca de",
@@ -180,6 +181,7 @@
     "loadWorkflow": "Cargar flujo de trabajo",
     "loading": "Cargando",
     "logs": "Registros",
+    "migrate": "Migrar",
     "missing": "Faltante",
     "name": "Nombre",
     "newFolder": "Nueva carpeta",
@@ -995,9 +997,11 @@
     "failedToApplyTexture": "Error al aplicar textura",
     "failedToDownloadFile": "Error al descargar el archivo",
     "failedToExportModel": "Error al exportar modelo como {format}",
+    "failedToFetchLogs": "Error al obtener los registros del servidor",
     "fileLoadError": "No se puede encontrar el flujo de trabajo en {fileName}",
     "fileUploadFailed": "Error al subir el archivo",
     "interrupted": "La ejecución ha sido interrumpida",
+    "migrateToLitegraphReroute": "Los nodos de reroute se eliminarán en futuras versiones. Haz clic para migrar a reroute nativo de litegraph.",
     "no3dScene": "No hay escena 3D para aplicar textura",
     "no3dSceneToExport": "No hay escena 3D para exportar",
     "noTemplatesToExport": "No hay plantillas para exportar",

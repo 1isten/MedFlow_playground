@@ -14,19 +14,19 @@ import type {
   ComfyNodeDef as ComfyNodeDefV1,
   ComfyOutputTypesSpec as ComfyOutputSpecV1
 } from '@/schemas/nodeDefSchema'
-import {
-  NodeSearchService,
-  type SearchAuxScore
-} from '@/services/nodeSearchService'
+import { NodeSearchService } from '@/services/nodeSearchService'
 import {
   type NodeSource,
   NodeSourceType,
   getNodeSource
 } from '@/types/nodeSource'
 import type { TreeNode } from '@/types/treeExplorerTypes'
+import type { FuseSearchable, SearchAuxScore } from '@/utils/fuseUtil'
 import { buildTree } from '@/utils/treeUtil'
 
-export class ComfyNodeDefImpl implements ComfyNodeDefV1, ComfyNodeDefV2 {
+export class ComfyNodeDefImpl
+  implements ComfyNodeDefV1, ComfyNodeDefV2, FuseSearchable
+{
   // ComfyNodeDef fields (V1)
   readonly name: string
   readonly display_name: string
@@ -139,6 +139,18 @@ export const SYSTEM_NODE_DEFS: Record<string, ComfyNodeDefV1> = {
     output_node: false,
     python_module: 'nodes',
     description: 'Primitive values like numbers, strings, and booleans.'
+  },
+  Reroute: {
+    name: 'Reroute',
+    display_name: 'Reroute',
+    category: 'utils',
+    input: { required: { '': ['*', {}] }, optional: {} },
+    output: ['*'],
+    output_name: [''],
+    output_is_list: [false],
+    output_node: false,
+    python_module: 'nodes',
+    description: 'Reroute the connection to another node.'
   },
   Note: {
     name: 'Note',

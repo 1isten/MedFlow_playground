@@ -11,7 +11,7 @@ import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { reactive } from 'vue'
 
-import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
+// import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st, t } from '@/i18n'
 import type { ResultItem } from '@/schemas/apiSchema'
 import {
@@ -591,17 +591,6 @@ export class ComfyApp {
       ) {
         color = '#f0f'
         lineWidth = 2
-      }
-
-      if ('pmt_fields' in node) {
-        const pmt_fields = node.pmt_fields as object
-        if ('status' in pmt_fields) {
-          const status = pmt_fields.status as keyof typeof NODE_STATUS_COLOR
-          if (status && NODE_STATUS_COLOR[status] !== undefined) {
-            color = NODE_STATUS_COLOR[status]
-            lineWidth = 2
-          }
-        }
       }
 
       if (color) {

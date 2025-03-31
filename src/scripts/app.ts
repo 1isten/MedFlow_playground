@@ -10,7 +10,6 @@ import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { reactive } from 'vue'
 
-// import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st, t } from '@/i18n'
 import type {
   ExecutionErrorWsMessage,

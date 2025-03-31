@@ -11,6 +11,7 @@ import { Vector2 } from '@comfyorg/litegraph'
 import { useNodeAnimatedImage } from '@/composables/node/useNodeAnimatedImage'
 import { useNodeCanvasImagePreview } from '@/composables/node/useNodeCanvasImagePreview'
 import { useNodeImage, useNodeVideo } from '@/composables/node/useNodeImage'
+import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
 import { st, t } from '@/i18n'
 import type { NodeId } from '@/schemas/comfyWorkflowSchema'
 import { transformInputSpecV2ToV1 } from '@/schemas/nodeDef/migration'
@@ -64,6 +65,17 @@ export const useLitegraphService = () => {
         this.strokeStyles['executionError'] = function (this: LGraphNode) {
           if (app.lastExecutionError?.node_id == this.id) {
             return { color: '#f0f', lineWidth: 2 }
+          }
+        }
+        this.strokeStyles['pmtStatus'] = function (this: LGraphNode) {
+          if ('pmt_fields' in this) {
+            const pmt_fields = this.pmt_fields as object
+            if ('status' in pmt_fields) {
+              const status = pmt_fields.status as keyof typeof NODE_STATUS_COLOR
+              if (status && NODE_STATUS_COLOR[status] !== undefined) {
+                return { color: NODE_STATUS_COLOR[status], lineWidth: 2 }
+              }
+            }
           }
         }
 

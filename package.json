@@ -1,7 +1,7 @@
 {
   "name": "@comfyorg/comfyui-frontend",
   "private": true,
-  "version": "1.15.6",
+  "version": "1.15.7",
   "type": "module",
   "repository": "https://github.com/Comfy-Org/ComfyUI_frontend",
   "homepage": "https://comfy.org",
@@ -60,7 +60,7 @@
     "typescript-eslint": "^8.0.0",
     "unplugin-icons": "^0.19.3",
     "unplugin-vue-components": "^0.27.4",
-    "vite": "^5.4.15",
+    "vite": "^5.4.16",
     "vite-plugin-dts": "^4.3.0",
     "vitest": "^2.0.0",
     "vue-tsc": "^2.1.10",

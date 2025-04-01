@@ -588,7 +588,7 @@
 
   "input.boolean": {
     "name": "input.boolean",
-    "category": "input",
+    "category": "input/Scalar",
     "display_name": "Boolean",
     "description": "BOOLEAN",
     "python_module": "nodes",
@@ -607,7 +607,7 @@
   },
   "input.int": {
     "name": "input.int",
-    "category": "input",
+    "category": "input/Scalar",
     "display_name": "Int",
     "description": "INT",
     "python_module": "nodes",
@@ -626,7 +626,7 @@
   },
   "input.float": {
     "name": "input.float",
-    "category": "input",
+    "category": "input/Scalar",
     "display_name": "Float",
     "description": "FLOAT",
     "python_module": "nodes",
@@ -651,7 +651,7 @@
   },
   "input.text": {
     "name": "input.text",
-    "category": "input",
+    "category": "input/Scalar",
     "display_name": "Text",
     "description": "STRING",
     "python_module": "nodes",
@@ -670,7 +670,7 @@
   },
   "input.textarea": {
     "name": "input.textarea",
-    "category": "input",
+    "category": "input/Scalar",
     "display_name": "Textarea",
     "description": "STRING (multiline)",
     "python_module": "nodes",

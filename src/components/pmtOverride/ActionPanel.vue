@@ -324,11 +324,6 @@ const toggleTerminal = (val) => {
 
 onMounted(async () => {
   const hideTypes = [
-    'input.boolean',
-    'input.int',
-    'input.float',
-    'input.text',
-    'input.textarea',
     'input.load_json',
     'input.load_image',
     'input.load_nifti',
@@ -1269,6 +1264,30 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       //
     }
     if (pmt_fields.type === 'input') {
+      if (
+        [
+          'boolean',
+          'int',
+          'float',
+          'text',
+          'textarea'
+          // ...
+        ].includes(subtype)
+      ) {
+        pmt_fields.plugin_name = 'scalar'
+        pmt_fields.function_name = subtype
+      }
+      if (
+        [
+          // ...
+          'load_dicom',
+          'load_series',
+          'load_study'
+        ].includes(subtype)
+      ) {
+        pmt_fields.plugin_name = subtype
+        pmt_fields.function_name = null
+      }
       if (keepStatus) {
         const oid = pmt_fields.args.oid || pmt_fields.args.source
         if (oid) {

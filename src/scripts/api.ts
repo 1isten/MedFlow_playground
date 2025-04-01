@@ -509,6 +509,7 @@ export class ComfyApi extends EventTarget {
           }
         }
         const order: Record<string, number> = {
+          basic: 0,
           input: 1,
           manual: 2,
           plugin: 3,

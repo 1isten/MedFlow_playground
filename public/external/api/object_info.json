@@ -523,6 +523,69 @@
     "output_node": true
   },
 
+  "basic.math": {
+    "name": "basic.math",
+    "category": "basic",
+    "display_name": "Math",
+    "description": "Basic math operations.",
+    "python_module": "custom_nodes.basic.math",
+    "input": {
+      "required": {
+        "a": ["*"],
+        "b": ["*"],
+        "operator": [
+          [
+            "+",
+            "-",
+            "*",
+            "/",
+            "%"
+          ]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["a", "b", "operator"]
+    },
+    "output": ["*"],
+    "output_name": ["out"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "basic.condition": {
+    "name": "basic.condition",
+    "category": "basic",
+    "display_name": "Condition",
+    "description": "If condition.",
+    "python_module": "custom_nodes.basic.condition",
+    "input": {
+      "required": {
+        "a": ["*"],
+        "b": ["*"],
+        "operator": [
+          [
+            "==",
+            "!=",
+            ">",
+            ">=",
+            "<",
+            "<=",
+            "&&",
+            "||",
+            "!"
+          ]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["a", "b", "operator"]
+    },
+    "output": ["BOOLEAN"],
+    "output_name": ["BOOLEAN"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+
   "input.boolean": {
     "name": "input.boolean",
     "category": "input",

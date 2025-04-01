@@ -1265,6 +1265,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         status: null
       }
     )
+    if (pmt_fields.type === 'basic') {
+      //
+    }
     if (pmt_fields.type === 'input') {
       if (keepStatus) {
         const oid = pmt_fields.args.oid || pmt_fields.args.source

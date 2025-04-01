@@ -26,6 +26,31 @@ useExtensionService().registerExtension({
         const [_w, _h] = node.size
         const _outputs = node.outputs.slice()
 
+        const _onConfigure = node.onConfigure
+        node.onConfigure = function (...args) {
+          const [serialisedNode] = args
+          const pmt_fields = serialisedNode?.pmt_fields as any
+          if (pmt_fields) {
+            if (pmt_fields.outputs) {
+              node.outputs.forEach((output, o) => {
+                const output_name = pmt_fields.outputs[o]?.output_name
+                if (output_name && output_name !== output.name) {
+                  output.name = output_name
+                  output.localized_name = undefined
+                  output.type = 'DICOM_FILE'
+                }
+              })
+            }
+            if (pmt_fields.args?.filter) {
+              filterEnabled = true
+            }
+            if (pmt_fields.filter_params) {
+              filterParams = pmt_fields.filter_params
+            }
+          }
+          return _onConfigure?.apply(this, args)
+        }
+
         const filterWidget = node.widgets.find((w) => {
           return w.name === 'filter'
         })
@@ -46,18 +71,19 @@ useExtensionService().registerExtension({
             } else {
               const pmt_fields = node.pmt_fields as any
               if (pmt_fields) {
+                // delete pmt_fields.filter_params
                 pmt_fields.outputs = []
-                _outputs.forEach(({ name, type }) => {
-                  node.addOutput(name, type)
-                  pmt_fields.outputs.push({
-                    oid: null,
-                    path: null,
-                    value: null
-                  })
-                })
-                node.setSize([_w, 80])
-                node.setDirtyCanvas(true)
               }
+              _outputs.forEach(({ name, type }) => {
+                node.addOutput(name, type)
+                pmt_fields?.outputs?.push({
+                  oid: null,
+                  path: null,
+                  value: null
+                })
+              })
+              node.setSize([_w, 80])
+              node.setDirtyCanvas(true)
             }
             return cb?.apply(this, args)
           }
@@ -70,29 +96,32 @@ useExtensionService().registerExtension({
           const cb = oidWidget.callback
           oidWidget.callback = function (...args) {
             const [value, canvas, node, pos, e] = args
-            if (!value) {
+            if (value) {
+              //
+            } else {
               const pmt_fields = node.pmt_fields as any
               if (pmt_fields?.outputs?.[0]?.level) {
                 pmt_fields.outputs = []
-                while (node.outputs.length > 0) {
-                  node.removeOutput(node.outputs.length - 1)
-                }
-                pmt_fields.outputs = []
-                _outputs.forEach(({ name, type }) => {
-                  node.addOutput(name, type)
-                  pmt_fields.outputs.push({
-                    oid: null,
-                    path: null,
-                    value: null
-                  })
-                })
-                node.setSize([_w, 80])
-                node.setDirtyCanvas(true)
+              }
+              if (pmt_fields?.filter_params) {
+                delete pmt_fields.filter_params
               }
               filterParams = null
-              if (filterEnabled) {
-                filterWidget.value = false
+              filterEnabled = false
+              filterWidget.value = false
+              while (node.outputs.length > 0) {
+                node.removeOutput(node.outputs.length - 1)
               }
+              _outputs.forEach(({ name, type }) => {
+                node.addOutput(name, type)
+                pmt_fields?.outputs?.push({
+                  oid: null,
+                  path: null,
+                  value: null
+                })
+              })
+              node.setSize([_w, 80])
+              node.setDirtyCanvas(true)
             }
             return cb?.apply(this, args)
           }
@@ -145,9 +174,14 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              filterParams = json
+              filterParams = {
+                oid: json.oid,
+                datasetId: json.datasetId,
+                projectId: json.projectId,
+                level: json.level
+              }
               if (filterEnabled) {
-                fetchInstancesList(json)
+                fetchInstancesList(filterParams)
               }
             }
             handled = true
@@ -171,9 +205,14 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              filterParams = json
+              filterParams = {
+                oid: json.oid,
+                datasetId: json.datasetId,
+                projectId: json.projectId,
+                level: json.level
+              }
               if (filterEnabled) {
-                fetchInstancesList(json)
+                fetchInstancesList(filterParams)
               }
             }
             handled = true
@@ -229,32 +268,48 @@ useExtensionService().registerExtension({
             ({ $typeName, ...instance }) => instance
           )
           if (instancesList.length > 0) {
-            // instancesList.sort((a, b) => +a.tagInstanceNumber - +b.tagInstanceNumber)
+            instancesList.sort(
+              (a, b) => +a.tagInstanceNumber - +b.tagInstanceNumber
+            )
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }
             node.setSize([node.size[0], 60])
             node.setDirtyCanvas(true)
-            node.addOutputs(
-              instancesList.map(
-                ({ tagInstanceNumber, tagImageType, tagSliceLocation }) => [
-                  `#${tagInstanceNumber} (Slice Location: ${tagSliceLocation}, Image Type: ${tagImageType})`,
-                  'DICOM_FILE'
-                ]
-              )
-            )
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
               ...(pmt_fields || {}),
-              outputs: instancesList.map(({ id, tagInstanceNumber }) => ({
-                level: ParsedLevel.INSTANCE,
-                series_oid: seriesOid,
-                tag_instance_number: tagInstanceNumber,
-                oid: null,
-                path: null,
-                value: null
-              }))
+              outputs: instancesList.map(
+                ({
+                  id,
+                  tagInstanceNumber,
+                  tagImageType,
+                  tagSliceLocation
+                }) => ({
+                  output_name: `#${tagInstanceNumber} (Slice Location: ${tagSliceLocation}, Image Type: ${tagImageType})`,
+                  level: ParsedLevel.INSTANCE,
+                  series_oid: seriesOid,
+                  tag_instance_number: tagInstanceNumber,
+                  oid: null,
+                  path: null,
+                  value: null
+                })
+              ),
+              filter_params: {
+                oid: seriesOid,
+                datasetId,
+                projectId,
+                level,
+                tags: formData.tags
+              }
             }
+            filterParams = node.pmt_fields.filter_params
+            node.addOutputs(
+              node.pmt_fields.outputs.map(({ output_name }) => [
+                output_name,
+                'DICOM_FILE'
+              ])
+            )
           }
         })
         .catch((err) => {

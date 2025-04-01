@@ -1272,41 +1272,40 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       if (keepStatus) {
         const oid = pmt_fields.args.oid || pmt_fields.args.source
         if (oid) {
-          let handled = false
-          if (subtype === 'load_dicom') {
-            pmt_fields.outputs[0].level = ParsedLevel.INSTANCE
+          if (!subtype) {
+            //
+          } else if (subtype === 'load_dicom') {
+            pmt_fields.outputs.forEach((output, o) => {
+              output.level = ParsedLevel.INSTANCE
+            })
           } else if (subtype === 'load_series') {
-            if (node?.pmt_fields?.outputs) {
-              if (
-                node.pmt_fields.outputs.findIndex(
-                  (o) => o.level === ParsedLevel.INSTANCE
-                ) !== -1
-              ) {
-                pmt_fields.outputs = node.pmt_fields.outputs
-                handled = true
-              }
-            }
-            if (!handled) {
-              pmt_fields.outputs[0].level = ParsedLevel.SERIES
+            if (
+              node?.pmt_fields?.outputs &&
+              node.pmt_fields.outputs.findIndex(
+                (output) => output.level === ParsedLevel.INSTANCE
+              ) !== -1
+            ) {
+              pmt_fields.outputs = node.pmt_fields.outputs
+            } else {
+              pmt_fields.outputs.forEach((output, o) => {
+                output.level = ParsedLevel.SERIES
+              })
             }
           } else if (subtype === 'load_study') {
-            if (node?.pmt_fields?.outputs) {
-              if (
-                node.pmt_fields.outputs.findIndex(
-                  (o) => o.level === ParsedLevel.SERIES
-                ) !== -1
-              ) {
-                pmt_fields.outputs = node.pmt_fields.outputs
-                handled = true
-              }
-            }
-            if (!handled) {
-              pmt_fields.outputs[0].level = ParsedLevel.STUDY
+            if (
+              node?.pmt_fields?.outputs &&
+              node.pmt_fields.outputs.findIndex(
+                (output) => output.level === ParsedLevel.SERIES
+              ) !== -1
+            ) {
+              pmt_fields.outputs = node.pmt_fields.outputs
+            } else {
+              pmt_fields.outputs.forEach((output, o) => {
+                output.level = ParsedLevel.STUDY
+              })
             }
           } else {
             delete pmt_fields.outputs[0].level
-          }
-          if (!handled) {
             pmt_fields.outputs[0].oid = oid
             pmt_fields.outputs[0].path = pmt_fields.outputs[0].path || null
             pmt_fields.outputs[0].value = pmt_fields.outputs[0].value || null
@@ -1340,7 +1339,15 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           }
         }
       } else {
-        delete pmt_fields.outputs[0].level
+        pmt_fields.outputs.forEach((output, o) => {
+          const { level, oid, path, value, ...out } = output
+          output.oid = null
+          output.path = null
+          output.value = null
+          if (Object.values(out).filter(Boolean).length === 0) {
+            delete output.level
+          }
+        })
       }
     } else if (keepStatus) {
       if (node.pmt_fields?.outputs) {

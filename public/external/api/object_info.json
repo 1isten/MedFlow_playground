@@ -840,10 +840,19 @@
     "input": {
       "required": {
         "oid": ["STRING"]
+      },
+      "optional": {
+        "filter": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ]
       }
     },
     "input_order": {
-      "required": ["oid"]
+      "required": ["oid"],
+      "optional": ["filter"]
     },
     "output": ["STUDY_FILE_LIST"],
     "output_name": ["STUDY_FILE_LIST"],

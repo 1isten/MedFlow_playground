@@ -1296,6 +1296,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           } else if (subtype === 'load_dicom') {
             pmt_fields.outputs.forEach((output, o) => {
               output.level = ParsedLevel.INSTANCE
+              output.oid = oid
             })
           } else if (subtype === 'load_series') {
             if (
@@ -1308,6 +1309,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             } else {
               pmt_fields.outputs.forEach((output, o) => {
                 output.level = ParsedLevel.SERIES
+                output.oid = oid
               })
             }
           } else if (subtype === 'load_study') {
@@ -1321,6 +1323,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             } else {
               pmt_fields.outputs.forEach((output, o) => {
                 output.level = ParsedLevel.STUDY
+                output.oid = oid
               })
             }
           } else {

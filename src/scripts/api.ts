@@ -483,7 +483,7 @@ export class ComfyApi extends EventTarget {
   > {
     const resp = await this.fetchApi('/object_info', { cache: 'no-store' })
     let objectInfoUnsafe = await resp.json()
-    if (objectInfoUnsafe && '$electron' in window) {
+    if (objectInfoUnsafe && '_electron' in window) {
       const objectInfoPlugins = await fetch(
         'connect://localhost/api/comfyui/object_info'
       )

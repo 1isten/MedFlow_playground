@@ -22,9 +22,9 @@ useExtensionService().registerExtension({
       }
       // eslint-disable-next-line prefer-const
       let search = `?uiMode=lite`
-      // serach += `&names=[data.png]&urls=[connect-file://localhost/C:\\sample test data\\data.png]`
-      // search += `&names=[file.dcm]&urls=[connect-file://localhost/C:\\sample test data\\test2\\IM_0036.dcm]&uid=test2`
-      // search += `&names=[test.zip]&urls=[connect-file://localhost/C:\\sample test data\\test2\\MRI-PROSTATEx-0004.zip]&uid=test&s=0`
+      // serach += `&names=[data.png]&urls=[connect://localhost/file/C:\\sample test data\\data.png]`
+      // search += `&names=[file.dcm]&urls=[connect://localhost/file/C:\\sample test data\\test2\\IM_0036.dcm]&uid=test2`
+      // search += `&names=[test.zip]&urls=[connect://localhost/file/C:\\sample test data\\test2\\MRI-PROSTATEx-0004.zip]&uid=test&s=0`
       return new URL(origin + pathname + search).href
     }
     const VOLVIEW_URL = getVolViewUrl()
@@ -119,7 +119,7 @@ useExtensionService().registerExtension({
           } else if (imagePath.endsWith('.jpeg')) {
             ext = 'jpeg'
           }
-          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${encodeURIComponent(imagePath)}]&layoutName=${'Axial Only'}`
+          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect://localhost/file/${encodeURIComponent(imagePath)}]&layoutName=${'Axial Only'}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {
@@ -141,7 +141,7 @@ useExtensionService().registerExtension({
             ? decode
               ? `${VOLVIEW_URL}&names=[preview.png]&urls=[connect://localhost/orthanc/instances/${dicomOid}/preview]&layoutName=${'Axial Only'}`
               : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect://localhost/orthanc/instances/${dicomOid}/file]&uid=${dicomOid}`
-            : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect-file://localhost/${encodeURIComponent(dicomPath)}]&uid=${window.btoa(dicomPath)}`
+            : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect://localhost/file/${encodeURIComponent(dicomPath)}]&uid=${window.btoa(dicomPath)}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {
@@ -164,7 +164,7 @@ useExtensionService().registerExtension({
           } else if (niftiPath.endsWith('.nii.gz')) {
             ext = 'nii.gz'
           }
-          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect-file://localhost/${encodeURIComponent(niftiPath)}]&layoutName=${'Quad View'}`
+          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[connect://localhost/file/${encodeURIComponent(niftiPath)}]&layoutName=${'Quad View'}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {

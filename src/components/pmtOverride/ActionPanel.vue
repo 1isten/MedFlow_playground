@@ -906,7 +906,6 @@ async function resetNodeById(nodeId) {
 }
 function resetNodeStatus(node) {
   if (node?.pmt_fields) {
-    delete node.pmt_fields
     if (node.pmt_fields?.status) {
       node.pmt_fields.status = null
     }

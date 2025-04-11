@@ -157,9 +157,6 @@
       "Show all": "Mostrar todo"
     }
   },
-  "Comfy_NodeInputConversionSubmenus": {
-    "name": "En el menú contextual del nodo, coloque las entradas que convierten entre entrada/widget en submenús."
-  },
   "Comfy_NodeSearchBoxImpl": {
     "name": "Implementación de la caja de búsqueda de nodos",
     "options": {
@@ -299,8 +296,22 @@
   "Comfy_Window_UnloadConfirmation": {
     "name": "Mostrar confirmación al cerrar la ventana"
   },
+  "Comfy_Workflow_AutoSave": {
+    "name": "Auto Guardar",
+    "options": {
+      "after delay": "después de retraso",
+      "off": "desactivado"
+    }
+  },
+  "Comfy_Workflow_AutoSaveDelay": {
+    "name": "Retraso de Auto Guardar (ms)",
+    "tooltip": "Solo se aplica si Auto Guardar está configurado en \"después de retraso\"."
+  },
   "Comfy_Workflow_ConfirmDelete": {
     "name": "Mostrar confirmación al eliminar flujos de trabajo"
+  },
+  "Comfy_Workflow_Persist": {
+    "name": "Persistir el estado del flujo de trabajo y restaurar en la (re)carga de la página"
   },
   "Comfy_Workflow_ShowMissingModelsWarning": {
     "name": "Mostrar advertencia de modelos faltantes"

@@ -157,9 +157,6 @@
       "Show all": "모두 표시"
     }
   },
-  "Comfy_NodeInputConversionSubmenus": {
-    "name": "노드 컨텍스트 메뉴에서 입력/위젯 간 변환 항목을 하위 메뉴에 배치합니다."
-  },
   "Comfy_NodeSearchBoxImpl": {
     "name": "노드 검색 상자 구현",
     "options": {
@@ -299,8 +296,22 @@
   "Comfy_Window_UnloadConfirmation": {
     "name": "창 닫을 때 확인 표시"
   },
+  "Comfy_Workflow_AutoSave": {
+    "name": "자동 저장",
+    "options": {
+      "after delay": "지연 후",
+      "off": "끄기"
+    }
+  },
+  "Comfy_Workflow_AutoSaveDelay": {
+    "name": "자동 저장 지연 시간 (ms)",
+    "tooltip": "자동 저장이 \"지연 후\"로 설정된 경우에만 적용됩니다."
+  },
   "Comfy_Workflow_ConfirmDelete": {
     "name": "워크플로 삭제 시 확인 표시"
+  },
+  "Comfy_Workflow_Persist": {
+    "name": "페이지 (재)로드시 워크플로우 상태를 유지하고 복원"
   },
   "Comfy_Workflow_ShowMissingModelsWarning": {
     "name": "누락된 모델 경고 표시"

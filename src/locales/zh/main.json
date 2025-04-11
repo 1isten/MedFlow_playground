@@ -20,8 +20,6 @@
     "yellow": "黄色"
   },
   "contextMenu": {
-    " to input": " 为输入",
-    " to widget": " 为控件",
     "Add Group": "添加组",
     "Add Group For Selected Nodes": "为选定节点添加组",
     "Add Node": "添加节点",
@@ -29,9 +27,6 @@
     "Clone": "克隆",
     "Collapse": "折叠",
     "Colors": "颜色",
-    "Convert ": "转换 ",
-    "Convert Input to Widget": "将输入转换为控件",
-    "Convert Widget to Input": "将控件转换为输入",
     "Convert to Group Node": "转换为组节点",
     "Copy (Clipspace)": "复制 (Clipspace)",
     "Expand": "展开",
@@ -224,6 +219,7 @@
     "systemInfo": "系统信息",
     "terminal": "终端",
     "update": "更新",
+    "updateAvailable": "有更新可用",
     "updated": "已更新",
     "updating": "更新中",
     "upload": "上传",
@@ -362,7 +358,7 @@
   "load3d": {
     "applyingTexture": "应用纹理中...",
     "backgroundColor": "背景颜色",
-    "camera": "相机",
+    "camera": "摄影机",
     "edgeThreshold": "边缘阈值",
     "export": "导出",
     "exportModel": "导出模型",
@@ -371,15 +367,21 @@
     "light": "灯光",
     "lightIntensity": "光照强度",
     "loadingModel": "正在加载3D模型...",
-    "materialMode": "材料模式",
+    "materialMode": "材质模式",
+    "materialModes": {
+      "depth": "深度",
+      "normal": "法线",
+      "original": "原始",
+      "wireframe": "线框"
+    },
     "model": "模型",
     "previewOutput": "预览输出",
     "removeBackgroundImage": "移除背景图片",
     "scene": "场景",
     "showGrid": "显示网格",
-    "switchCamera": "切换摄像头",
+    "switchCamera": "切换摄影机类型",
     "switchingMaterialMode": "切换材质模式中...",
-    "upDirection": "向上方向",
+    "upDirection": "上方向",
     "uploadBackgroundImage": "上传背景图片",
     "uploadTexture": "上传纹理"
   },
@@ -556,6 +558,7 @@
     "Refresh Node Definitions": "刷新节点定义",
     "Reinstall": "重新安装",
     "Reset View": "重置视图",
+    "Resize Selected Nodes": "调整选定节点的大小",
     "Restart": "重启",
     "Save": "保存",
     "Save As": "另存为",
@@ -830,7 +833,6 @@
     "Node": "节点",
     "Node Search Box": "节点搜索框",
     "Node Widget": "节点组件",
-    "NodeInputConversionSubmenus": "节点输入转换子菜单",
     "NodeLibrary": "节点库",
     "Pointer": "指针",
     "Queue": "队列",
@@ -917,10 +919,10 @@
     },
     "template": {
       "3D": {
-        "hunyuan-3d-multiview-elf": "Hunyuan3D多视图",
-        "hunyuan-3d-turbo": "Hunyuan3D Turbo",
-        "hunyuan3d-non-multiview-train": "Hunyuan3D",
-        "stable_zero123_example": "稳定Zero123"
+        "hunyuan-3d-multiview-elf": "混元3D多视图",
+        "hunyuan-3d-turbo": "混元3D Turbo",
+        "hunyuan3d-non-multiview-train": "混元3D",
+        "stable_zero123_example": "Stable Zero123"
       },
       "Area Composition": {
         "area_composition": "区域构成",
@@ -928,7 +930,7 @@
         "area_composition_square_area_for_subject": "主题的方形区域构成"
       },
       "Audio": {
-        "stable_audio_example": "稳定音频"
+        "stable_audio_example": "Stable Audio"
       },
       "Basics": {
         "default": "图像生成",
@@ -976,7 +978,7 @@
         "latent_upscale_different_prompt_model": "潜在升级不同提示模型"
       },
       "Video": {
-        "hunyuan_video_text_to_video": "Hunyuan视频文本到视频",
+        "hunyuan_video_text_to_video": "混元视频文本到视频",
         "image_to_video": "图像到视频",
         "image_to_video_wan": "Wan 2.1 图像到视频",
         "ltxv_image_to_video": "LTXV图像到视频",

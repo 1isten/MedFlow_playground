@@ -17,7 +17,6 @@
 </template>
 
 <script setup lang="ts">
-import type { LGraphNode } from '@comfyorg/litegraph'
 import { useEventListener } from '@vueuse/core'
 import { CSSProperties, computed, onMounted, ref, watch } from 'vue'
 
@@ -50,7 +49,9 @@ const style = computed<CSSProperties>(() => ({
   ...positionStyle.value,
   ...(enableDomClipping.value ? clippingStyle.value : {}),
   zIndex: widgetState.zIndex,
-  pointerEvents: widgetState.readonly ? 'none' : 'auto'
+  pointerEvents:
+    widgetState.readonly || widget.computedDisabled ? 'none' : 'auto',
+  opacity: widget.computedDisabled ? 0.5 : 1
 }))
 
 const canvasStore = useCanvasStore()
@@ -63,9 +64,9 @@ const updateDomClipping = () => {
   const lgCanvas = canvasStore.canvas
   if (!lgCanvas || !widgetElement.value) return
 
-  const selectedNode = Object.values(
-    lgCanvas.selected_nodes ?? {}
-  )[0] as LGraphNode
+  const selectedNode = Object.values(lgCanvas.selected_nodes ?? {})[0]
+  if (!selectedNode) return
+
   const node = widget.node
   const isSelected = selectedNode === node
   const renderArea = selectedNode?.renderArea

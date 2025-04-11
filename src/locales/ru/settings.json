@@ -157,9 +157,6 @@
       "Show all": "Показать все"
     }
   },
-  "Comfy_NodeInputConversionSubmenus": {
-    "name": "В контекстном меню ноды разместите элементы, которые конвертируют между вводом/виджетом в подменю."
-  },
   "Comfy_NodeSearchBoxImpl": {
     "name": "Реализация поискового поля нод",
     "options": {
@@ -299,8 +296,22 @@
   "Comfy_Window_UnloadConfirmation": {
     "name": "Показать подтверждение при закрытии окна"
   },
+  "Comfy_Workflow_AutoSave": {
+    "name": "Автосохранение",
+    "options": {
+      "after delay": "после задержки",
+      "off": "выключено"
+    }
+  },
+  "Comfy_Workflow_AutoSaveDelay": {
+    "name": "Задержка автосохранения (мс)",
+    "tooltip": "Применяется только если автосохранение установлено на \"после задержки\"."
+  },
   "Comfy_Workflow_ConfirmDelete": {
     "name": "Показать подтверждение при удалении рабочих процессов"
+  },
+  "Comfy_Workflow_Persist": {
+    "name": "Сохранить состояние рабочего процесса и восстановить при (пере)загрузке страницы"
   },
   "Comfy_Workflow_ShowMissingModelsWarning": {
     "name": "Показать предупреждение об отсутствующих моделях"

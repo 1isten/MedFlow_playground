@@ -105,7 +105,8 @@
     "enabling": "Enabling",
     "disabling": "Disabling",
     "updating": "Updating",
-    "migrate": "Migrate"
+    "migrate": "Migrate",
+    "updateAvailable": "Update Available"
   },
   "manager": {
     "title": "Custom Nodes Manager",
@@ -209,8 +210,6 @@
     "Shapes": "Shapes",
     "Bypass": "Bypass",
     "Copy (Clipspace)": "Copy (Clipspace)",
-    "Convert Widget to Input": "Convert Widget to Input",
-    "Convert Input to Widget": "Convert Input to Widget",
     "Add Node": "Add Node",
     "Add Group": "Add Group",
     "Convert to Group Node": "Convert to Group Node",
@@ -219,9 +218,6 @@
     "Save Selected as Template": "Save Selected as Template",
     "Node Templates": "Node Templates",
     "Manage": "Manage",
-    "Convert ": "Convert ",
-    " to input": " to input",
-    " to widget": " to widget",
     "Search": "Search"
   },
   "icon": {
@@ -611,6 +607,7 @@
     "Delete Selected Items": "Delete Selected Items",
     "Fit view to selected nodes": "Fit view to selected nodes",
     "Reset View": "Reset View",
+    "Resize Selected Nodes": "Resize Selected Nodes",
     "Canvas Toggle Link Visibility": "Canvas Toggle Link Visibility",
     "Canvas Toggle Lock": "Canvas Toggle Lock",
     "Pin/Unpin Selected Items": "Pin/Unpin Selected Items",
@@ -695,7 +692,6 @@
     "BrushAdjustment": "Brush Adjustment",
     "NewEditor": "New Editor",
     "ModelLibrary": "Model Library",
-    "NodeInputConversionSubmenus": "Node Input Conversion Submenus",
     "NodeLibrary": "Node Library",
     "Node Search Box": "Node Search Box",
     "Pointer": "Pointer",
@@ -1002,7 +998,13 @@
     "exportModel": "Export Model",
     "exportingModel": "Exporting model...",
     "uploadTexture": "Upload Texture",
-    "applyingTexture": "Applying Texture..."
+    "applyingTexture": "Applying Texture...",
+    "materialModes": {
+      "normal": "Normal",
+      "wireframe": "Wireframe",
+      "original": "Original",
+      "depth": "Depth"
+    }
   },
   "toastMessages": {
     "no3dScene": "No 3D scene to apply texture",

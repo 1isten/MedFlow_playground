@@ -157,9 +157,6 @@
       "Show all": "显示全部"
     }
   },
-  "Comfy_NodeInputConversionSubmenus": {
-    "name": "在节点上下文菜单中，将输入/组件之间转换的条目放置在子菜单中。"
-  },
   "Comfy_NodeSearchBoxImpl": {
     "name": "节点搜索框",
     "options": {
@@ -299,8 +296,22 @@
   "Comfy_Window_UnloadConfirmation": {
     "name": "关闭窗口时显示确认"
   },
+  "Comfy_Workflow_AutoSave": {
+    "name": "自动保存",
+    "options": {
+      "after delay": "延迟后",
+      "off": "关闭"
+    }
+  },
+  "Comfy_Workflow_AutoSaveDelay": {
+    "name": "自动保存延迟（毫秒）",
+    "tooltip": "仅在自动保存设置为“延迟后”时适用。"
+  },
   "Comfy_Workflow_ConfirmDelete": {
     "name": "删除工作流时显示确认"
+  },
+  "Comfy_Workflow_Persist": {
+    "name": "持久化工作流状态并在页面（重新）加载时恢复"
   },
   "Comfy_Workflow_ShowMissingModelsWarning": {
     "name": "显示缺失模型警告"

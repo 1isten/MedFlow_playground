@@ -10,6 +10,8 @@ import _ from 'lodash'
 import type { ToastMessageOptions } from 'primevue/toast'
 import { reactive } from 'vue'
 
+import { useCanvasPositionConversion } from '@/composables/element/useCanvasPositionConversion'
+import { useWorkflowValidation } from '@/composables/useWorkflowValidation'
 import { st, t } from '@/i18n'
 import type {
   ExecutionErrorWsMessage,
@@ -20,8 +22,7 @@ import {
   ComfyApiWorkflow,
   type ComfyWorkflowJSON,
   type ModelFile,
-  type NodeId,
-  validateComfyWorkflow
+  type NodeId
 } from '@/schemas/comfyWorkflowSchema'
 import type { ComfyNodeDef as ComfyNodeDefV1 } from '@/schemas/nodeDefSchema'
 import { getFromWebmFile } from '@/scripts/metadata/ebml'
@@ -46,8 +47,15 @@ import type { ComfyExtension, MissingNodeType } from '@/types/comfy'
 import { ExtensionManager } from '@/types/extensionTypes'
 import { ColorAdjustOptions, adjustColor } from '@/utils/colorUtil'
 import { graphToPrompt } from '@/utils/executionUtil'
-import { executeWidgetsCallback, isImageNode } from '@/utils/litegraphUtil'
-import { findLegacyRerouteNodes } from '@/utils/migration/migrateReroute'
+import {
+  executeWidgetsCallback,
+  fixLinkInputSlots,
+  isImageNode
+} from '@/utils/litegraphUtil'
+import {
+  findLegacyRerouteNodes,
+  noNativeReroutes
+} from '@/utils/migration/migrateReroute'
 import { deserialiseAndCreate } from '@/utils/vintageClipboard'
 
 import { type ComfyApi, PromptExecutionError, api } from './api'
@@ -62,7 +70,7 @@ import {
 import { $el, ComfyUI } from './ui'
 import { ComfyAppMenu } from './ui/menu/index'
 import { clone } from './utils'
-import { type ComfyWidgetConstructor, ComfyWidgets } from './widgets'
+import { type ComfyWidgetConstructor } from './widgets'
 
 export const ANIM_PREVIEW_WIDGET = '$$comfy_animation_preview'
 
@@ -137,6 +145,11 @@ export class ComfyApp {
   // Set by Comfy.Clipspace extension
   openClipspace: () => void = () => {}
 
+  #positionConversion?: {
+    clientPosToCanvasPos: (pos: Vector2) => Vector2
+    canvasPosToClientPos: (pos: Vector2) => Vector2
+  }
+
   /**
    * The node errors from the previous execution.
    * @deprecated Use useExecutionStore().lastNodeErrors instead
@@ -156,7 +169,7 @@ export class ComfyApp {
   /**
    * @deprecated Use useExecutionStore().executingNodeId instead
    */
-  get runningNodeId(): string | null {
+  get runningNodeId(): NodeId | null {
     return useExecutionStore().executingNodeId
   }
 
@@ -171,10 +184,7 @@ export class ComfyApp {
    * @deprecated Use useWidgetStore().widgets instead
    */
   get widgets(): Record<string, ComfyWidgetConstructor> {
-    if (this.vueAppReady) {
-      return useWidgetStore().widgets
-    }
-    return ComfyWidgets
+    return Object.fromEntries(useWidgetStore().widgets.entries())
   }
 
   /**
@@ -699,7 +709,9 @@ export class ComfyApp {
   #addAfterConfigureHandler() {
     const app = this
     const onConfigure = app.graph.onConfigure
-    app.graph.onConfigure = function (...args) {
+    app.graph.onConfigure = function (this: LGraph, ...args) {
+      fixLinkInputSlots(this)
+
       // Fire callbacks before the onConfigure, this is used by widget inputs to setup the config
       for (const node of app.graph.nodes) {
         node.onGraphConfigured?.()
@@ -774,6 +786,11 @@ export class ComfyApp {
     this.#addDropHandler()
 
     await useExtensionService().invokeExtensionsAsync('setup')
+
+    this.#positionConversion = useCanvasPositionConversion(
+      this.canvasContainer,
+      this.canvas
+    )
   }
 
   resizeCanvas() {
@@ -948,7 +965,7 @@ export class ComfyApp {
     {
       showMissingNodesDialog = true,
       showMissingModelsDialog = true,
-      checkForRerouteMigration = true
+      checkForRerouteMigration = false
     } = {}
   ) {
     if (clean !== false) {
@@ -964,22 +981,22 @@ export class ComfyApp {
     graphData = clone(graphData)
 
     if (useSettingStore().get('Comfy.Validation.Workflows')) {
-      // TODO: Show validation error in a dialog.
-      const validatedGraphData = await validateComfyWorkflow(
-        graphData,
-        /* onError=*/ (err) => {
-          useToastStore().addAlert(err)
-        }
-      )
+      const { graphData: validatedGraphData } =
+        await useWorkflowValidation().validateWorkflow(graphData)
+
       // If the validation failed, use the original graph data.
       // Ideally we should not block users from loading the workflow.
       graphData = validatedGraphData ?? graphData
     }
-
+    // Only show the reroute migration warning if the workflow does not have native
+    // reroutes. Merging reroute network has great complexity, and it is not supported
+    // for now.
+    // See: https://github.com/Comfy-Org/ComfyUI_frontend/issues/3317
     if (
       checkForRerouteMigration &&
       graphData.version === 0.4 &&
-      findLegacyRerouteNodes(graphData).length
+      findLegacyRerouteNodes(graphData).length &&
+      noNativeReroutes(graphData)
     ) {
       useToastStore().add({
         group: 'reroute-migration',
@@ -1130,22 +1147,11 @@ export class ComfyApp {
     )
     await useWorkflowService().afterLoadNewGraph(
       workflow,
-      // @ts-expect-error zod types issue. Will be fixed after we enable ts-strict
-      this.graph.serialize()
+      this.graph.serialize() as unknown as ComfyWorkflowJSON
     )
     requestAnimationFrame(() => {
       this.graph.setDirtyCanvas(true, true)
     })
-  }
-
-  /**
-   * Serializes a graph using preferred user settings.
-   * @param graph The litegraph to serialize.
-   * @returns A serialized graph (aka workflow) with preferred user settings.
-   */
-  serializeGraph(graph: LGraph = this.graph) {
-    const sortNodes = useSettingStore().get('Comfy.Workflow.SortNodeIdOnSave')
-    return graph.serialize({ sortNodes })
   }
 
   async graphToPrompt(graph = this.graph) {
@@ -1259,8 +1265,10 @@ export class ComfyApp {
         // by external callers, and `importA1111` has no access to `app`.
         useWorkflowService().beforeLoadNewGraph()
         importA1111(this.graph, pngInfo.parameters)
-        // @ts-expect-error zod type issue on ComfyWorkflowJSON. Should be resolved after enabling ts-strict globally.
-        useWorkflowService().afterLoadNewGraph(fileName, this.serializeGraph())
+        useWorkflowService().afterLoadNewGraph(
+          fileName,
+          this.graph.serialize() as unknown as ComfyWorkflowJSON
+        )
       } else {
         this.showErrorOnFileLoad(file)
       }
@@ -1464,9 +1472,10 @@ export class ComfyApp {
 
     app.graph.arrange()
 
-    // @ts-expect-error zod type issue on ComfyWorkflowJSON. ComfyWorkflowJSON
-    // is stricter than LiteGraph's serialisation schema.
-    useWorkflowService().afterLoadNewGraph(fileName, this.serializeGraph())
+    useWorkflowService().afterLoadNewGraph(
+      fileName,
+      this.graph.serialize() as unknown as ComfyWorkflowJSON
+    )
   }
 
   /**
@@ -1558,21 +1567,17 @@ export class ComfyApp {
   }
 
   clientPosToCanvasPos(pos: Vector2): Vector2 {
-    const rect = this.canvasContainer.getBoundingClientRect()
-    const containerOffsets = [rect.left, rect.top]
-    return _.zip(pos, this.canvas.ds.offset, containerOffsets).map(
-      // @ts-expect-error fixme ts strict error
-      ([p, o1, o2]) => (p - o2) / this.canvas.ds.scale - o1
-    ) as Vector2
+    if (!this.#positionConversion) {
+      throw new Error('clientPosToCanvasPos called before setup')
+    }
+    return this.#positionConversion.clientPosToCanvasPos(pos)
   }
 
   canvasPosToClientPos(pos: Vector2): Vector2 {
-    const rect = this.canvasContainer.getBoundingClientRect()
-    const containerOffsets = [rect.left, rect.top]
-    return _.zip(pos, this.canvas.ds.offset, containerOffsets).map(
-      // @ts-expect-error fixme ts strict error
-      ([p, o1, o2]) => (p + o1) * this.canvas.ds.scale + o2
-    ) as Vector2
+    if (!this.#positionConversion) {
+      throw new Error('canvasPosToClientPos called before setup')
+    }
+    return this.#positionConversion.canvasPosToClientPos(pos)
   }
 }
 

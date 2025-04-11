@@ -1375,14 +1375,22 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             }
           }
         }
+        pmt_fields.outputs.forEach((output, o) => {
+          if (!output.to_export) {
+            delete output.to_export
+          }
+        })
       } else {
         pmt_fields.outputs.forEach((output, o) => {
-          const { level, oid, path, value, ...out } = output
+          const { level, oid, path, value, to_export, ...out } = output
           output.oid = null
           output.path = null
           output.value = null
           if (Object.values(out).filter(Boolean).length === 0) {
             delete output.level
+          }
+          if (!to_export) {
+            delete output.to_export
           }
         })
       }

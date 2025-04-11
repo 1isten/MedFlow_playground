@@ -181,5 +181,15 @@ useExtensionService().registerExtension({
       }
       return _onDrawBackground?.apply(this, args)
     }
+
+    const _onOutputRemoved = node.onOutputRemoved
+    node.onOutputRemoved = function (...args) {
+      removeWidget()
+      requestAnimationFrame(() => {
+        node.setSize([node.size[0], 110])
+        node.setDirtyCanvas(true)
+      })
+      return _onOutputRemoved?.apply(this, args)
+    }
   }
 })

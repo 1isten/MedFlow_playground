@@ -54,7 +54,7 @@ useExtensionService().registerExtension({
         checkbox.type = 'checkbox'
         checkbox.addEventListener('change', handleCheckpointChange)
         label.appendChild(checkbox)
-        label.appendChild(document.createTextNode('cache'))
+        label.appendChild(document.createTextNode('checkpoint')) // 'cache'
         label.addEventListener('click', (e) => e.stopPropagation())
         div.appendChild(label)
 

@@ -1305,8 +1305,16 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
               ) !== -1
             ) {
               pmt_fields.outputs = node.pmt_fields.outputs
+              pmt_fields.outputs.forEach((output, o) => {
+                const out = node.outputs[o]
+                output.linked = !!out?.links?.length
+                if (output.linked) {
+                  delete output.linked
+                }
+              })
             } else {
               pmt_fields.outputs.forEach((output, o) => {
+                delete output.linked
                 output.level = ParsedLevel.SERIES
                 output.oid = oid
               })
@@ -1319,8 +1327,16 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
               ) !== -1
             ) {
               pmt_fields.outputs = node.pmt_fields.outputs
+              pmt_fields.outputs.forEach((output, o) => {
+                const out = node.outputs[o]
+                output.linked = !!out?.links?.length
+                if (output.linked) {
+                  delete output.linked
+                }
+              })
             } else {
               pmt_fields.outputs.forEach((output, o) => {
+                delete output.linked
                 output.level = ParsedLevel.STUDY
                 output.oid = oid
               })

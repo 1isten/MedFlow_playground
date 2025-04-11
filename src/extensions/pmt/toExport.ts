@@ -5,6 +5,15 @@ import { useExtensionService } from '@/services/extensionService'
 useExtensionService().registerExtension({
   name: 'PMT.ToExport',
   nodeCreated(node) {
+    if (
+      !node ||
+      node.comfyClass.startsWith('rag_llm.') ||
+      node.comfyClass.startsWith('preview.') ||
+      node.comfyClass.startsWith('output.')
+    ) {
+      return
+    }
+
     let savedToExportStatus = []
     let outputsList = ''
     const getSelectTemplate = (outputsList, savedStatus) => `
@@ -145,7 +154,7 @@ useExtensionService().registerExtension({
           const selectedOpts = select
             ? [...select.options].map((opt) => (opt.selected ? 1 : 0))
             : []
-          pmt_fields.outputs.forEach((output, o) => {
+          pmt_fields.outputs?.forEach((output, o) => {
             output.to_export = !!selectedOpts[o]
           })
         } else {
@@ -165,7 +174,7 @@ useExtensionService().registerExtension({
         }
         const pmt_fields = node.pmt_fields as any
         if (pmt_fields) {
-          pmt_fields.outputs.forEach((output, o) => {
+          pmt_fields.outputs?.forEach((output, o) => {
             delete output.to_export
           })
         }

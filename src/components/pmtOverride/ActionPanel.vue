@@ -2057,4 +2057,9 @@ div.comfy-menu.no-drag {
 .selection-toolbox [data-testid='bypass-button'] {
   display: none !important;
 }
+
+.global-dialog[aria-labelledby='global-load-workflow-warning']
+  .p-button[aria-label='Open Manager'] {
+  display: none !important;
+}
 </style>

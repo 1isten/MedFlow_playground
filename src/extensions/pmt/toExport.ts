@@ -45,10 +45,13 @@ useExtensionService().registerExtension({
                 const outputNodeInput = node.getInputInfo(link_info.target_slot)
                 if (outputNodeInput?.type === '*') {
                   if (inputNodeOutput?.type) {
-                    node.inputs[link_info.target_slot].name =
-                      inputNodeOutput.name
-                    node.inputs[link_info.target_slot].type =
-                      inputNodeOutput.type
+                    const input = node.inputs[link_info.target_slot]
+                    input.localized_name = inputNodeOutput.name
+                    input.name = input.localized_name
+                    input.type = inputNodeOutput.type
+                  }
+                  while (node.inputs.find((i) => !i.link)) {
+                    node.removeInput(node.inputs.findIndex((i) => !i.link))
                   }
                 } else {
                   while (node.inputs.find((i) => i.type !== link_info.type)) {

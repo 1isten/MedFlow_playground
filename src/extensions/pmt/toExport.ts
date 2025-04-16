@@ -1,10 +1,92 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { LiteGraph } from '@comfyorg/litegraph'
+
+import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.ToExport',
   nodeCreated(node) {
+    if (node?.comfyClass === 'output.export') {
+      const _inputs = node.inputs.map((i) => {
+        // i.localized_name = `* ${i.name}`
+        return { name: i.name, type: i.type }
+      })
+      // node.setDirtyCanvas(true)
+
+      const _onConfigure = node.onConfigure
+      node.onConfigure = function (...args) {
+        // shrink node height to remove empty space
+        node.setSize([node.size[0], 0])
+        return _onConfigure?.apply(this, args)
+      }
+
+      const _onAfterGraphConfigured = node.onAfterGraphConfigured
+      node.onAfterGraphConfigured = function (...args) {
+        const pmt_fields = node.pmt_fields as any
+        if (pmt_fields) {
+          delete node.pmt_fields
+        }
+        return _onAfterGraphConfigured?.apply(this, args)
+      }
+
+      const _onConnectionsChange = node.onConnectionsChange
+      node.onConnectionsChange = function (...args) {
+        const [type, index, isConnected, link_info, inputOrOutput] = args
+        switch (type) {
+          case LiteGraph.INPUT: {
+            if (isConnected) {
+              if (link_info) {
+                const inputNode = app.graph.getNodeById(link_info.origin_id)
+                const inputNodeOutput = inputNode?.getOutputInfo(
+                  link_info.origin_slot
+                )
+                const outputNodeInput = node.getInputInfo(link_info.target_slot)
+                if (outputNodeInput?.type === '*') {
+                  if (inputNodeOutput?.type) {
+                    node.inputs[link_info.target_slot].name =
+                      inputNodeOutput.name
+                    node.inputs[link_info.target_slot].type =
+                      inputNodeOutput.type
+                  }
+                } else {
+                  while (node.inputs.find((i) => i.type !== link_info.type)) {
+                    node.removeInput(
+                      node.inputs.findIndex((i) => i.type !== link_info.type)
+                    )
+                  }
+                }
+              } else {
+                break
+              }
+            } else {
+              const linkedInputSlot = node.inputs.findIndex((i) => !!i.link)
+              if (linkedInputSlot === -1) {
+                while (node.inputs.length > 0) {
+                  node.removeInput(node.inputs.length - 1)
+                }
+                _inputs.forEach(({ name, type }) => {
+                  const input = node.addInput(name, type)
+                  // input.localized_name = `* ${name}`
+                })
+              } else {
+                break
+              }
+            }
+            node.setDirtyCanvas(true)
+            break
+          }
+          case LiteGraph.OUTPUT: {
+            break
+          }
+        }
+        return _onConnectionsChange?.apply(this, args)
+      }
+    } else {
+      return
+    }
+
     if (
       !node ||
       node.comfyClass.startsWith('rag_llm.') ||

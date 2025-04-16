@@ -2017,20 +2017,12 @@
     "description": "",
     "python_module": "custom_nodes.output.export",
     "input": {
-      "optional": {
-        "IMAGE_FILE": ["IMAGE_FILE"],
-        "DICOM_FILE": ["DICOM_FILE"],
-        "NIFTI_FILE": ["NIFTI_FILE"],
-        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      "required": {
+        "out": ["*"]
       }
     },
     "input_order": {
-      "optional": [
-        "IMAGE_FILE",
-        "DICOM_FILE",
-        "NIFTI_FILE",
-        "SERIES_FILE_LIST"
-      ]
+      "required": ["out"]
     },
     "output": [],
     "output_name": [],

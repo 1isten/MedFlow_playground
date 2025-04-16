@@ -1,4 +1,49 @@
 {
+  "apiNodesCostBreakdown": {
+    "costPerRun": "실행 당 비용",
+    "title": "API 노드(들)",
+    "totalCost": "총 비용"
+  },
+  "apiNodesSignInDialog": {
+    "message": "이 워크플로우에는 API 노드가 포함되어 있으며, 실행하려면 계정에 로그인해야 합니다.",
+    "title": "API 노드 사용에 필요한 로그인"
+  },
+  "auth": {
+    "login": {
+      "andText": "및",
+      "confirmPasswordLabel": "비밀번호 확인",
+      "confirmPasswordPlaceholder": "동일한 비밀번호를 다시 입력하세요",
+      "emailLabel": "이메일",
+      "emailPlaceholder": "이메일을 입력하세요",
+      "failed": "로그인 실패",
+      "forgotPassword": "비밀번호를 잊으셨나요?",
+      "loginButton": "로그인",
+      "loginWithGithub": "Github로 로그인",
+      "loginWithGoogle": "구글로 로그인",
+      "newUser": "처음이신가요?",
+      "orContinueWith": "또는 다음으로 계속",
+      "passwordLabel": "비밀번호",
+      "passwordPlaceholder": "비밀번호를 입력하세요",
+      "privacyLink": "개인정보 보호정책",
+      "signUp": "가입하기",
+      "success": "로그인 성공",
+      "termsLink": "이용 약관",
+      "termsText": "\"다음\" 또는 \"가입하기\"를 클릭하면 우리의",
+      "title": "계정에 로그인"
+    },
+    "signup": {
+      "alreadyHaveAccount": "이미 계정이 있으신가요?",
+      "emailLabel": "이메일",
+      "emailPlaceholder": "이메일을 입력하세요",
+      "passwordLabel": "비밀번호",
+      "passwordPlaceholder": "새 비밀번호를 입력하세요",
+      "signIn": "로그인",
+      "signUpButton": "가입하기",
+      "signUpWithGithub": "Github로 가입하기",
+      "signUpWithGoogle": "구글로 가입하기",
+      "title": "계정 생성"
+    }
+  },
   "clipboard": {
     "errorMessage": "클립보드에 복사하지 못했습니다",
     "errorNotSupported": "브라우저가 클립보드 API를 지원하지 않습니다.",
@@ -114,7 +159,7 @@
     "defaultTitle": "오류가 발생했습니다",
     "extensionFileHint": "다음 스크립트 때문일 수 있습니다",
     "loadWorkflowTitle": "워크플로우 데이터를 다시 로드하는 중 오류로 인해 로드가 중단되었습니다",
-    "noStackTrace": "스택 추적이 사용할 수 없습니다",
+    "noStackTrace": "스택 추적을 사용할 수 없습니다",
     "promptExecutionError": "프롬프트 실행 실패"
   },
   "g": {
@@ -172,11 +217,13 @@
     "installing": "설치 중",
     "interrupted": "중단됨",
     "keybinding": "키 바인딩",
+    "learnMore": "더 알아보기",
     "loadAllFolders": "모든 폴더 로드",
     "loadWorkflow": "워크플로 로드",
     "loading": "로딩 중",
+    "login": "로그인",
     "logs": "로그",
-    "migrate": "마이그레이트",
+    "migrate": "이전(migrate)",
     "missing": "누락됨",
     "name": "이름",
     "newFolder": "새 폴더",
@@ -199,7 +246,8 @@
     "reportIssueTooltip": "Comfy Org에 오류 보고서를 제출합니다.",
     "reportSent": "보고서 제출됨",
     "reset": "재설정",
-    "resetKeybindingsTooltip": "키 바인딩을 기본값으로 재설정",
+    "resetAll": "모두 초기화",
+    "resetAllKeybindingsTooltip": "모든 키 바인딩을 기본값으로 초기화",
     "restart": "재시작",
     "resultsCount": "{count} 개의 결과를 찾았습니다",
     "save": "저장",
@@ -214,6 +262,7 @@
     "settings": "설정",
     "showReport": "보고서 보기",
     "sort": "정렬",
+    "source": "소스",
     "status": "상태",
     "success": "성공",
     "systemInfo": "시스템 정보",
@@ -370,7 +419,7 @@
     "materialMode": "재질 모드",
     "materialModes": {
       "depth": "깊이",
-      "normal": "정상",
+      "normal": "노멀(normal)",
       "original": "원본",
       "wireframe": "와이어프레임"
     },
@@ -406,7 +455,7 @@
     "title": "유지 보수"
   },
   "manager": {
-    "changingVersion": "{from}에서 {to}로 버전 변경 중",
+    "changingVersion": "{from}에서 {to}(으)로 버전 변경 중",
     "createdBy": "작성자",
     "dependencies": "의존성",
     "discoverCommunityContent": "커뮤니티에서 만든 노드 팩 및 확장 프로그램을 찾아보세요...",
@@ -428,6 +477,8 @@
     "loadingVersions": "버전 로딩 중...",
     "nightlyVersion": "최신 테스트 버전(nightly)",
     "noDescription": "설명이 없습니다",
+    "noNodesFound": "노드를 찾을 수 없습니다",
+    "noNodesFoundDescription": "팩의 노드를 파싱할 수 없거나, 팩이 프론트엔드 확장만을 가지고 있어서 노드가 없습니다.",
     "noResultsFound": "검색과 일치하는 결과가 없습니다.",
     "nodePack": "노드 팩",
     "packsSelected": "선택한 노드 팩",
@@ -436,8 +487,10 @@
     "searchPlaceholder": "검색",
     "selectVersion": "버전 선택",
     "sort": {
+      "created": "최신",
       "downloads": "가장 인기 있는",
-      "rating": "평점"
+      "publisher": "배포자",
+      "updated": "최근 업데이트"
     },
     "status": {
       "active": "활성",
@@ -806,9 +859,11 @@
     "troubleshoot": "문제 해결"
   },
   "settingsCategories": {
+    "3D": "3D",
     "About": "정보",
     "Appearance": "모양",
     "BrushAdjustment": "브러시 조정",
+    "Camera": "카메라",
     "Canvas": "캔버스",
     "ColorPalette": "색상 팔레트",
     "Comfy": "Comfy",
@@ -825,6 +880,7 @@
     "Link": "링크",
     "LinkRelease": "링크 해제",
     "LiteGraph": "LiteGraph",
+    "Load 3D": "3D 불러오기",
     "Locale": "언어 설정",
     "Mask Editor": "마스크 편집기",
     "Menu": "메뉴",
@@ -837,8 +893,9 @@
     "Pointer": "포인터",
     "Queue": "실행 큐",
     "QueueButton": "실행 큐 버튼",
-    "Reroute": "재경로",
-    "RerouteBeta": "경로재설정 베타",
+    "Reroute": "경유점",
+    "RerouteBeta": "경유점 (베타)",
+    "Scene": "장면",
     "Server": "서버",
     "Server-Config": "서버 구성",
     "Settings": "설정",
@@ -1004,7 +1061,7 @@
     "fileLoadError": "{fileName}에서 워크플로우를 찾을 수 없습니다",
     "fileUploadFailed": "파일 업로드에 실패했습니다",
     "interrupted": "실행이 중단되었습니다",
-    "migrateToLitegraphReroute": "미래 버전에서는 Reroute 노드가 제거됩니다. litegraph-native reroute로 마이그레이트하려면 클릭하세요.",
+    "migrateToLitegraphReroute": "향후 버전에서는 Reroute 노드가 제거됩니다. LiteGraph 에서 자체 제공하는 경유점으로 변환하려면 클릭하세요.",
     "no3dScene": "텍스처를 적용할 3D 장면이 없습니다",
     "no3dSceneToExport": "내보낼 3D 장면이 없습니다",
     "noTemplatesToExport": "내보낼 템플릿이 없습니다",
@@ -1021,6 +1078,21 @@
     "newUser": "새 사용자",
     "next": "다음",
     "selectUser": "사용자 선택"
+  },
+  "validation": {
+    "invalidEmail": "유효하지 않은 이메일 주소",
+    "maxLength": "{length}자를 초과할 수 없습니다",
+    "minLength": "{length}자 이상이어야 합니다",
+    "password": {
+      "lowercase": "적어도 하나의 소문자를 포함해야 합니다",
+      "match": "비밀번호가 일치해야 합니다",
+      "minLength": "8자에서 32자 사이여야 합니다",
+      "number": "적어도 하나의 숫자를 포함해야 합니다",
+      "requirements": "비밀번호 요구사항",
+      "special": "적어도 하나의 특수 문자를 포함해야 합니다",
+      "uppercase": "적어도 하나의 대문자를 포함해야 합니다"
+    },
+    "required": "필수"
   },
   "welcome": {
     "getStarted": "시작하기",

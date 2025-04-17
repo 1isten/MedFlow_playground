@@ -217,7 +217,8 @@ useExtensionService().registerExtension({
         datasetId,
         projectId,
         tags: [],
-        level: ParsedLevel.SERIES
+        level: ParsedLevel.SERIES,
+        studyOid
       }
       return fetch('connect://localhost/api/data-cleaning-search', {
         method: 'POST',

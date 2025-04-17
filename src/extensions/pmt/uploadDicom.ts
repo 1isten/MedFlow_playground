@@ -214,7 +214,7 @@ useExtensionService().registerExtension({
           for (const file of e.dataTransfer.files) {
             const ext = file.name.split('.').slice(1).pop()
             if (file.type === 'application/dicom' || !ext || ext === 'dcm') {
-              uploadFile(file, !handled)
+              void uploadFile(file, !handled)
               handled = true
             }
           }

@@ -149,7 +149,7 @@ useExtensionService().registerExtension({
           for (const file of e.dataTransfer.files) {
             const ext = file.name.split('.').slice(1).pop()
             if (['jpg', 'jpeg', 'png', 'tiff'].includes(ext)) {
-              uploadFile(file, !handled)
+              void uploadFile(file, !handled)
               handled = true
             }
           }

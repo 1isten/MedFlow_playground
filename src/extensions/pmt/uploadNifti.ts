@@ -66,7 +66,7 @@ useExtensionService().registerExtension({
               node.setSize([_w, 60])
               node.setDirtyCanvas(true)
               if (filterParams) {
-                fetchInstancesList(filterParams)
+                void fetchInstancesList(filterParams)
               }
             } else {
               const pmt_fields = node.pmt_fields as any
@@ -181,7 +181,7 @@ useExtensionService().registerExtension({
                 level: json.level
               }
               if (filterEnabled) {
-                fetchInstancesList(filterParams)
+                void fetchInstancesList(filterParams)
               }
             }
             handled = true
@@ -212,7 +212,7 @@ useExtensionService().registerExtension({
                 level: json.level
               }
               if (filterEnabled) {
-                fetchInstancesList(filterParams)
+                void fetchInstancesList(filterParams)
               }
             }
             handled = true
@@ -442,7 +442,7 @@ useExtensionService().registerExtension({
               filename.endsWith('.nii') ||
               filename.endsWith('.nii.gz')
             ) {
-              uploadFile(file, !handled)
+              void uploadFile(file, !handled)
               handled = true
             }
           }

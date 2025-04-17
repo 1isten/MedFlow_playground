@@ -55,7 +55,7 @@ useExtensionService().registerExtension({
             node.setSize([_w, 60])
             node.setDirtyCanvas(true)
             if (filterParams) {
-              fetchSeriesList(filterParams)
+              void fetchSeriesList(filterParams)
             }
           } else {
             const pmt_fields = node.pmt_fields as any
@@ -167,7 +167,7 @@ useExtensionService().registerExtension({
                 level: json.level
               }
               if (filterEnabled) {
-                fetchSeriesList(filterParams)
+                void fetchSeriesList(filterParams)
               }
             }
             handled = true
@@ -198,7 +198,7 @@ useExtensionService().registerExtension({
                 level: json.level
               }
               if (filterEnabled) {
-                fetchSeriesList(filterParams)
+                void fetchSeriesList(filterParams)
               }
             }
             handled = true

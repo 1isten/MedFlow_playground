@@ -95,12 +95,21 @@ useExtensionService().registerExtension({
                           return w.name === 'oid'
                         })?.value || ''
                       if (oid) {
-                        // const oidWidget = node.widgets.find((w) => {
-                        //   return w.name === 'oid'
-                        // })
-                        // if (oidWidget) {
-                        //   oidWidget.value = oid
-                        // }
+                        const oidWidget = node.widgets.find((w) => {
+                          return w.name === 'oid'
+                        })
+                        if (oidWidget) {
+                          oidWidget.value = oid
+                          filterParams = {
+                            oid: oidWidget.value,
+                            datasetId: filterParams?.datasetId,
+                            projectId: filterParams?.projectId,
+                            level: ParsedLevel.SERIES
+                          }
+                          if (filterEnabled) {
+                            void fetchInstancesList(filterParams)
+                          }
+                        }
                       }
                     } else {
                       const pmt_fields = inputNode?.pmt_fields as any
@@ -246,6 +255,15 @@ useExtensionService().registerExtension({
               disconnectInputSeries()
               requestAnimationFrame(() => {
                 oidWidget.value = value
+                filterParams = {
+                  oid: oidWidget.value,
+                  datasetId: filterParams?.datasetId,
+                  projectId: filterParams?.projectId,
+                  level: ParsedLevel.SERIES
+                }
+                if (filterEnabled) {
+                  void fetchInstancesList(filterParams)
+                }
               })
             } else {
               oidRemovedHandler()

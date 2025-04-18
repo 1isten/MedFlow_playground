@@ -90,6 +90,7 @@ useExtensionService().registerExtension({
                   if (outputNodeInput?.type === 'SERIES_FILE_LIST') {
                     const inputNode = app.graph.getNodeById(link_info.origin_id)
                     if (inputNode?.type === node.type) {
+                      /*
                       const oid =
                         inputNode.widgets.find((w) => {
                           return w.name === 'oid'
@@ -111,6 +112,7 @@ useExtensionService().registerExtension({
                           }
                         }
                       }
+                      */
                     } else {
                       const pmt_fields = inputNode?.pmt_fields as any
                       if (pmt_fields) {

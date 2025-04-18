@@ -86,7 +86,17 @@ useExtensionService().registerExtension({
         oidWidget.callback = function (...args) {
           const [value, canvas, node, pos, e] = args
           if (value) {
-            //
+            requestAnimationFrame(() => {
+              filterParams = {
+                oid: value,
+                datasetId: filterParams?.datasetId,
+                projectId: filterParams?.projectId,
+                level: ParsedLevel.STUDY
+              }
+              if (filterEnabled) {
+                void fetchSeriesList(filterParams)
+              }
+            })
           } else {
             const pmt_fields = node.pmt_fields as any
             if (pmt_fields?.outputs?.[0]?.level) {

@@ -161,7 +161,7 @@ useExtensionService().registerExtension({
             if (oidWidget) {
               oidWidget.value = json.oid
               filterParams = {
-                oid: json.oid,
+                oid: oidWidget.value,
                 datasetId: json.datasetId,
                 projectId: json.projectId,
                 level: json.level
@@ -192,7 +192,7 @@ useExtensionService().registerExtension({
             if (oidWidget) {
               oidWidget.value = json.oid
               filterParams = {
-                oid: json.oid,
+                oid: oidWidget.value,
                 datasetId: json.datasetId,
                 projectId: json.projectId,
                 level: json.level
@@ -252,13 +252,13 @@ useExtensionService().registerExtension({
             node.pmt_fields = {
               ...(pmt_fields || {}),
               outputs: seriesList.map(
-                ({ id, tagSeriesNumber, tagSeriesDescription }) => ({
+                ({ id, oid, tagSeriesNumber, tagSeriesDescription }) => ({
                   output_name: `${tagSeriesDescription} #${tagSeriesNumber}`,
                   level: ParsedLevel.SERIES,
                   study_oid: studyOid,
                   tag_series_number: tagSeriesNumber,
                   tag_series_description: tagSeriesDescription,
-                  oid: null,
+                  oid: oid || null,
                   path: null,
                   value: null
                 })

@@ -814,6 +814,7 @@
         ]
       },
       "optional": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"],
         "filter": [
           "BOOLEAN",
           {

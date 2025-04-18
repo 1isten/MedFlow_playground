@@ -1,6 +1,9 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+import { LiteGraph } from '@comfyorg/litegraph'
+
 import { ParsedLevel } from '@/constants/pmtCore'
+import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
@@ -23,7 +26,18 @@ useExtensionService().registerExtension({
 
     if (node?.comfyClass !== 'input.load_nifti') {
       if (node?.comfyClass === 'input.load_series') {
-        const [_w, _h] = node.size
+        let [_w, _h] = node.size
+        const shrinkWidth = () => {
+          if (node?.inputs?.find((i) => i.type === 'SERIES_FILE_LIST')) {
+            // shrink node width
+            node.setSize([315, node.size[1]])
+            requestAnimationFrame(() => {
+              _w = node.size[0]
+              _h = node.size[1]
+              node.setDirtyCanvas(true)
+            })
+          }
+        }
         const _outputs = node.outputs.slice()
 
         const _onConfigure = node.onConfigure
@@ -51,6 +65,105 @@ useExtensionService().registerExtension({
           return _onConfigure?.apply(this, args)
         }
 
+        const _onAfterGraphConfigured = node.onAfterGraphConfigured
+        node.onAfterGraphConfigured = function (...args) {
+          shrinkWidth()
+          return _onAfterGraphConfigured?.apply(this, args)
+        }
+
+        const _onAdded = node.onAdded
+        node.onAdded = function (...args) {
+          shrinkWidth()
+          return _onAdded?.apply(this, args)
+        }
+
+        const _onConnectionsChange = node.onConnectionsChange
+        node.onConnectionsChange = function (...args) {
+          const [type, index, isConnected, link_info, inputOrOutput] = args
+          switch (type) {
+            case LiteGraph.INPUT: {
+              if (isConnected) {
+                if (link_info) {
+                  const outputNodeInput = node.getInputInfo(
+                    link_info.target_slot
+                  )
+                  if (outputNodeInput?.type === 'SERIES_FILE_LIST') {
+                    const inputNode = app.graph.getNodeById(link_info.origin_id)
+                    if (inputNode?.type === node.type) {
+                      const oid =
+                        inputNode.widgets.find((w) => {
+                          return w.name === 'oid'
+                        })?.value || ''
+                      if (oid) {
+                        const oidWidget = node.widgets.find((w) => {
+                          return w.name === 'oid'
+                        })
+                        if (oidWidget) {
+                          oidWidget.value = oid
+                        }
+                      }
+                    } else {
+                      const pmt_fields = inputNode?.pmt_fields as any
+                      if (pmt_fields) {
+                        const inputNodeOutput =
+                          pmt_fields.outputs?.[link_info.origin_slot]
+                        if (inputNodeOutput?.level === ParsedLevel.SERIES) {
+                          const filter_params = pmt_fields.filter_params
+                          if (filter_params) {
+                            const {
+                              study_oid,
+                              oid,
+                              tag_series_number,
+                              tag_series_description
+                            } = inputNodeOutput
+                            if (oid) {
+                              const oidWidget = node.widgets.find((w) => {
+                                return w.name === 'oid'
+                              })
+                              if (oidWidget) {
+                                oidWidget.value = oid
+                                filterParams = {
+                                  oid: oidWidget.value,
+                                  datasetId: filter_params.datasetId,
+                                  projectId: filter_params.projectId,
+                                  level: inputNodeOutput.level
+                                }
+                                if (filterEnabled) {
+                                  void fetchInstancesList(filterParams)
+                                }
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                } else {
+                  break
+                }
+              } else {
+                if (link_info?.type === 'SERIES_FILE_LIST') {
+                  const oidWidget = node.widgets.find((w) => {
+                    return w.name === 'oid'
+                  })
+                  if (oidWidget) {
+                    oidWidget.value = ''
+                    oidRemovedHandler()
+                  }
+                } else {
+                  break
+                }
+              }
+              // node.setDirtyCanvas(true)
+              break
+            }
+            case LiteGraph.OUTPUT: {
+              break
+            }
+          }
+          return _onConnectionsChange?.apply(this, args)
+        }
+
         const filterWidget = node.widgets.find((w) => {
           return w.name === 'filter'
         })
@@ -63,7 +176,7 @@ useExtensionService().registerExtension({
               node.removeOutput(node.outputs.length - 1)
             }
             if (filterEnabled) {
-              node.setSize([_w, 60])
+              node.setSize([_w, 82])
               node.setDirtyCanvas(true)
               if (filterParams) {
                 void fetchInstancesList(filterParams)
@@ -82,13 +195,46 @@ useExtensionService().registerExtension({
                   value: null
                 })
               })
-              node.setSize([_w, 80])
+              node.setSize([_w, 82])
               node.setDirtyCanvas(true)
             }
             return cb?.apply(this, args)
           }
         }
 
+        function disconnectInputSeries() {
+          node.inputs.forEach((input, i) => {
+            if (input.type === 'SERIES_FILE_LIST') {
+              node.disconnectInput(i)
+            }
+          })
+        }
+        function oidRemovedHandler() {
+          disconnectInputSeries()
+          const pmt_fields = node.pmt_fields as any
+          if (pmt_fields?.outputs?.[0]?.level) {
+            pmt_fields.outputs = []
+          }
+          if (pmt_fields?.filter_params) {
+            delete pmt_fields.filter_params
+          }
+          filterParams = null
+          filterEnabled = false
+          filterWidget.value = false
+          while (node.outputs.length > 0) {
+            node.removeOutput(node.outputs.length - 1)
+          }
+          _outputs.forEach(({ name, type }) => {
+            node.addOutput(name, type)
+            pmt_fields?.outputs?.push({
+              oid: null,
+              path: null,
+              value: null
+            })
+          })
+          node.setSize([_w, 82])
+          node.setDirtyCanvas(true)
+        }
         const oidWidget = node.widgets.find((w) => {
           return w.name === 'oid'
         })
@@ -97,31 +243,12 @@ useExtensionService().registerExtension({
           oidWidget.callback = function (...args) {
             const [value, canvas, node, pos, e] = args
             if (value) {
-              //
-            } else {
-              const pmt_fields = node.pmt_fields as any
-              if (pmt_fields?.outputs?.[0]?.level) {
-                pmt_fields.outputs = []
-              }
-              if (pmt_fields?.filter_params) {
-                delete pmt_fields.filter_params
-              }
-              filterParams = null
-              filterEnabled = false
-              filterWidget.value = false
-              while (node.outputs.length > 0) {
-                node.removeOutput(node.outputs.length - 1)
-              }
-              _outputs.forEach(({ name, type }) => {
-                node.addOutput(name, type)
-                pmt_fields?.outputs?.push({
-                  oid: null,
-                  path: null,
-                  value: null
-                })
+              disconnectInputSeries()
+              requestAnimationFrame(() => {
+                oidWidget.value = value
               })
-              node.setSize([_w, 80])
-              node.setDirtyCanvas(true)
+            } else {
+              oidRemovedHandler()
             }
             return cb?.apply(this, args)
           }
@@ -175,7 +302,7 @@ useExtensionService().registerExtension({
             if (oidWidget) {
               oidWidget.value = json.oid
               filterParams = {
-                oid: json.oid,
+                oid: oidWidget.value,
                 datasetId: json.datasetId,
                 projectId: json.projectId,
                 level: json.level
@@ -206,7 +333,7 @@ useExtensionService().registerExtension({
             if (oidWidget) {
               oidWidget.value = json.oid
               filterParams = {
-                oid: json.oid,
+                oid: oidWidget.value,
                 datasetId: json.datasetId,
                 projectId: json.projectId,
                 level: json.level
@@ -274,7 +401,7 @@ useExtensionService().registerExtension({
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }
-            node.setSize([node.size[0], 60])
+            node.setSize([node.size[0], 82])
             node.setDirtyCanvas(true)
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
@@ -282,6 +409,7 @@ useExtensionService().registerExtension({
               outputs: instancesList.map(
                 ({
                   id,
+                  oid,
                   tagInstanceNumber,
                   tagImageType,
                   tagSliceLocation
@@ -290,7 +418,7 @@ useExtensionService().registerExtension({
                   level: ParsedLevel.INSTANCE,
                   series_oid: seriesOid,
                   tag_instance_number: tagInstanceNumber,
-                  oid: null,
+                  oid: oid || null,
                   path: null,
                   value: null
                 })

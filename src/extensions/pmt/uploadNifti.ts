@@ -95,12 +95,12 @@ useExtensionService().registerExtension({
                           return w.name === 'oid'
                         })?.value || ''
                       if (oid) {
-                        const oidWidget = node.widgets.find((w) => {
-                          return w.name === 'oid'
-                        })
-                        if (oidWidget) {
-                          oidWidget.value = oid
-                        }
+                        // const oidWidget = node.widgets.find((w) => {
+                        //   return w.name === 'oid'
+                        // })
+                        // if (oidWidget) {
+                        //   oidWidget.value = oid
+                        // }
                       }
                     } else {
                       const pmt_fields = inputNode?.pmt_fields as any

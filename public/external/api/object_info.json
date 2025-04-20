@@ -523,12 +523,12 @@
     "output_node": true
   },
 
-  "basic.math": {
-    "name": "basic.math",
+  "basic.basic_operator": {
+    "name": "basic.basic_operator",
     "category": "basic",
-    "display_name": "Math",
+    "display_name": "Basic Operator",
     "description": "Basic math operations.",
-    "python_module": "custom_nodes.basic.math",
+    "python_module": "custom_nodes.basic.basic_operator",
     "input": {
       "required": {
         "a": ["*"],

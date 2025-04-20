@@ -465,6 +465,22 @@ useExtensionService().registerExtension({
         })
     }
 
+    const _onDrawBackground = node.onDrawBackground
+    node.onDrawBackground = function (...args) {
+      if (filterEnabled) {
+        if (!node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')) {
+          node.addInput('SERIES_FILE_LIST', 'SERIES_FILE_LIST')
+        }
+      } else {
+        if (node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')) {
+          node.removeInput(
+            node.inputs.findIndex((i) => i.type === 'SERIES_FILE_LIST')
+          )
+        }
+      }
+      return _onDrawBackground?.apply(this, args)
+    }
+
     // ...
   },
   getCustomWidgets(app) {

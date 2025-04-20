@@ -532,7 +532,9 @@
     "input": {
       "required": {
         "a": ["*"],
-        "b": ["*"],
+        "b": ["*"]
+      },
+      "optional": {
         "operator": [
           [
             "+",
@@ -545,7 +547,8 @@
       }
     },
     "input_order": {
-      "required": ["a", "b", "operator"]
+      "required": ["a", "b"],
+      "optional": ["operator"]
     },
     "output": ["*"],
     "output_name": ["out"],
@@ -561,7 +564,9 @@
     "input": {
       "required": {
         "a": ["*"],
-        "b": ["*"],
+        "b": ["*"]
+      },
+      "optional": {
         "operator": [
           [
             "==",
@@ -578,7 +583,8 @@
       }
     },
     "input_order": {
-      "required": ["a", "b", "operator"]
+      "required": ["a", "b"],
+      "optional": ["operator"]
     },
     "output": ["BOOLEAN"],
     "output_name": ["BOOLEAN"],

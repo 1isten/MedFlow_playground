@@ -1,6 +1,6 @@
 <template>
   <teleport :to="'.comfyui-body-bottom'">
-    <Panel id="pmt-action-panel" v-show="!readonlyView">
+    <Panel v-show="!readonlyView" id="pmt-action-panel">
       <ButtonGroup>
         <Button
           v-if="stoppable ? !loading && !running : true"
@@ -35,7 +35,7 @@
           @click="stop"
           @contextmenu.prevent.stop
         />
-        <Menu ref="runMenu" id="btn-run-menu" :model="runMenuItems" popup />
+        <Menu id="btn-run-menu" ref="runMenu" :model="runMenuItems" popup />
         <Button
           v-if="!!pipelineId"
           class="btn-pip"
@@ -59,8 +59,8 @@
                     class="relative flex justify-center items-center overflow-hidden"
                   >
                     <input
-                      type="color"
                       v-model="pipelineColor"
+                      type="color"
                       class="absolute inset-0 opacity-0 hover:cursor-pointer"
                       :disabled="false"
                     />
@@ -190,6 +190,7 @@
 </template>
 
 <script setup>
+/* eslint-disable @typescript-eslint/no-floating-promises */
 import { LGraphCanvas, LiteGraph } from '@comfyorg/litegraph'
 import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
 import { merge } from 'lodash'
@@ -1599,7 +1600,7 @@ function handleStreamChunk(chunk) {
                     : [oid]
                   : oid
               }
-              if (path) {
+              if (path && path !== 'None') {
                 node.pmt_fields.outputs[o].path = Array.isArray(
                   node.pmt_fields.outputs[o].path
                 )

@@ -1843,25 +1843,6 @@
     "output_is_list": [false],
     "output_node": false
   },
-  "converter.data_to_file.2d_to_nifti": {
-    "name": "converter.data_to_file.2d_to_nifti",
-    "category": "coverters/data_to_file",
-    "display_name": "2D to NIFTI",
-    "description": "Convert 2D data to NIFTI file.",
-    "python_module": "custom_nodes.data_to_file.2d_to_nifti",
-    "input": {
-      "required": {
-        "data": ["2D"]
-      }
-    },
-    "input_order": {
-      "required": ["data"]
-    },
-    "output": ["NIFTI_FILE"],
-    "output_name": ["NIFTI_FILE"],
-    "output_is_list": [false],
-    "output_node": false
-  },
   "converter.data_to_file.3d_to_dicom_volume": {
     "name": "converter.data_to_file.3d_to_dicom_volume",
     "category": "coverters/data_to_file",

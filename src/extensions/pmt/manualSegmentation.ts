@@ -50,11 +50,11 @@ useExtensionService().registerExtension({
               const output = node.outputs[0]
               if (link_info.type === 'DICOM_FILE') {
                 if (!output || output.type !== 'DICOM_FILE') {
-                  node.addOutput('labelmap.dcm', 'DICOM_FILE')
+                  node.addOutput('labelmap', 'DICOM_FILE') // .dcm
                 }
               } else {
                 if (!output || output.type !== 'NIFTI_FILE') {
-                  node.addOutput('labelmap.nii.gz', 'NIFTI_FILE')
+                  node.addOutput('labelmap', 'NIFTI_FILE') // .nii.gz
                 }
               }
             } else {

@@ -1260,17 +1260,13 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         status: null
       }
     )
-    if (pmt_fields.type === 'basic') {
-      //
-    }
     if (pmt_fields.type === 'input') {
       if (
         [
           'boolean',
-          'int',
-          'float',
-          'text',
-          'textarea'
+          'number',
+          'random',
+          'text'
           // ...
         ].includes(subtype)
       ) {
@@ -1351,23 +1347,46 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         }
         if (subtype === 'boolean') {
           pmt_fields.outputs[0].value =
-            pmt_fields.outputs[0].value || pmt_fields.args.bool
+            pmt_fields.outputs[0].value ?? pmt_fields.args.bool
         }
-        if (subtype === 'int') {
+        if (subtype === 'number') {
           pmt_fields.outputs[0].value =
-            pmt_fields.outputs[0].value || pmt_fields.args.int
+            pmt_fields.outputs[0].value ??
+            pmt_fields.args.number ??
+            pmt_fields.args.float ??
+            pmt_fields.args.int
         }
-        if (subtype === 'float') {
-          pmt_fields.outputs[0].value =
-            pmt_fields.outputs[0].value || pmt_fields.args.float
+        if (subtype === 'random') {
+          const { upper_range, offset, distribution, int_only } =
+            pmt_fields.args
+          const random =
+            distribution === 'normal'
+              ? // https://stackoverflow.com/a/49434653/10222165
+                function randn_bm() {
+                  let u = 0
+                  let v = 0
+                  while (u === 0) u = Math.random() // Converting [0,1) to (0,1)
+                  while (v === 0) v = Math.random()
+                  let num =
+                    Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v)
+                  num = num / 10.0 + 0.5 // Translate to 0 -> 1
+                  if (num > 1 || num < 0) return randn_bm() // resample between 0 and 1
+                  return num
+                }
+              : Math.random
+          let n = random() * (upper_range || 1) + (offset || 0)
+          if (int_only) {
+            n = Math.floor(n)
+          } else {
+            n = parseFloat(n.toFixed(3).slice(0, -1))
+          }
+          pmt_fields.outputs[0].value = isNaN(n) ? 0 : n
         }
         if (subtype === 'text') {
           pmt_fields.outputs[0].value =
-            pmt_fields.outputs[0].value || pmt_fields.args.text
-        }
-        if (subtype === 'textarea') {
-          pmt_fields.outputs[0].value =
-            pmt_fields.outputs[0].value || pmt_fields.args.textarea
+            pmt_fields.outputs[0].value ??
+            pmt_fields.args.text ??
+            pmt_fields.args.textarea
         }
         if (subtype === 'load_json') {
           if (node?.pmt_fields?.outputs) {
@@ -1399,6 +1418,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       if (node.pmt_fields?.outputs) {
         pmt_fields.outputs = merge(pmt_fields.outputs, node.pmt_fields.outputs)
       }
+    }
+    if (pmt_fields.type === 'math') {
+      //
     }
     if (pmt_fields.type === 'manual') {
       //

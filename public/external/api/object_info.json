@@ -523,75 +523,6 @@
     "output_node": true
   },
 
-  "basic.basic_operator": {
-    "name": "basic.basic_operator",
-    "category": "basic",
-    "display_name": "Basic Operator",
-    "description": "Basic math operations.",
-    "python_module": "custom_nodes.basic.basic_operator",
-    "input": {
-      "required": {
-        "a": ["*"],
-        "b": ["*"]
-      },
-      "optional": {
-        "operator": [
-          [
-            "+",
-            "-",
-            "*",
-            "/",
-            "%"
-          ]
-        ]
-      }
-    },
-    "input_order": {
-      "required": ["a", "b"],
-      "optional": ["operator"]
-    },
-    "output": ["*"],
-    "output_name": ["out"],
-    "output_is_list": [false],
-    "output_node": false
-  },
-  "basic.condition": {
-    "name": "basic.condition",
-    "category": "basic",
-    "display_name": "Condition",
-    "description": "If condition.",
-    "python_module": "custom_nodes.basic.condition",
-    "input": {
-      "required": {
-        "a": ["*"],
-        "b": ["*"]
-      },
-      "optional": {
-        "operator": [
-          [
-            "==",
-            "!=",
-            ">",
-            ">=",
-            "<",
-            "<=",
-            "&&",
-            "||",
-            "!"
-          ]
-        ]
-      }
-    },
-    "input_order": {
-      "required": ["a", "b"],
-      "optional": ["operator"]
-    },
-    "output": ["BOOLEAN"],
-    "output_name": ["BOOLEAN"],
-    "output_is_list": [false],
-    "output_node": false
-  },
-
   "input.boolean": {
     "name": "input.boolean",
     "category": "input/Scalar",
@@ -611,34 +542,15 @@
     "output_is_list": [false],
     "output_node": false
   },
-  "input.int": {
-    "name": "input.int",
+  "input.number": {
+    "name": "input.number",
     "category": "input/Scalar",
-    "display_name": "Int",
-    "description": "INT",
-    "python_module": "nodes",
-    "input": {
-      "required": {
-        "int": ["INT"]
-      }
-    },
-    "input_order": {
-      "required": ["int"]
-    },
-    "output": ["INT"],
-    "output_name": ["INT"],
-    "output_is_list": [false],
-    "output_node": false
-  },
-  "input.float": {
-    "name": "input.float",
-    "category": "input/Scalar",
-    "display_name": "Float",
+    "display_name": "Number",
     "description": "FLOAT",
     "python_module": "nodes",
     "input": {
       "required": {
-        "float": [
+        "number": [
           "FLOAT",
           {
             "step": 0.1,
@@ -648,7 +560,50 @@
       }
     },
     "input_order": {
-      "required": ["float"]
+      "required": ["number"]
+    },
+    "output": ["FLOAT"],
+    "output_name": ["FLOAT"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "input.random": {
+    "name": "input.random",
+    "category": "input/Scalar",
+    "display_name": "Number (Random)",
+    "description": "Optional given a seed to generate a random number. The generation setting can be adjust via arguments.",
+    "python_module": "nodes",
+    "input": {
+      "optional": {
+        "upper_range": [
+          "FLOAT",
+          {
+            "default": 1,
+            "min": 1,
+            "max": 100,
+            "step": 0.1,
+            "round": 0.01
+          }
+        ],
+        "offset": [
+          "FLOAT",
+          {
+            "default": 0,
+            "step": 0.1,
+            "round": 0.01
+          }
+        ],
+        "distribution": [
+          [
+            "uniform",
+            "normal"
+          ]
+        ],
+        "int_only": ["BOOLEAN"]
+      }
+    },
+    "input_order": {
+      "optional": ["upper_range", "offset", "distribution", "int_only"]
     },
     "output": ["FLOAT"],
     "output_name": ["FLOAT"],
@@ -663,26 +618,7 @@
     "python_module": "nodes",
     "input": {
       "required": {
-        "text": ["STRING"]
-      }
-    },
-    "input_order": {
-      "required": ["text"]
-    },
-    "output": ["STRING"],
-    "output_name": ["STRING"],
-    "output_is_list": [false],
-    "output_node": false
-  },
-  "input.textarea": {
-    "name": "input.textarea",
-    "category": "input/Scalar",
-    "display_name": "Textarea",
-    "description": "STRING (multiline)",
-    "python_module": "nodes",
-    "input": {
-      "required": {
-        "textarea": [
+        "text": [
           "STRING",
           {
             "multiline": true
@@ -691,7 +627,7 @@
       }
     },
     "input_order": {
-      "required": ["textarea"]
+      "required": ["text"]
     },
     "output": ["STRING"],
     "output_name": ["STRING"],
@@ -863,6 +799,116 @@
     },
     "output": ["STUDY_FILE_LIST"],
     "output_name": ["STUDY_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+
+  "math.basic_operation": {
+    "name": "math.basic_operation",
+    "category": "math",
+    "display_name": "Basic Math Operation",
+    "description": "Given a and b, return a+b, a-b, a*b, a/b, a%b, a^b, log_b(a). The type of a and b should be same.",
+    "python_module": "custom_nodes.math.basic_operation",
+    "input": {
+      "required": {
+        "a": ["*"],
+        "b": ["*"]
+      },
+      "optional": {
+        "operator": [
+          ["+", "-", "*", "/", "%", "^", "log"]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["a", "b"],
+      "optional": ["operator"]
+    },
+    "output": ["*"],
+    "output_name": ["c"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "math.basic_statistics": {
+    "name": "math.basic_statistics",
+    "category": "math",
+    "display_name": "Basic Math Statistics",
+    "description": "Calc the scalar statistics (sum / mean / median / max / min / std / var) of the input data (1D / 2D / 3D) as the FLOAT type.",
+    "python_module": "custom_nodes.math.basic_statistics",
+    "input": {
+      "required": {
+        "data": ["*"]
+      },
+      "optional": {
+        "operator": [
+          ["sum", "mean", "median", "max", "min", "std", "var"]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["data"],
+      "optional": ["operator"]
+    },
+    "output": ["FLOAT"],
+    "output_name": ["statistics"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "math.activation_function": {
+    "name": "math.activation_function",
+    "category": "math",
+    "display_name": "Activation Function",
+    "description": "Pairwise calculate the activation function of the input data, including sigmoid, tanh and relu. The input data can be 1D, 2D or 3D, and the output data will be the same size as the input data.",
+    "python_module": "custom_nodes.math.activation_function",
+    "input": {
+      "required": {
+        "data": ["*"]
+      },
+      "optional": {
+        "operator": [
+          ["sigmoid", "tanh", "relu"]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["data"],
+      "optional": ["operator"]
+    },
+    "output": ["*"],
+    "output_name": ["output"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "math.if_condition": {
+    "name": "math.if_condition",
+    "category": "math",
+    "display_name": "IF-Condition",
+    "description": "If condition logic operations.",
+    "python_module": "custom_nodes.math.if_condition",
+    "input": {
+      "required": {
+        "a": ["*"],
+        "b": ["*"]
+      },
+      "optional": {
+        "operator": [
+          [
+            "==", "!=",
+            ">", ">=",
+            "<", "<=",
+            "&&",
+            "||",
+            "!"
+          ]
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["a", "b"],
+      "optional": ["operator"]
+    },
+    "output": ["BOOLEAN"],
+    "output_name": ["BOOLEAN"],
     "output_is_list": [false],
     "output_node": false
   },
@@ -1725,7 +1771,7 @@
       "required": ["DICOM_FILE"]
     },
     "output": ["2D", "DICT"],
-    "output_name": ["data", "other_tags"],
+    "output_name": ["pixel_data", "other_tags"],
     "output_is_list": [false, false],
     "output_node": false
   },
@@ -1828,14 +1874,14 @@
     "python_module": "custom_nodes.data_to_file.2d_to_dicom",
     "input": {
       "required": {
-        "data": ["2D"]
+        "pixel_data": ["2D"]
       },
       "optional": {
         "other_tags": ["DICT"]
       }
     },
     "input_order": {
-      "required": ["data"],
+      "required": ["pixel_data"],
       "optional": ["other_tags"]
     },
     "output": ["DICOM_FILE"],
@@ -1851,15 +1897,12 @@
     "python_module": "custom_nodes.data_to_file.3d_to_dicom_volume",
     "input": {
       "required": {
-        "data": ["3D"]
-      },
-      "optional": {
+        "data": ["3D"],
         "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data"],
-      "optional": ["affine"]
+      "required": ["data", "affine"]
     },
     "output": ["DICOM_VOLUME_FILE"],
     "output_name": ["DICOM_VOLUME_FILE"],
@@ -1897,15 +1940,12 @@
     "python_module": "custom_nodes.data_to_file.3d_to_series",
     "input": {
       "required": {
-        "data": ["3D"]
-      },
-      "optional": {
+        "data": ["3D"],
         "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data"],
-      "optional": ["affine"]
+      "required": ["data", "affine"]
     },
     "output": ["SERIES_FILE_LIST"],
     "output_name": ["SERIES_FILE_LIST"],

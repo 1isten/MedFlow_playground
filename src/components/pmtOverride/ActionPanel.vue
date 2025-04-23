@@ -227,9 +227,12 @@ import { useConfirm } from 'primevue/useconfirm'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
+import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
 import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
 import { useWorkflowService } from '@/services/workflowService'
+// import { useKeybindingService } from '@/services/keybindingService'
+// import { KeybindingImpl, useKeybindingStore } from '@/stores/keybindingStore'
 import { useCommandStore } from '@/stores/commandStore'
 import { SYSTEM_NODE_DEFS, useNodeDefStore } from '@/stores/nodeDefStore'
 import { useToastStore } from '@/stores/toastStore'
@@ -242,6 +245,9 @@ let decodeMultiStream = (stream) => {
   return stream
 }
 
+// const keybindingStore = useKeybindingStore()
+// const keybindingService = useKeybindingService()
+const commandStore = useCommandStore()
 const nodeDefStore = useNodeDefStore()
 const workflowStore = useWorkflowStore()
 const workflowService = useWorkflowService()
@@ -358,6 +364,13 @@ const terminalCreated = (terminal) => {
 }
 
 onMounted(async () => {
+  for (const keybinding of CORE_KEYBINDINGS) {
+    if (keybinding.commandId === 'Comfy.SaveWorkflow') {
+      // keybindingStore.unsetKeybinding(new KeybindingImpl(keybinding))
+      // await keybindingService.persistUserKeybindings()
+    }
+  }
+
   const hideTypes = [
     'input.load_json',
     'input.load_image',
@@ -374,7 +387,7 @@ onMounted(async () => {
   })
 
   if (readonlyView.value) {
-    useCommandStore().execute('Comfy.Canvas.ToggleLock')
+    commandStore.execute('Comfy.Canvas.ToggleLock')
     const graphCanvasMenuEl = document.querySelector('.p-buttongroup-vertical')
     if (graphCanvasMenuEl) {
       graphCanvasMenuEl.style.setProperty('visibility', 'hidden')
@@ -401,14 +414,14 @@ onMounted(async () => {
             if (window.location.reload) {
               return window.location.reload()
             }
-            await useCommandStore().execute('Comfy.RefreshNodeDefinitions')
+            await commandStore.execute('Comfy.RefreshNodeDefinitions')
             workflowService.reloadCurrentWorkflow()
           }
         },
         {
           content: 'Clear Workflow',
           callback: async () => {
-            await useCommandStore().execute('Comfy.ClearWorkflow')
+            await commandStore.execute('Comfy.ClearWorkflow')
           }
         }
       )
@@ -813,7 +826,7 @@ function onDrop(e) {
             // eslint-disable-next-line no-undef
             const defs = $pluginConfig2ComfyNodeDefs(jsonContent, false)
             await comfyApp.registerNodes(defs)
-            await useCommandStore().execute('Comfy.RefreshNodeDefinitions')
+            await commandStore.execute('Comfy.RefreshNodeDefinitions')
             workflowService.reloadCurrentWorkflow()
           } catch (err) {
             console.error(err)
@@ -1740,7 +1753,7 @@ function handleGetPipeline(payload) {
       workflowService.openWorkflow(workflow).then(() => {
         if (readonlyView.value) {
           requestAnimationFrame(() => {
-            useCommandStore().execute('Comfy.Canvas.FitView')
+            commandStore.execute('Comfy.Canvas.FitView')
           })
         }
       })

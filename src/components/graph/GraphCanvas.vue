@@ -19,6 +19,13 @@
       <GraphCanvasMenu v-if="canvasMenuEnabled" class="pointer-events-auto" />
     </template>
   </LiteGraphCanvasSplitterOverlay>
+  <LiteGraphCanvasSplitterOverlay
+    v-else-if="comfyAppReady && !betaMenuEnabled && !workspaceStore.focusMode"
+  >
+    <template #bottom-panel>
+      <ActionPanel />
+    </template>
+  </LiteGraphCanvasSplitterOverlay>
   <GraphCanvasMenu v-if="!betaMenuEnabled && canvasMenuEnabled" />
   <canvas
     id="graph-canvas"
@@ -54,6 +61,7 @@ import NodeBadge from '@/components/graph/NodeBadge.vue'
 import NodeTooltip from '@/components/graph/NodeTooltip.vue'
 import SelectionOverlay from '@/components/graph/SelectionOverlay.vue'
 import SelectionToolbox from '@/components/graph/SelectionToolbox.vue'
+import ActionPanel from '@/components/pmtOverride/ActionPanel.vue'
 import NodeSearchboxPopover from '@/components/searchbox/NodeSearchBoxPopover.vue'
 import SideToolbar from '@/components/sidebar/SideToolbar.vue'
 import SecondRowWorkflowTabs from '@/components/topbar/SecondRowWorkflowTabs.vue'

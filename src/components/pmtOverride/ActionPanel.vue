@@ -1378,7 +1378,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           if (int_only) {
             n = Math.floor(n)
           } else {
-            n = parseFloat(n.toFixed(3).slice(0, -1))
+            n = parseFloat(n.toFixed(10 + 1).slice(0, -1))
           }
           pmt_fields.outputs[0].value = isNaN(n) ? 0 : n
         }

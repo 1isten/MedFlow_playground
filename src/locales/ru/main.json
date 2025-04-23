@@ -17,6 +17,7 @@
       "emailPlaceholder": "Введите вашу электронную почту",
       "failed": "Вход не удался",
       "forgotPassword": "Забыли пароль?",
+      "genericErrorMessage": "Извините, произошла ошибка. Пожалуйста, свяжитесь с {supportEmail}.",
       "loginButton": "Войти",
       "loginWithGithub": "Войти через Github",
       "loginWithGoogle": "Войти через Google",
@@ -25,11 +26,31 @@
       "passwordLabel": "Пароль",
       "passwordPlaceholder": "Введите ваш пароль",
       "privacyLink": "Политикой конфиденциальности",
+      "signInOrSignUp": "Войти / Зарегистрироваться",
       "signUp": "Зарегистрироваться",
       "success": "Вход выполнен успешно",
       "termsLink": "Условиями использования",
       "termsText": "Нажимая \"Далее\" или \"Зарегистрироваться\", вы соглашаетесь с нашими",
       "title": "Войдите в свой аккаунт"
+    },
+    "required": {
+      "credits": {
+        "action": "Открыть настройки для пополнения кредитов",
+        "hint": "Чтобы пополнить кредиты, перейдите в: Настройки > Пользователь > Кредиты",
+        "message": "Этот рабочий процесс содержит узлы, для которых необходимы кредиты. Пожалуйста, пополните баланс, чтобы продолжить.",
+        "title": "Требуются кредиты для выполнения рабочего процесса"
+      },
+      "signIn": {
+        "action": "Открыть настройки для входа",
+        "hint": "Чтобы войти, перейдите в: Настройки > Пользователь > Вход",
+        "message": "Этот рабочий процесс содержит узлы, для которых необходима активная учетная запись. Пожалуйста, войдите или создайте учетную запись, чтобы продолжить.",
+        "title": "Требуется вход для выполнения рабочего процесса"
+      }
+    },
+    "signOut": {
+      "signOut": "Выйти",
+      "success": "Вы успешно вышли из системы",
+      "successDetail": "Вы вышли из своей учетной записи."
     },
     "signup": {
       "alreadyHaveAccount": "Уже есть аккаунт?",
@@ -92,6 +113,23 @@
     "Title": "Заголовок",
     "Unpin": "Открепить"
   },
+  "credits": {
+    "credits": "Кредиты",
+    "creditsHistory": "История кредитов",
+    "faqs": "Часто задаваемые вопросы",
+    "lastUpdated": "Последнее обновление",
+    "messageSupport": "Связаться с поддержкой",
+    "purchaseCredits": "Купить кредиты",
+    "topUp": {
+      "addCredits": "Добавить кредиты на баланс",
+      "buyNow": "Купить сейчас",
+      "insufficientMessage": "У вас недостаточно кредитов для запуска этого рабочего процесса.",
+      "insufficientTitle": "Недостаточно кредитов",
+      "maxAmount": "(Макс. $1,000 USD)",
+      "title": "Пополнить баланс кредитов"
+    },
+    "yourCreditBalance": "Ваш баланс кредитов"
+  },
   "dataTypes": {
     "AUDIO": "АУДИО",
     "BOOLEAN": "БУЛЕВО",
@@ -137,7 +175,9 @@
   "desktopUpdate": {
     "description": "ComfyUI Desktop устанавливает новые зависимости. Это может занять несколько минут.",
     "terminalDefaultMessage": "Любой вывод консоли из обновления будет отображаться здесь.",
-    "title": "Обновление ComfyUI Desktop"
+    "title": "Обновление ComfyUI Desktop",
+    "updateAvailableMessage": "Доступно обновление. Вы хотите перезагрузить и обновить сейчас?",
+    "updateFoundTitle": "Найдено обновление (v{version})"
   },
   "downloadGit": {
     "gitWebsite": "Скачать git",
@@ -166,6 +206,7 @@
     "about": "О программе",
     "add": "Добавить",
     "all": "Все",
+    "amount": "Количество",
     "apply": "Применить",
     "back": "Назад",
     "cancel": "Отмена",
@@ -390,19 +431,34 @@
   },
   "issueReport": {
     "contactFollowUp": "Свяжитесь со мной для уточнения",
+    "contactSupportDescription": "Пожалуйста, заполните форму ниже для отправки вашего отчёта",
+    "contactSupportTitle": "Связаться с поддержкой",
+    "describeTheProblem": "Опишите проблему",
+    "email": "Электронная почта",
     "feedbackTitle": "Помогите нам улучшить ComfyUI, оставив отзыв",
     "helpFix": "Помочь исправить это",
+    "helpTypes": {
+      "billingPayments": "Оплата / Платежи",
+      "bugReport": "Сообщить об ошибке",
+      "giveFeedback": "Оставить отзыв",
+      "loginAccessIssues": "Проблемы со входом / доступом",
+      "somethingElse": "Другое"
+    },
     "notifyResolve": "Уведомить меня, когда проблема будет решена",
     "provideAdditionalDetails": "Предоставьте дополнительные сведения (необязательно)",
     "provideEmail": "Укажите вашу электронную почту (необязательно)",
     "rating": "Рейтинг",
+    "selectIssue": "Выберите проблему",
     "stackTrace": "Трассировка стека",
     "submitErrorReport": "Отправить отчёт об ошибке (необязательно)",
     "systemStats": "Статистика системы",
     "validation": {
       "invalidEmail": "Пожалуйста, введите действительный адрес электронной почты",
-      "maxLength": "Сообщение слишком длинное"
-    }
+      "maxLength": "Сообщение слишком длинное",
+      "selectIssueType": "Пожалуйста, выберите тип проблемы"
+    },
+    "whatCanWeInclude": "Уточните, что включить в отчёт",
+    "whatDoYouNeedHelpWith": "С чем вам нужна помощь?"
   },
   "load3d": {
     "applyingTexture": "Применение текстуры...",
@@ -565,6 +621,7 @@
     "Bypass/Unbypass Selected Nodes": "Обойти/восстановить выбранные ноды",
     "Canvas Toggle Link Visibility": "Переключение видимости ссылки на холст",
     "Canvas Toggle Lock": "Переключение блокировки холста",
+    "Check for Updates": "Проверить наличие обновлений",
     "Clear Pending Tasks": "Очистить ожидающие задачи",
     "Clear Workflow": "Очистить рабочий процесс",
     "Clipspace": "Клиппространство",
@@ -574,6 +631,7 @@
     "ComfyUI Docs": "Документация ComfyUI",
     "ComfyUI Forum": "Форум ComfyUI",
     "ComfyUI Issues": "Проблемы ComfyUI",
+    "Contact Support": "Связаться с поддержкой",
     "Convert selected nodes to group node": "Преобразовать выбранные ноды в групповую ноду",
     "Custom Nodes Manager": "Менеджер Пользовательских Узлов",
     "Delete Selected Items": "Удалить выбранные элементы",
@@ -600,6 +658,7 @@
     "Open Logs Folder": "Открыть папку журналов",
     "Open Models Folder": "Открыть папку моделей",
     "Open Outputs Folder": "Открыть папку выходных данных",
+    "Open Sign In Dialog": "Открыть окно входа",
     "Open extra_model_paths_yaml": "Открыть extra_model_paths.yaml",
     "Pin/Unpin Selected Items": "Закрепить/открепить выбранные элементы",
     "Pin/Unpin Selected Nodes": "Закрепить/открепить выбранные ноды",
@@ -877,6 +936,7 @@
     "Graph": "Граф",
     "Group": "Группа",
     "Keybinding": "Сочетание клавиш",
+    "Light": "Светлый",
     "Link": "Ссылка",
     "LinkRelease": "Освобождение ссылки",
     "LiteGraph": "Lite Graph",
@@ -969,8 +1029,7 @@
       "ControlNet": "ControlNet",
       "Custom Nodes": "Пользовательские узлы",
       "Flux": "Flux",
-      "SD3_5": "SD3.5",
-      "SDXL": "SDXL",
+      "Image": "Изображение",
       "Upscaling": "Увеличение разрешения",
       "Video": "Видео"
     },
@@ -1015,17 +1074,18 @@
         "flux_redux_model_example": "Flux Redux Model",
         "flux_schnell": "Flux Schnell"
       },
-      "SD3_5": {
+      "Image": {
+        "hidream_i1_dev": "HiDream I1 Dev",
+        "hidream_i1_fast": "HiDream I1 Fast",
+        "hidream_i1_full": "HiDream I1 Full",
         "sd3_5_large_blur": "SD3.5 Большое размытие",
         "sd3_5_large_canny_controlnet_example": "SD3.5 Большой Canny ControlNet",
         "sd3_5_large_depth": "SD3.5 Большая глубина",
-        "sd3_5_simple_example": "SD3.5 Простой"
-      },
-      "SDXL": {
-        "sdxl_refiner_prompt_example": "SDXL Refiner Prompt",
-        "sdxl_revision_text_prompts": "SDXL Revision Text Prompts",
-        "sdxl_revision_zero_positive": "SDXL Revision Zero Positive",
-        "sdxl_simple_example": "SDXL Simple",
+        "sd3_5_simple_example": "SD3.5 Простой",
+        "sdxl_refiner_prompt_example": "SDXL Уточняющий запрос",
+        "sdxl_revision_text_prompts": "SDXL Редактирование текстовых запросов",
+        "sdxl_revision_zero_positive": "SDXL Редактирование нулевого положительного",
+        "sdxl_simple_example": "SDXL Простой",
         "sdxlturbo_example": "SDXL Turbo"
       },
       "Upscaling": {
@@ -1042,7 +1102,9 @@
         "ltxv_text_to_video": "LTXV Text to Video",
         "mochi_text_to_video_example": "Mochi Text to Video",
         "text_to_video_wan": "Wan 2.1 Текст в Видео",
-        "txt_to_image_to_video": "Текст в изображение в видео"
+        "txt_to_image_to_video": "Текст в изображение в видео",
+        "wan2_1_fun_control": "Wan 2.1 ControlNet",
+        "wan2_1_fun_inp": "Wan 2.1 Inpainting"
       }
     },
     "title": "Начните с шаблона"
@@ -1078,6 +1140,17 @@
     "newUser": "Новый пользователь",
     "next": "Далее",
     "selectUser": "Выберите пользователя"
+  },
+  "userSettings": {
+    "email": "Электронная почта",
+    "name": "Имя",
+    "notSet": "Не задано",
+    "provider": "Способ входа",
+    "providers": {
+      "github": "GitHub",
+      "google": "Google"
+    },
+    "title": "Настройки пользователя"
   },
   "validation": {
     "invalidEmail": "Недействительный адрес электронной почты",

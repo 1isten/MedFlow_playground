@@ -17,6 +17,7 @@
       "emailPlaceholder": "メールアドレスを入力してください",
       "failed": "ログイン失敗",
       "forgotPassword": "パスワードを忘れましたか？",
+      "genericErrorMessage": "申し訳ありませんが、エラーが発生しました。{supportEmail} までご連絡ください。",
       "loginButton": "ログイン",
       "loginWithGithub": "Githubでログイン",
       "loginWithGoogle": "Googleでログイン",
@@ -25,11 +26,31 @@
       "passwordLabel": "パスワード",
       "passwordPlaceholder": "パスワードを入力してください",
       "privacyLink": "プライバシーポリシー",
+      "signInOrSignUp": "サインイン / サインアップ",
       "signUp": "サインアップ",
       "success": "ログイン成功",
       "termsLink": "利用規約",
       "termsText": "「次へ」または「サインアップ」をクリックすると、私たちの",
       "title": "アカウントにログインする"
+    },
+    "required": {
+      "credits": {
+        "action": "設定を開いてクレジットを追加",
+        "hint": "クレジットを追加するには: 設定 > ユーザー > クレジット",
+        "message": "このワークフローにはクレジットが必要なノードが含まれています。続行するにはアカウントにクレジットを追加してください。",
+        "title": "ワークフロー実行にはクレジットが必要です"
+      },
+      "signIn": {
+        "action": "設定を開いてログイン",
+        "hint": "ログインするには: 設定 > ユーザー > ログイン",
+        "message": "このワークフローにはアクティブなアカウントが必要なノードが含まれています。続行するにはログインまたはアカウントを作成してください。",
+        "title": "ワークフロー実行にはサインインが必要です"
+      }
+    },
+    "signOut": {
+      "signOut": "ログアウト",
+      "success": "正常にサインアウトしました",
+      "successDetail": "アカウントからサインアウトしました。"
     },
     "signup": {
       "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
@@ -92,6 +113,23 @@
     "Title": "タイトル",
     "Unpin": "ピンを解除"
   },
+  "credits": {
+    "credits": "クレジット",
+    "creditsHistory": "クレジット履歴",
+    "faqs": "よくある質問",
+    "lastUpdated": "最終更新",
+    "messageSupport": "サポートにメッセージ",
+    "purchaseCredits": "クレジットを購入",
+    "topUp": {
+      "addCredits": "残高にクレジットを追加",
+      "buyNow": "今すぐ購入",
+      "insufficientMessage": "このワークフローを実行するのに十分なクレジットがありません。",
+      "insufficientTitle": "クレジット不足",
+      "maxAmount": "（最大 $1,000 USD）",
+      "title": "クレジット残高を追加"
+    },
+    "yourCreditBalance": "あなたのクレジット残高"
+  },
   "dataTypes": {
     "AUDIO": "オーディオ",
     "BOOLEAN": "ブール",
@@ -137,7 +175,9 @@
   "desktopUpdate": {
     "description": "ComfyUIデスクトップは新しい依存関係をインストールしています。これには数分かかる場合があります。",
     "terminalDefaultMessage": "更新からの任意のコンソール出力はここに表示されます。",
-    "title": "ComfyUIデスクトップの更新"
+    "title": "ComfyUIデスクトップの更新",
+    "updateAvailableMessage": "アップデートが利用可能です。今すぐ再起動してアップデートしますか？",
+    "updateFoundTitle": "アップデートが見つかりました (v{version})"
   },
   "downloadGit": {
     "gitWebsite": "Gitをダウンロード",
@@ -166,6 +206,7 @@
     "about": "情報",
     "add": "追加",
     "all": "すべて",
+    "amount": "量",
     "apply": "適用する",
     "back": "戻る",
     "cancel": "キャンセル",
@@ -390,19 +431,34 @@
   },
   "issueReport": {
     "contactFollowUp": "フォローアップのために私に連絡する",
+    "contactSupportDescription": "下記のフォームにご報告内容をご記入ください",
+    "contactSupportTitle": "サポートに連絡",
+    "describeTheProblem": "問題の内容を記述してください",
+    "email": "メールアドレス",
     "feedbackTitle": "フィードバックを提供してComfyUIの改善にご協力ください",
     "helpFix": "これを修正するのを助ける",
+    "helpTypes": {
+      "billingPayments": "請求／支払い",
+      "bugReport": "バグ報告",
+      "giveFeedback": "フィードバックを送る",
+      "loginAccessIssues": "ログイン／アクセスの問題",
+      "somethingElse": "その他"
+    },
     "notifyResolve": "解決したときに通知する",
     "provideAdditionalDetails": "追加の詳細を提供する（オプション）",
     "provideEmail": "あなたのメールアドレスを教えてください（オプション）",
     "rating": "評価",
+    "selectIssue": "問題を選択してください",
     "stackTrace": "スタックトレース",
     "submitErrorReport": "エラーレポートを提出する（オプション）",
     "systemStats": "システム統計",
     "validation": {
       "invalidEmail": "有効なメールアドレスを入力してください",
-      "maxLength": "メッセージが長すぎます"
-    }
+      "maxLength": "メッセージが長すぎます",
+      "selectIssueType": "問題の種類を選択してください"
+    },
+    "whatCanWeInclude": "レポートに含める内容を指定してください",
+    "whatDoYouNeedHelpWith": "どのようなサポートが必要ですか？"
   },
   "load3d": {
     "applyingTexture": "テクスチャを適用中...",
@@ -565,6 +621,7 @@
     "Bypass/Unbypass Selected Nodes": "選択したノードのバイパス/バイパス解除",
     "Canvas Toggle Link Visibility": "キャンバスのリンク表示を切り替え",
     "Canvas Toggle Lock": "キャンバスのロックを切り替え",
+    "Check for Updates": "更新を確認する",
     "Clear Pending Tasks": "保留中のタスクをクリア",
     "Clear Workflow": "ワークフローをクリア",
     "Clipspace": "クリップスペース",
@@ -574,6 +631,7 @@
     "ComfyUI Docs": "ComfyUIのドキュメント",
     "ComfyUI Forum": "ComfyUI フォーラム",
     "ComfyUI Issues": "ComfyUIの問題",
+    "Contact Support": "サポートに連絡",
     "Convert selected nodes to group node": "選択したノードをグループノードに変換",
     "Custom Nodes Manager": "カスタムノードマネージャ",
     "Delete Selected Items": "選択したアイテムを削除",
@@ -600,6 +658,7 @@
     "Open Logs Folder": "ログフォルダを開く",
     "Open Models Folder": "モデルフォルダを開く",
     "Open Outputs Folder": "出力フォルダを開く",
+    "Open Sign In Dialog": "サインインダイアログを開く",
     "Open extra_model_paths_yaml": "extra_model_paths.yamlを開く",
     "Pin/Unpin Selected Items": "選択したアイテムのピン留め/ピン留め解除",
     "Pin/Unpin Selected Nodes": "選択したノードのピン留め/ピン留め解除",
@@ -877,6 +936,7 @@
     "Graph": "グラフ",
     "Group": "グループ",
     "Keybinding": "キー割り当て",
+    "Light": "ライト",
     "Link": "リンク",
     "LinkRelease": "リンク解除",
     "LiteGraph": "Lite Graph",
@@ -969,8 +1029,7 @@
       "ControlNet": "ControlNet",
       "Custom Nodes": "カスタムノード",
       "Flux": "Flux",
-      "SD3_5": "SD3.5",
-      "SDXL": "SDXL",
+      "Image": "画像",
       "Upscaling": "アップスケーリング",
       "Video": "ビデオ"
     },
@@ -1015,13 +1074,14 @@
         "flux_redux_model_example": "Flux Reduxモデル",
         "flux_schnell": "Flux Schnell"
       },
-      "SD3_5": {
+      "Image": {
+        "hidream_i1_dev": "HiDream I1 Dev",
+        "hidream_i1_fast": "HiDream I1 Fast",
+        "hidream_i1_full": "HiDream I1 Full",
         "sd3_5_large_blur": "SD3.5 ラージブラー",
         "sd3_5_large_canny_controlnet_example": "SD3.5 ラージキャニーコントロールネット",
         "sd3_5_large_depth": "SD3.5 ラージデプス",
-        "sd3_5_simple_example": "SD3.5 シンプル"
-      },
-      "SDXL": {
+        "sd3_5_simple_example": "SD3.5 シンプル",
         "sdxl_refiner_prompt_example": "SDXL Refinerプロンプト",
         "sdxl_revision_text_prompts": "SDXL Revisionテキストプロンプト",
         "sdxl_revision_zero_positive": "SDXL Revisionゼロポジティブ",
@@ -1042,7 +1102,9 @@
         "ltxv_text_to_video": "LTXVテキストからビデオへ",
         "mochi_text_to_video_example": "Mochiテキストからビデオへ",
         "text_to_video_wan": "Wan 2.1 テキストからビデオへ",
-        "txt_to_image_to_video": "テキストから画像へ、画像からビデオへ"
+        "txt_to_image_to_video": "テキストから画像へ、画像からビデオへ",
+        "wan2_1_fun_control": "Wan 2.1 ControlNet",
+        "wan2_1_fun_inp": "Wan 2.1 インペインティング"
       }
     },
     "title": "テンプレートを利用して開始"
@@ -1078,6 +1140,17 @@
     "newUser": "新しいユーザー",
     "next": "次へ",
     "selectUser": "ユーザーを選択"
+  },
+  "userSettings": {
+    "email": "メールアドレス",
+    "name": "名前",
+    "notSet": "未設定",
+    "provider": "サインイン方法",
+    "providers": {
+      "github": "GitHub",
+      "google": "Google"
+    },
+    "title": "ユーザー設定"
   },
   "validation": {
     "invalidEmail": "無効なメールアドレス",

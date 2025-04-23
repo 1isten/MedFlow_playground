@@ -8,6 +8,8 @@ import MissingModelsWarning from '@/components/dialog/content/MissingModelsWarni
 import PromptDialogContent from '@/components/dialog/content/PromptDialogContent.vue'
 import SettingDialogContent from '@/components/dialog/content/SettingDialogContent.vue'
 import SignInContent from '@/components/dialog/content/SignInContent.vue'
+import SignInRequiredDialogContent from '@/components/dialog/content/SignInRequiredDialogContent.vue'
+import TopUpCreditsDialogContent from '@/components/dialog/content/TopUpCreditsDialogContent.vue'
 import ManagerDialogContent from '@/components/dialog/content/manager/ManagerDialogContent.vue'
 import ManagerHeader from '@/components/dialog/content/manager/ManagerHeader.vue'
 import ManagerProgressFooter from '@/components/dialog/footer/ManagerProgressFooter.vue'
@@ -19,7 +21,6 @@ import TemplateWorkflowsDialogHeader from '@/components/templates/TemplateWorkfl
 import { t } from '@/i18n'
 import type { ExecutionErrorWsMessage } from '@/schemas/apiSchema'
 import { type ShowDialogOptions, useDialogStore } from '@/stores/dialogStore'
-import { ApiNodeCost } from '@/types/apiNodeTypes'
 import { ManagerTab } from '@/types/comfyManagerTypes'
 
 export type ConfirmationDialogType =
@@ -52,7 +53,13 @@ export const useDialogService = () => {
   }
 
   function showSettingsDialog(
-    panel?: 'about' | 'keybinding' | 'extension' | 'server-config'
+    panel?:
+      | 'about'
+      | 'keybinding'
+      | 'extension'
+      | 'server-config'
+      | 'user'
+      | 'credits'
   ) {
     const props = panel ? { props: { defaultPanel: panel } } : undefined
 
@@ -80,7 +87,7 @@ export const useDialogService = () => {
       error: {
         exceptionType: executionError.exception_type,
         exceptionMessage: executionError.exception_message,
-        nodeId: executionError.node_id,
+        nodeId: executionError.node_id?.toString(),
         nodeType: executionError.node_type,
         traceback: executionError.traceback.join('\n'),
         reportType: 'graphExecutionError'
@@ -225,14 +232,14 @@ export const useDialogService = () => {
    * @returns Promise that resolves to true if user clicks login, false if cancelled
    */
   async function showApiNodesSignInDialog(
-    apiNodes: ApiNodeCost[]
+    apiNodeNames: string[]
   ): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       dialogStore.showDialog({
         key: 'api-nodes-signin',
         component: ApiNodesSignInContent,
         props: {
-          apiNodes,
+          apiNodeNames,
           onLogin: () => showSignInDialog().then((result) => resolve(result)),
           onCancel: () => resolve(false)
         },
@@ -341,6 +348,29 @@ export const useDialogService = () => {
     })
   }
 
+  function showSignInRequiredDialog(options: { type: 'signIn' | 'credits' }) {
+    dialogStore.showDialog({
+      key: 'signin-required',
+      component: SignInRequiredDialogContent,
+      props: options
+    })
+  }
+
+  function showTopUpCreditsDialog(options?: {
+    isInsufficientCredits?: boolean
+  }) {
+    return dialogStore.showDialog({
+      key: 'top-up-credits',
+      component: TopUpCreditsDialogContent,
+      props: options,
+      dialogComponentProps: {
+        pt: {
+          header: { class: '!p-3' }
+        }
+      }
+    })
+  }
+
   return {
     showLoadWorkflowWarning,
     showMissingModelsWarning,
@@ -354,6 +384,8 @@ export const useDialogService = () => {
     showErrorDialog,
     showApiNodesSignInDialog,
     showSignInDialog,
+    showSignInRequiredDialog,
+    showTopUpCreditsDialog,
     prompt,
     confirm
   }

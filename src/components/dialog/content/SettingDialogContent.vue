@@ -10,15 +10,21 @@
       />
       <Listbox
         v-model="activeCategory"
-        :options="categories"
+        :options="groupedMenuTreeNodes"
         option-label="translatedLabel"
+        option-group-label="label"
+        option-group-children="children"
         scroll-height="100%"
         :option-disabled="
           (option: SettingTreeNode) =>
             !queryIsEmpty && !searchResultsCategories.has(option.label ?? '')
         "
         class="border-none w-full"
-      />
+      >
+        <template #optiongroup>
+          <Divider class="my-0" />
+        </template>
+      </Listbox>
     </ScrollPanel>
     <Divider layout="vertical" class="mx-1 2xl:mx-4 hidden md:flex" />
     <Divider layout="horizontal" class="flex md:hidden" />
@@ -42,6 +48,8 @@
         </PanelTemplate>
 
         <AboutPanel />
+        <UserPanel />
+        <CreditsPanel />
         <Suspense>
           <KeybindingPanel />
           <template #fallback>
@@ -73,30 +81,33 @@ import Listbox from 'primevue/listbox'
 import ScrollPanel from 'primevue/scrollpanel'
 import TabPanels from 'primevue/tabpanels'
 import Tabs from 'primevue/tabs'
-import { computed, defineAsyncComponent, onMounted, ref, watch } from 'vue'
-import { useI18n } from 'vue-i18n'
+import { computed, defineAsyncComponent, watch } from 'vue'
 
 import SearchBox from '@/components/common/SearchBox.vue'
-import { st } from '@/i18n'
-import {
-  SettingTreeNode,
-  getSettingInfo,
-  useSettingStore
-} from '@/stores/settingStore'
+import { useSettingSearch } from '@/composables/setting/useSettingSearch'
+import { useSettingUI } from '@/composables/setting/useSettingUI'
+import { useFirebaseAuthStore } from '@/stores/firebaseAuthStore'
+import { SettingTreeNode } from '@/stores/settingStore'
 import { ISettingGroup, SettingParams } from '@/types/settingTypes'
-import { isElectron } from '@/utils/envUtil'
-import { normalizeI18nKey } from '@/utils/formatUtil'
 import { flattenTree } from '@/utils/treeUtil'
 
 import AboutPanel from './setting/AboutPanel.vue'
 import ColorPaletteMessage from './setting/ColorPaletteMessage.vue'
+import CreditsPanel from './setting/CreditsPanel.vue'
 import CurrentUserMessage from './setting/CurrentUserMessage.vue'
 import FirstTimeUIMessage from './setting/FirstTimeUIMessage.vue'
 import PanelTemplate from './setting/PanelTemplate.vue'
 import SettingsPanel from './setting/SettingsPanel.vue'
+import UserPanel from './setting/UserPanel.vue'
 
-const props = defineProps<{
-  defaultPanel?: 'about' | 'keybinding' | 'extension' | 'server-config'
+const { defaultPanel } = defineProps<{
+  defaultPanel?:
+    | 'about'
+    | 'keybinding'
+    | 'extension'
+    | 'server-config'
+    | 'user'
+    | 'credits'
 }>()
 
 const KeybindingPanel = defineAsyncComponent(
@@ -109,71 +120,25 @@ const ServerConfigPanel = defineAsyncComponent(
   () => import('./setting/ServerConfigPanel.vue')
 )
 
-const aboutPanelNode: SettingTreeNode = {
-  key: 'about',
-  label: 'About',
-  children: []
-}
+const {
+  activeCategory,
+  defaultCategory,
+  settingCategories,
+  groupedMenuTreeNodes
+} = useSettingUI(defaultPanel)
 
-const keybindingPanelNode: SettingTreeNode = {
-  key: 'keybinding',
-  label: 'Keybinding',
-  children: []
-}
+const {
+  searchQuery,
+  searchResultsCategories,
+  queryIsEmpty,
+  inSearch,
+  handleSearch: handleSearchBase,
+  getSearchResults
+} = useSettingSearch()
 
-const extensionPanelNode: SettingTreeNode = {
-  key: 'extension',
-  label: 'Extension',
-  children: []
-}
+const authStore = useFirebaseAuthStore()
 
-const serverConfigPanelNode: SettingTreeNode = {
-  key: 'server-config',
-  label: 'Server-Config',
-  children: []
-}
-
-/**
- * Server config panel is only available in Electron. We might want to support
- * it in the web version in the future.
- */
-const serverConfigPanelNodeList = computed<SettingTreeNode[]>(() => {
-  return isElectron() ? [serverConfigPanelNode] : []
-})
-
-const settingStore = useSettingStore()
-const settingRoot = computed<SettingTreeNode>(() => settingStore.settingTree)
-const settingCategories = computed<SettingTreeNode[]>(
-  () => settingRoot.value.children ?? []
-)
-const { t } = useI18n()
-const categories = computed<SettingTreeNode[]>(() =>
-  [
-    ...settingCategories.value,
-    keybindingPanelNode,
-    extensionPanelNode,
-    ...serverConfigPanelNodeList.value,
-    aboutPanelNode
-  ].map((node) => ({
-    ...node,
-    translatedLabel: t(
-      `settingsCategories.${normalizeI18nKey(node.label)}`,
-      node.label
-    )
-  }))
-)
-
-const activeCategory = ref<SettingTreeNode | null>(null)
-const getDefaultCategory = () => {
-  return props.defaultPanel
-    ? categories.value.find((x) => x.key === props.defaultPanel) ??
-        categories.value[0]
-    : categories.value[0]
-}
-onMounted(() => {
-  activeCategory.value = getDefaultCategory()
-})
-
+// Sort groups for a category
 const sortedGroups = (category: SettingTreeNode): ISettingGroup[] => {
   return [...(category.children ?? [])]
     .sort((a, b) => a.label.localeCompare(b.label))
@@ -183,97 +148,28 @@ const sortedGroups = (category: SettingTreeNode): ISettingGroup[] => {
     }))
 }
 
-const searchQuery = ref<string>('')
-const filteredSettingIds = ref<string[]>([])
-const searchInProgress = ref<boolean>(false)
-watch(searchQuery, () => (searchInProgress.value = true))
-
-const searchResults = computed<ISettingGroup[]>(() => {
-  const groupedSettings: { [key: string]: SettingParams[] } = {}
-
-  filteredSettingIds.value.forEach((id) => {
-    const setting = settingStore.settingsById[id]
-    const info = getSettingInfo(setting)
-    const groupLabel = info.subCategory
-
-    if (
-      activeCategory.value === null ||
-      activeCategory.value.label === info.category
-    ) {
-      if (!groupedSettings[groupLabel]) {
-        groupedSettings[groupLabel] = []
-      }
-      groupedSettings[groupLabel].push(setting)
-    }
-  })
-
-  return Object.entries(groupedSettings).map(([label, settings]) => ({
-    label,
-    settings
-  }))
-})
-
-/**
- * Settings categories that contains at least one setting in search results.
- */
-const searchResultsCategories = computed<Set<string>>(() => {
-  return new Set(
-    filteredSettingIds.value.map(
-      (id) => getSettingInfo(settingStore.settingsById[id]).category
-    )
-  )
-})
-
 const handleSearch = (query: string) => {
-  if (!query) {
-    filteredSettingIds.value = []
-    activeCategory.value ??= getDefaultCategory()
-    return
-  }
-
-  const queryLower = query.toLocaleLowerCase()
-  const allSettings = flattenTree<SettingParams>(settingRoot.value)
-  const filteredSettings = allSettings.filter((setting) => {
-    const idLower = setting.id.toLowerCase()
-    const nameLower = setting.name.toLowerCase()
-    const translatedName = st(
-      `settings.${normalizeI18nKey(setting.id)}.name`,
-      setting.name
-    ).toLocaleLowerCase()
-    const info = getSettingInfo(setting)
-    const translatedCategory = st(
-      `settingsCategories.${normalizeI18nKey(info.category)}`,
-      info.category
-    ).toLocaleLowerCase()
-    const translatedSubCategory = st(
-      `settingsCategories.${normalizeI18nKey(info.subCategory)}`,
-      info.subCategory
-    ).toLocaleLowerCase()
-
-    return (
-      idLower.includes(queryLower) ||
-      nameLower.includes(queryLower) ||
-      translatedName.includes(queryLower) ||
-      translatedCategory.includes(queryLower) ||
-      translatedSubCategory.includes(queryLower)
-    )
-  })
-
-  filteredSettingIds.value = filteredSettings.map((x) => x.id)
-  searchInProgress.value = false
-  activeCategory.value = null
+  handleSearchBase(query)
+  activeCategory.value = query ? null : defaultCategory.value
 }
 
-const queryIsEmpty = computed(() => searchQuery.value.length === 0)
-const inSearch = computed(() => !queryIsEmpty.value && !searchInProgress.value)
+// Get search results
+const searchResults = computed<ISettingGroup[]>(() =>
+  getSearchResults(activeCategory.value)
+)
+
 const tabValue = computed<string>(() =>
   inSearch.value ? 'Search Results' : activeCategory.value?.label ?? ''
 )
+
 // Don't allow null category to be set outside of search.
 // In search mode, the active category can be null to show all search results.
 watch(activeCategory, (_, oldValue) => {
   if (!tabValue.value) {
     activeCategory.value = oldValue
+  }
+  if (activeCategory.value?.key === 'credits') {
+    void authStore.fetchBalance()
   }
 })
 </script>
@@ -313,14 +209,8 @@ watch(activeCategory, (_, oldValue) => {
   }
 }
 
-/* Show a separator line above the Keybinding tab */
-/* This indicates the start of custom setting panels */
-.settings-sidebar :deep(.p-listbox-option[aria-label='Keybinding']) {
-  position: relative;
-}
-
-.settings-sidebar :deep(.p-listbox-option[aria-label='Keybinding'])::before {
-  @apply content-[''] top-0 left-0 absolute w-full;
-  border-top: 1px solid var(--p-divider-border-color);
+/* Hide the first group separator */
+.settings-sidebar :deep(.p-listbox-option-group:nth-child(1)) {
+  display: none;
 }
 </style>

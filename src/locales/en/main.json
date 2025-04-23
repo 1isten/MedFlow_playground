@@ -110,7 +110,8 @@
     "migrate": "Migrate",
     "updateAvailable": "Update Available",
     "login": "Login",
-    "learnMore": "Learn more"
+    "learnMore": "Learn more",
+    "amount": "Amount"
   },
   "manager": {
     "title": "Custom Nodes Manager",
@@ -180,9 +181,24 @@
     "helpFix": "Help Fix This",
     "rating": "Rating",
     "feedbackTitle": "Help us improve ComfyUI by providing feedback",
+    "contactSupportTitle": "Contact Support",
+    "contactSupportDescription": "Please fill in the form below with your report",
+    "selectIssue": "Select the issue",
+    "whatDoYouNeedHelpWith": "What do you need help with?",
+    "whatCanWeInclude": "Specify what to include in the report",
+    "describeTheProblem": "Describe the problem",
+    "email": "Email",
+    "helpTypes": {
+      "billingPayments": "Billing / Payments",
+      "loginAccessIssues": "Login / Access Issues",
+      "giveFeedback": "Give Feedback",
+      "bugReport": "Bug Report",
+      "somethingElse": "Something Else"
+    },
     "validation": {
       "maxLength": "Message too long",
-      "invalidEmail": "Please enter a valid email address"
+      "invalidEmail": "Please enter a valid email address",
+      "selectIssueType": "Please select an issue type"
     }
   },
   "color": {
@@ -463,8 +479,7 @@
       "ControlNet": "ControlNet",
       "Upscaling": "Upscaling",
       "Video": "Video",
-      "SD3_5": "SD3.5",
-      "SDXL": "SDXL",
+      "Image": "Image",
       "Area Composition": "Area Composition",
       "3D": "3D",
       "Audio": "Audio"
@@ -510,20 +525,23 @@
         "ltxv_image_to_video": "LTXV Image to Video",
         "ltxv_text_to_video": "LTXV Text to Video",
         "mochi_text_to_video_example": "Mochi Text to Video",
-        "hunyuan_video_text_to_video": "Hunyuan Video Text to Video"
+        "hunyuan_video_text_to_video": "Hunyuan Video Text to Video",
+        "wan2_1_fun_inp": "Wan 2.1 Inpainting",
+        "wan2_1_fun_control": "Wan 2.1 ControlNet"
       },
-      "SD3_5": {
+      "Image": {
         "sd3_5_simple_example": "SD3.5 Simple",
         "sd3_5_large_canny_controlnet_example": "SD3.5 Large Canny ControlNet",
         "sd3_5_large_depth": "SD3.5 Large Depth",
-        "sd3_5_large_blur": "SD3.5 Large Blur"
-      },
-      "SDXL": {
+        "sd3_5_large_blur": "SD3.5 Large Blur",
         "sdxl_simple_example": "SDXL Simple",
         "sdxl_refiner_prompt_example": "SDXL Refiner Prompt",
         "sdxl_revision_text_prompts": "SDXL Revision Text Prompts",
         "sdxl_revision_zero_positive": "SDXL Revision Zero Positive",
-        "sdxlturbo_example": "SDXL Turbo"
+        "sdxlturbo_example": "SDXL Turbo",
+        "hidream_i1_dev": "HiDream I1 Dev",
+        "hidream_i1_fast": "HiDream I1 Fast",
+        "hidream_i1_full": "HiDream I1 Full"
       },
       "Area Composition": {
         "area_composition": "Area Composition",
@@ -600,6 +618,7 @@
     "Workflow": "Workflow",
     "Edit": "Edit",
     "Help": "Help",
+    "Check for Updates": "Check for Updates",
     "Open Custom Nodes Folder": "Open Custom Nodes Folder",
     "Open Inputs Folder": "Open Inputs Folder",
     "Open Logs Folder": "Open Logs Folder",
@@ -627,6 +646,7 @@
     "Zoom Out": "Zoom Out",
     "Clear Pending Tasks": "Clear Pending Tasks",
     "Clear Workflow": "Clear Workflow",
+    "Contact Support": "Contact Support",
     "Duplicate Current Workflow": "Duplicate Current Workflow",
     "Export": "Export",
     "Export (API)": "Export (API)",
@@ -657,6 +677,7 @@
     "Show Settings Dialog": "Show Settings Dialog",
     "Toggle Theme (Dark/Light)": "Toggle Theme (Dark/Light)",
     "Undo": "Undo",
+    "Open Sign In Dialog": "Open Sign In Dialog",
     "Close Current Workflow": "Close Current Workflow",
     "Next Opened Workflow": "Next Opened Workflow",
     "Previous Opened Workflow": "Previous Opened Workflow",
@@ -722,7 +743,8 @@
     "Load 3D": "Load 3D",
     "Camera": "Camera",
     "Scene": "Scene",
-    "3D": "3D"
+    "3D": "3D",
+    "Light": "Light"
   },
   "serverConfigItems": {
     "listen": {
@@ -990,7 +1012,9 @@
   "desktopUpdate": {
     "title": "Updating ComfyUI Desktop",
     "description": "ComfyUI Desktop is installing new dependencies.  This may take a few minutes.",
-    "terminalDefaultMessage": "Any console output from the update will be shown here."
+    "terminalDefaultMessage": "Any console output from the update will be shown here.",
+    "updateFoundTitle": "Update Found (v{version})",
+    "updateAvailableMessage": "An update is available. Do you want to restart and update now?"
   },
   "clipboard": {
     "successMessage": "Copied to clipboard",
@@ -1055,6 +1079,7 @@
   "auth": {
     "login": {
       "title": "Log in to your account",
+      "signInOrSignUp": "Sign In / Sign Up",
       "newUser": "New here?",
       "signUp": "Sign up",
       "emailLabel": "Email",
@@ -1073,7 +1098,8 @@
       "andText": "and",
       "privacyLink": "Privacy Policy",
       "success": "Login successful",
-      "failed": "Login failed"
+      "failed": "Login failed",
+      "genericErrorMessage": "Sorry, we've encountered an error. Please contact {supportEmail}."
     },
     "signup": {
       "title": "Create an account",
@@ -1086,6 +1112,25 @@
       "signIn": "Sign in",
       "signUpWithGoogle": "Sign up with Google",
       "signUpWithGithub": "Sign up with Github"
+    },
+    "signOut": {
+      "signOut": "Log Out",
+      "success": "Signed out successfully",
+      "successDetail": "You have been signed out of your account."
+    },
+    "required": {
+      "signIn": {
+        "title": "Sign-In Required to Execute Workflow",
+        "message": "This workflow includes nodes that require an active account. Please log in or create one to continue.",
+        "hint": "To login go to: Settings > User > Login",
+        "action": "Open Settings to Login"
+      },
+      "credits": {
+        "title": "Credits Required to Execute Workflow",
+        "message": "This workflow includes nodes that require credits. Please add credits to your account to continue.",
+        "hint": "To add credits go to: Settings > User > Credits",
+        "action": "Open Settings to Add Credits"
+      }
     }
   },
   "validation": {
@@ -1101,6 +1146,34 @@
       "number": "Must contain at least one number",
       "special": "Must contain at least one special character",
       "match": "Passwords must match"
+    }
+  },
+  "credits": {
+    "credits": "Credits",
+    "yourCreditBalance": "Your credit balance",
+    "purchaseCredits": "Purchase Credits",
+    "creditsHistory": "Credits History",
+    "faqs": "FAQs",
+    "messageSupport": "Message Support",
+    "lastUpdated": "Last updated",
+    "topUp": {
+      "title": "Add to Credit Balance",
+      "insufficientTitle": "Insufficient Credits",
+      "insufficientMessage": "You don't have enough credits to run this workflow.",
+      "addCredits": "Add credits to your balance",
+      "maxAmount": "(Max. $1,000 USD)",
+      "buyNow": "Buy now"
+    }
+  },
+  "userSettings": {
+    "title": "User Settings",
+    "name": "Name",
+    "email": "Email",
+    "notSet": "Not set",
+    "provider": "Sign in method",
+    "providers": {
+      "google": "Google",
+      "github": "GitHub"
     }
   }
 }

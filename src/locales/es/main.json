@@ -17,6 +17,7 @@
       "emailPlaceholder": "Ingresa tu correo electrónico",
       "failed": "Inicio de sesión fallido",
       "forgotPassword": "¿Olvidaste tu contraseña?",
+      "genericErrorMessage": "Lo sentimos, hemos encontrado un error. Por favor, contacta con {supportEmail}.",
       "loginButton": "Iniciar sesión",
       "loginWithGithub": "Iniciar sesión con Github",
       "loginWithGoogle": "Iniciar sesión con Google",
@@ -25,11 +26,31 @@
       "passwordLabel": "Contraseña",
       "passwordPlaceholder": "Ingresa tu contraseña",
       "privacyLink": "Política de privacidad",
+      "signInOrSignUp": "Iniciar sesión / Registrarse",
       "signUp": "Regístrate",
       "success": "Inicio de sesión exitoso",
       "termsLink": "Términos de uso",
       "termsText": "Al hacer clic en \"Siguiente\" o \"Registrarse\", aceptas nuestros",
       "title": "Inicia sesión en tu cuenta"
+    },
+    "required": {
+      "credits": {
+        "action": "Abrir configuración para añadir créditos",
+        "hint": "Para añadir créditos ve a: Configuración > Usuario > Créditos",
+        "message": "Este flujo de trabajo incluye nodos que requieren créditos. Por favor, añade créditos a tu cuenta para continuar.",
+        "title": "Créditos requeridos para ejecutar el flujo de trabajo"
+      },
+      "signIn": {
+        "action": "Abrir configuración para iniciar sesión",
+        "hint": "Para iniciar sesión ve a: Configuración > Usuario > Iniciar sesión",
+        "message": "Este flujo de trabajo incluye nodos que requieren una cuenta activa. Por favor, inicia sesión o crea una para continuar.",
+        "title": "Inicio de sesión requerido para ejecutar el flujo de trabajo"
+      }
+    },
+    "signOut": {
+      "signOut": "Cerrar sesión",
+      "success": "Sesión cerrada correctamente",
+      "successDetail": "Has cerrado sesión en tu cuenta."
     },
     "signup": {
       "alreadyHaveAccount": "¿Ya tienes una cuenta?",
@@ -92,6 +113,23 @@
     "Title": "Título",
     "Unpin": "Desanclar"
   },
+  "credits": {
+    "credits": "Créditos",
+    "creditsHistory": "Historial de créditos",
+    "faqs": "Preguntas frecuentes",
+    "lastUpdated": "Última actualización",
+    "messageSupport": "Contactar soporte",
+    "purchaseCredits": "Comprar créditos",
+    "topUp": {
+      "addCredits": "Agregar créditos a tu saldo",
+      "buyNow": "Comprar ahora",
+      "insufficientMessage": "No tienes suficientes créditos para ejecutar este flujo de trabajo.",
+      "insufficientTitle": "Créditos insuficientes",
+      "maxAmount": "(Máx. $1,000 USD)",
+      "title": "Agregar al saldo de créditos"
+    },
+    "yourCreditBalance": "Tu saldo de créditos"
+  },
   "dataTypes": {
     "AUDIO": "AUDIO",
     "BOOLEAN": "BOOLEANO",
@@ -137,7 +175,9 @@
   "desktopUpdate": {
     "description": "ComfyUI Desktop está instalando nuevas dependencias. Esto puede tardar unos minutos.",
     "terminalDefaultMessage": "Cualquier salida de consola de la actualización se mostrará aquí.",
-    "title": "Actualizando ComfyUI Desktop"
+    "title": "Actualizando ComfyUI Desktop",
+    "updateAvailableMessage": "Hay una actualización disponible. ¿Quieres reiniciar y actualizar ahora?",
+    "updateFoundTitle": "Actualización encontrada (v{version})"
   },
   "downloadGit": {
     "gitWebsite": "Descargar git",
@@ -166,6 +206,7 @@
     "about": "Acerca de",
     "add": "Añadir",
     "all": "Todo",
+    "amount": "Cantidad",
     "apply": "Aplicar",
     "back": "Atrás",
     "cancel": "Cancelar",
@@ -390,19 +431,34 @@
   },
   "issueReport": {
     "contactFollowUp": "Contáctame para seguimiento",
+    "contactSupportDescription": "Por favor, complete el siguiente formulario con su reporte",
+    "contactSupportTitle": "Contactar Soporte",
+    "describeTheProblem": "Describa el problema",
+    "email": "Correo electrónico",
     "feedbackTitle": "Ayúdanos a mejorar ComfyUI proporcionando comentarios",
     "helpFix": "Ayuda a Solucionar Esto",
+    "helpTypes": {
+      "billingPayments": "Facturación / Pagos",
+      "bugReport": "Reporte de error",
+      "giveFeedback": "Enviar comentarios",
+      "loginAccessIssues": "Problemas de inicio de sesión / acceso",
+      "somethingElse": "Otro"
+    },
     "notifyResolve": "Notifícame cuando se resuelva",
     "provideAdditionalDetails": "Proporciona detalles adicionales (opcional)",
     "provideEmail": "Danos tu correo electrónico (opcional)",
     "rating": "Calificación",
+    "selectIssue": "Seleccione el problema",
     "stackTrace": "Rastreo de Pila",
     "submitErrorReport": "Enviar Reporte de Error (Opcional)",
     "systemStats": "Estadísticas del Sistema",
     "validation": {
       "invalidEmail": "Por favor ingresa una dirección de correo electrónico válida",
-      "maxLength": "Mensaje demasiado largo"
-    }
+      "maxLength": "Mensaje demasiado largo",
+      "selectIssueType": "Por favor, seleccione un tipo de problema"
+    },
+    "whatCanWeInclude": "Especifique qué incluir en el reporte",
+    "whatDoYouNeedHelpWith": "¿Con qué necesita ayuda?"
   },
   "load3d": {
     "applyingTexture": "Aplicando textura...",
@@ -565,6 +621,7 @@
     "Bypass/Unbypass Selected Nodes": "Evitar/No evitar nodos seleccionados",
     "Canvas Toggle Link Visibility": "Alternar visibilidad de enlace en lienzo",
     "Canvas Toggle Lock": "Alternar bloqueo en lienzo",
+    "Check for Updates": "Buscar actualizaciones",
     "Clear Pending Tasks": "Borrar tareas pendientes",
     "Clear Workflow": "Borrar flujo de trabajo",
     "Clipspace": "Espacio de clip",
@@ -574,6 +631,7 @@
     "ComfyUI Docs": "Documentos de ComfyUI",
     "ComfyUI Forum": "Foro de ComfyUI",
     "ComfyUI Issues": "Problemas de ComfyUI",
+    "Contact Support": "Contactar soporte",
     "Convert selected nodes to group node": "Convertir nodos seleccionados en nodo de grupo",
     "Custom Nodes Manager": "Gestor de nodos personalizados",
     "Delete Selected Items": "Eliminar elementos seleccionados",
@@ -600,6 +658,7 @@
     "Open Logs Folder": "Abrir carpeta de registros",
     "Open Models Folder": "Abrir carpeta de modelos",
     "Open Outputs Folder": "Abrir carpeta de salidas",
+    "Open Sign In Dialog": "Abrir diálogo de inicio de sesión",
     "Open extra_model_paths_yaml": "Abrir extra_model_paths.yaml",
     "Pin/Unpin Selected Items": "Anclar/Desanclar elementos seleccionados",
     "Pin/Unpin Selected Nodes": "Anclar/Desanclar nodos seleccionados",
@@ -877,6 +936,7 @@
     "Graph": "Gráfico",
     "Group": "Grupo",
     "Keybinding": "Asignación de Teclas",
+    "Light": "Claro",
     "Link": "Enlace",
     "LinkRelease": "Liberación de Enlace",
     "LiteGraph": "Lite Graph",
@@ -969,8 +1029,7 @@
       "ControlNet": "ControlNet",
       "Custom Nodes": "Nodos Personalizados",
       "Flux": "Flux",
-      "SD3_5": "SD3.5",
-      "SDXL": "SDXL",
+      "Image": "Imagen",
       "Upscaling": "Ampliación",
       "Video": "Video"
     },
@@ -1015,13 +1074,14 @@
         "flux_redux_model_example": "Flux Redux Model",
         "flux_schnell": "Flux Schnell"
       },
-      "SD3_5": {
+      "Image": {
+        "hidream_i1_dev": "HiDream I1 Dev",
+        "hidream_i1_fast": "HiDream I1 Rápido",
+        "hidream_i1_full": "HiDream I1 Completo",
         "sd3_5_large_blur": "SD3.5 Grande Desenfoque",
         "sd3_5_large_canny_controlnet_example": "SD3.5 Grande Canny ControlNet",
         "sd3_5_large_depth": "SD3.5 Grande Profundidad",
-        "sd3_5_simple_example": "SD3.5 Simple"
-      },
-      "SDXL": {
+        "sd3_5_simple_example": "SD3.5 Simple",
         "sdxl_refiner_prompt_example": "SDXL Refinador de Solicitud",
         "sdxl_revision_text_prompts": "SDXL Revisión de Solicitud de Texto",
         "sdxl_revision_zero_positive": "SDXL Revisión Cero Positivo",
@@ -1042,7 +1102,9 @@
         "ltxv_text_to_video": "LTXV Texto a Video",
         "mochi_text_to_video_example": "Mochi Texto a Video",
         "text_to_video_wan": "Wan 2.1 Texto a Video",
-        "txt_to_image_to_video": "SVD Texto a Imagen a Video"
+        "txt_to_image_to_video": "SVD Texto a Imagen a Video",
+        "wan2_1_fun_control": "Wan 2.1 ControlNet",
+        "wan2_1_fun_inp": "Wan 2.1 Relleno"
       }
     },
     "title": "Comienza con una Plantilla"
@@ -1078,6 +1140,17 @@
     "newUser": "Nuevo usuario",
     "next": "Siguiente",
     "selectUser": "Selecciona un usuario"
+  },
+  "userSettings": {
+    "email": "Correo electrónico",
+    "name": "Nombre",
+    "notSet": "No establecido",
+    "provider": "Método de inicio de sesión",
+    "providers": {
+      "github": "GitHub",
+      "google": "Google"
+    },
+    "title": "Configuración de usuario"
   },
   "validation": {
     "invalidEmail": "Dirección de correo electrónico inválida",

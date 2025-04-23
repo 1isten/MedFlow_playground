@@ -17,6 +17,7 @@
       "emailPlaceholder": "이메일을 입력하세요",
       "failed": "로그인 실패",
       "forgotPassword": "비밀번호를 잊으셨나요?",
+      "genericErrorMessage": "죄송합니다. 오류가 발생했습니다. {supportEmail}로 문의해 주세요.",
       "loginButton": "로그인",
       "loginWithGithub": "Github로 로그인",
       "loginWithGoogle": "구글로 로그인",
@@ -25,11 +26,31 @@
       "passwordLabel": "비밀번호",
       "passwordPlaceholder": "비밀번호를 입력하세요",
       "privacyLink": "개인정보 보호정책",
+      "signInOrSignUp": "로그인 / 회원가입",
       "signUp": "가입하기",
       "success": "로그인 성공",
       "termsLink": "이용 약관",
       "termsText": "\"다음\" 또는 \"가입하기\"를 클릭하면 우리의",
       "title": "계정에 로그인"
+    },
+    "required": {
+      "credits": {
+        "action": "설정에서 크레딧 추가 열기",
+        "hint": "크레딧을 추가하려면: 설정 > 사용자 > 크레딧 으로 이동하세요.",
+        "message": "이 워크플로에는 크레딧이 필요한 노드가 포함되어 있습니다. 계속하려면 계정에 크레딧을 추가하세요.",
+        "title": "워크플로 실행을 위한 크레딧 필요"
+      },
+      "signIn": {
+        "action": "설정에서 로그인 열기",
+        "hint": "로그인하려면: 설정 > 사용자 > 로그인 으로 이동하세요.",
+        "message": "이 워크플로에는 활성 계정이 필요한 노드가 포함되어 있습니다. 계속하려면 로그인하거나 계정을 생성하세요.",
+        "title": "워크플로 실행을 위한 로그인 필요"
+      }
+    },
+    "signOut": {
+      "signOut": "로그아웃",
+      "success": "성공적으로 로그아웃되었습니다",
+      "successDetail": "계정에서 로그아웃되었습니다."
     },
     "signup": {
       "alreadyHaveAccount": "이미 계정이 있으신가요?",
@@ -92,6 +113,23 @@
     "Title": "제목",
     "Unpin": "고정 해제"
   },
+  "credits": {
+    "credits": "크레딧",
+    "creditsHistory": "크레딧 내역",
+    "faqs": "자주 묻는 질문",
+    "lastUpdated": "마지막 업데이트",
+    "messageSupport": "지원 문의",
+    "purchaseCredits": "크레딧 구매",
+    "topUp": {
+      "addCredits": "잔액에 크레딧 추가",
+      "buyNow": "지금 구매",
+      "insufficientMessage": "이 워크플로우를 실행하기에 크레딧이 부족합니다.",
+      "insufficientTitle": "크레딧 부족",
+      "maxAmount": "(최대 $1,000 USD)",
+      "title": "크레딧 잔액 충전"
+    },
+    "yourCreditBalance": "보유 크레딧 잔액"
+  },
   "dataTypes": {
     "AUDIO": "오디오",
     "BOOLEAN": "논리값",
@@ -137,7 +175,9 @@
   "desktopUpdate": {
     "description": "ComfyUI 데스크톱이 새로운 종속성을 설치하고 있습니다. 이 작업은 몇 분 정도 걸릴 수 있습니다.",
     "terminalDefaultMessage": "업데이트 콘솔 출력은 여기에 표시됩니다.",
-    "title": "ComfyUI 데스크톱 업데이트 중"
+    "title": "ComfyUI 데스크톱 업데이트 중",
+    "updateAvailableMessage": "업데이트가 가능합니다. 지금 재시작하고 업데이트하시겠습니까?",
+    "updateFoundTitle": "업데이트 발견 (v{version})"
   },
   "downloadGit": {
     "gitWebsite": "git 프로그램 다운로드",
@@ -166,6 +206,7 @@
     "about": "정보",
     "add": "추가",
     "all": "모두",
+    "amount": "수량",
     "apply": "적용",
     "back": "뒤로",
     "cancel": "취소",
@@ -390,19 +431,34 @@
   },
   "issueReport": {
     "contactFollowUp": "추적 조사를 위해 연락해 주세요",
+    "contactSupportDescription": "아래 양식에 보고 내용을 작성해 주세요",
+    "contactSupportTitle": "지원팀에 문의하기",
+    "describeTheProblem": "문제를 설명해 주세요",
+    "email": "이메일",
     "feedbackTitle": "피드백을 제공함으로써 ComfyUI를 개선하는 데 도움을 주십시오",
     "helpFix": "이 문제 해결에 도움을 주세요",
+    "helpTypes": {
+      "billingPayments": "결제 / 지불",
+      "bugReport": "버그 신고",
+      "giveFeedback": "피드백 제공",
+      "loginAccessIssues": "로그인 / 접근 문제",
+      "somethingElse": "기타"
+    },
     "notifyResolve": "해결되었을 때 알려주세요",
     "provideAdditionalDetails": "추가 세부 사항 제공 (선택 사항)",
     "provideEmail": "이메일을 알려주세요 (선택 사항)",
     "rating": "평가",
+    "selectIssue": "문제를 선택하세요",
     "stackTrace": "스택 추적",
     "submitErrorReport": "오류 보고서 제출 (선택 사항)",
     "systemStats": "시스템 통계",
     "validation": {
       "invalidEmail": "유효한 이메일 주소를 입력해 주세요",
-      "maxLength": "메시지가 너무 깁니다"
-    }
+      "maxLength": "메시지가 너무 깁니다",
+      "selectIssueType": "문제 유형을 선택해 주세요"
+    },
+    "whatCanWeInclude": "보고서에 포함할 내용을 지정하세요",
+    "whatDoYouNeedHelpWith": "어떤 도움이 필요하신가요?"
   },
   "load3d": {
     "applyingTexture": "텍스처 적용 중...",
@@ -565,6 +621,7 @@
     "Bypass/Unbypass Selected Nodes": "선택한 노드 우회/우회 해제",
     "Canvas Toggle Link Visibility": "캔버스 토글 링크 가시성",
     "Canvas Toggle Lock": "캔버스 토글 잠금",
+    "Check for Updates": "업데이트 확인",
     "Clear Pending Tasks": "보류 중인 작업 제거하기",
     "Clear Workflow": "워크플로 지우기",
     "Clipspace": "클립스페이스",
@@ -574,6 +631,7 @@
     "ComfyUI Docs": "ComfyUI 문서",
     "ComfyUI Forum": "ComfyUI 포럼",
     "ComfyUI Issues": "ComfyUI 이슈 페이지",
+    "Contact Support": "고객 지원 문의",
     "Convert selected nodes to group node": "선택한 노드를 그룹 노드로 변환",
     "Custom Nodes Manager": "사용자 정의 노드 관리자",
     "Delete Selected Items": "선택한 항목 삭제",
@@ -600,6 +658,7 @@
     "Open Logs Folder": "로그 폴더 열기",
     "Open Models Folder": "모델 폴더 열기",
     "Open Outputs Folder": "출력 폴더 열기",
+    "Open Sign In Dialog": "로그인 대화 상자 열기",
     "Open extra_model_paths_yaml": "extra_model_paths.yaml 열기",
     "Pin/Unpin Selected Items": "선택한 항목 고정/고정 해제",
     "Pin/Unpin Selected Nodes": "선택한 노드 고정/고정 해제",
@@ -877,6 +936,7 @@
     "Graph": "그래프",
     "Group": "그룹",
     "Keybinding": "키 바인딩",
+    "Light": "라이트",
     "Link": "링크",
     "LinkRelease": "링크 해제",
     "LiteGraph": "LiteGraph",
@@ -969,8 +1029,7 @@
       "ControlNet": "컨트롤넷",
       "Custom Nodes": "사용자 정의 노드",
       "Flux": "FLUX",
-      "SD3_5": "SD3.5",
-      "SDXL": "SDXL",
+      "Image": "이미지",
       "Upscaling": "업스케일링",
       "Video": "비디오"
     },
@@ -1015,13 +1074,14 @@
         "flux_redux_model_example": "FLUX Redux 모델 예제",
         "flux_schnell": "FLUX Schnell"
       },
-      "SD3_5": {
+      "Image": {
+        "hidream_i1_dev": "HiDream I1 Dev",
+        "hidream_i1_fast": "HiDream I1 Fast",
+        "hidream_i1_full": "HiDream I1 Full",
         "sd3_5_large_blur": "SD3.5 Large 블러 컨트롤넷",
         "sd3_5_large_canny_controlnet_example": "SD3.5 Large 캐니 컨트롤넷",
         "sd3_5_large_depth": "SD3.5 Large 깊이 컨트롤넷",
-        "sd3_5_simple_example": "간단한 SD3.5 예제"
-      },
-      "SDXL": {
+        "sd3_5_simple_example": "간단한 SD3.5 예제",
         "sdxl_refiner_prompt_example": "SDXL 리파이너 프롬프트",
         "sdxl_revision_text_prompts": "SDXL Revision 텍스트 프롬프트",
         "sdxl_revision_zero_positive": "SDXL Revision Zero Positive",
@@ -1042,7 +1102,9 @@
         "ltxv_text_to_video": "텍스트 -> 동영상 (LTXV)",
         "mochi_text_to_video_example": "텍스트 -> 동영상 (Mochi)",
         "text_to_video_wan": "Wan 2.1 텍스트를 비디오로",
-        "txt_to_image_to_video": "텍스트 -> 이미지 -> 동영상"
+        "txt_to_image_to_video": "텍스트 -> 이미지 -> 동영상",
+        "wan2_1_fun_control": "Wan 2.1 컨트롤넷",
+        "wan2_1_fun_inp": "Wan 2.1 인페인트"
       }
     },
     "title": "템플릿으로 시작하기"
@@ -1078,6 +1140,17 @@
     "newUser": "새 사용자",
     "next": "다음",
     "selectUser": "사용자 선택"
+  },
+  "userSettings": {
+    "email": "이메일",
+    "name": "이름",
+    "notSet": "설정되지 않음",
+    "provider": "로그인 방법",
+    "providers": {
+      "github": "GitHub",
+      "google": "Google"
+    },
+    "title": "사용자 설정"
   },
   "validation": {
     "invalidEmail": "유효하지 않은 이메일 주소",

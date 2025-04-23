@@ -17,6 +17,7 @@
       "emailPlaceholder": "输入您的电子邮件",
       "failed": "登录失败",
       "forgotPassword": "忘记密码？",
+      "genericErrorMessage": "抱歉，我们遇到了一些错误。请联系 {supportEmail}。",
       "loginButton": "登录",
       "loginWithGithub": "使用Github登录",
       "loginWithGoogle": "使用Google登录",
@@ -25,11 +26,31 @@
       "passwordLabel": "密码",
       "passwordPlaceholder": "输入您的密码",
       "privacyLink": "隐私政策",
+      "signInOrSignUp": "登录 / 注册",
       "signUp": "注册",
       "success": "登录成功",
       "termsLink": "使用条款",
       "termsText": "点击“下一步”或“注册”即表示您同意我们的",
       "title": "登录您的账户"
+    },
+    "required": {
+      "credits": {
+        "action": "打开设置进行充值",
+        "hint": "要充值，请前往：设置 > 用户 > 积分",
+        "message": "此工作流包含需要积分的节点。请为您的账户充值以继续。",
+        "title": "需要积分以执行工作流"
+      },
+      "signIn": {
+        "action": "打开设置进行登录",
+        "hint": "要登录，请前往：设置 > 用户 > 登录",
+        "message": "此工作流包含需要活跃账户的节点。请登录或创建账户以继续。",
+        "title": "需要登录以执行工作流"
+      }
+    },
+    "signOut": {
+      "signOut": "退出登录",
+      "success": "成功退出登录",
+      "successDetail": "您已成功退出账户。"
     },
     "signup": {
       "alreadyHaveAccount": "已经有账户了？",
@@ -92,6 +113,23 @@
     "Title": "标题",
     "Unpin": "取消固定"
   },
+  "credits": {
+    "credits": "积分",
+    "creditsHistory": "积分历史",
+    "faqs": "常见问题",
+    "lastUpdated": "最近更新",
+    "messageSupport": "联系客服",
+    "purchaseCredits": "购买积分",
+    "topUp": {
+      "addCredits": "为您的余额充值",
+      "buyNow": "立即购买",
+      "insufficientMessage": "您的积分不足，无法运行此工作流。",
+      "insufficientTitle": "积分不足",
+      "maxAmount": "（最高 $1,000 美元）",
+      "title": "充值余额"
+    },
+    "yourCreditBalance": "您的积分余额"
+  },
   "dataTypes": {
     "AUDIO": "音频",
     "BOOLEAN": "布尔",
@@ -137,7 +175,9 @@
   "desktopUpdate": {
     "description": "ComfyUI桌面正在安装新的依赖项。这可能需要几分钟的时间。",
     "terminalDefaultMessage": "更新过程中的任何控制台输出都将在这里显示。",
-    "title": "正在更新ComfyUI桌面"
+    "title": "正在更新ComfyUI桌面",
+    "updateAvailableMessage": "有可用的更新。您现在要重启并更新吗？",
+    "updateFoundTitle": "找到更新 (v{version})"
   },
   "downloadGit": {
     "gitWebsite": "下载 git",
@@ -166,6 +206,7 @@
     "about": "关于",
     "add": "添加",
     "all": "全部",
+    "amount": "数量",
     "apply": "应用",
     "back": "返回",
     "cancel": "取消",
@@ -390,19 +431,34 @@
   },
   "issueReport": {
     "contactFollowUp": "跟进联系我",
+    "contactSupportDescription": "请填写下方表格提交您的报告",
+    "contactSupportTitle": "联系支持",
+    "describeTheProblem": "描述问题",
+    "email": "电子邮箱",
     "feedbackTitle": "通过提供反馈帮助我们改进ComfyUI",
     "helpFix": "帮助修复这个",
+    "helpTypes": {
+      "billingPayments": "账单 / 支付",
+      "bugReport": "错误报告",
+      "giveFeedback": "提交反馈",
+      "loginAccessIssues": "登录 / 访问问题",
+      "somethingElse": "其他"
+    },
     "notifyResolve": "解决时通知我",
     "provideAdditionalDetails": "提供额外的详细信息（可选）",
     "provideEmail": "提供您的电子邮件（可选）",
     "rating": "评分",
+    "selectIssue": "选择问题",
     "stackTrace": "堆栈跟踪",
     "submitErrorReport": "提交错误报告（可选）",
     "systemStats": "系统状态",
     "validation": {
       "invalidEmail": "请输入有效的电子邮件地址",
-      "maxLength": "消息过长"
-    }
+      "maxLength": "消息过长",
+      "selectIssueType": "请选择一个问题类型"
+    },
+    "whatCanWeInclude": "请说明报告中需要包含的内容",
+    "whatDoYouNeedHelpWith": "您需要什么帮助？"
   },
   "load3d": {
     "applyingTexture": "应用纹理中...",
@@ -565,6 +621,7 @@
     "Bypass/Unbypass Selected Nodes": "忽略/取消忽略选定节点",
     "Canvas Toggle Link Visibility": "切换连线可见性",
     "Canvas Toggle Lock": "切换视图锁定",
+    "Check for Updates": "检查更新",
     "Clear Pending Tasks": "清除待处理任务",
     "Clear Workflow": "清除工作流",
     "Clipspace": "剪贴空间",
@@ -574,6 +631,7 @@
     "ComfyUI Docs": "ComfyUI 文档",
     "ComfyUI Forum": "ComfyUI 论坛",
     "ComfyUI Issues": "ComfyUI 问题",
+    "Contact Support": "联系支持",
     "Convert selected nodes to group node": "将选中节点转换为组节点",
     "Custom Nodes Manager": "自定义节点管理器",
     "Delete Selected Items": "删除选定的项目",
@@ -600,6 +658,7 @@
     "Open Logs Folder": "打开日志文件夹",
     "Open Models Folder": "打开模型文件夹",
     "Open Outputs Folder": "打开输出文件夹",
+    "Open Sign In Dialog": "打开登录对话框",
     "Open extra_model_paths_yaml": "打开 extra_model_paths.yaml",
     "Pin/Unpin Selected Items": "固定/取消固定选定项目",
     "Pin/Unpin Selected Nodes": "固定/取消固定选定节点",
@@ -877,6 +936,7 @@
     "Graph": "画面",
     "Group": "组节点",
     "Keybinding": "快捷键",
+    "Light": "浅色",
     "Link": "连线",
     "LinkRelease": "释放链接",
     "LiteGraph": "画面",
@@ -969,8 +1029,7 @@
       "ControlNet": "ControlNet",
       "Custom Nodes": "自定义节点",
       "Flux": "Flux",
-      "SD3_5": "SD3.5",
-      "SDXL": "SDXL",
+      "Image": "图片",
       "Upscaling": "放大",
       "Video": "视频"
     },
@@ -1000,7 +1059,7 @@
         "lora_multiple": "Lora多个"
       },
       "ControlNet": {
-        "2_pass_pose_worship": "2通道姿势崇拜",
+        "2_pass_pose_worship": "双通道姿势处理",
         "controlnet_example": "ControlNet",
         "depth_controlnet": "深度ControlNet",
         "depth_t2i_adapter": "深度T2I适配器",
@@ -1015,13 +1074,14 @@
         "flux_redux_model_example": "Flux Redux Model",
         "flux_schnell": "Flux Schnell"
       },
-      "SD3_5": {
+      "Image": {
+        "hidream_i1_dev": "HiDream I1 Dev",
+        "hidream_i1_fast": "HiDream I1 Fast",
+        "hidream_i1_full": "HiDream I1 Full",
         "sd3_5_large_blur": "SD3.5 Large 模糊",
         "sd3_5_large_canny_controlnet_example": "SD3.5 Large Canny 控制网",
         "sd3_5_large_depth": "SD3.5 Large 深度",
-        "sd3_5_simple_example": "SD3.5 简易示例"
-      },
-      "SDXL": {
+        "sd3_5_simple_example": "SD3.5 简易示例",
         "sdxl_refiner_prompt_example": "SDXL Refiner提示",
         "sdxl_revision_text_prompts": "SDXL修订文本提示",
         "sdxl_revision_zero_positive": "SDXL修订零正",
@@ -1042,7 +1102,9 @@
         "ltxv_text_to_video": "LTXV文本到视频",
         "mochi_text_to_video_example": "Mochi文本到视频",
         "text_to_video_wan": "Wan 2.1 文字到视频",
-        "txt_to_image_to_video": "文本到图像到视频"
+        "txt_to_image_to_video": "文本到图像到视频",
+        "wan2_1_fun_control": "Wan 2.1 ControlNet",
+        "wan2_1_fun_inp": "Wan 2.1 图像修复"
       }
     },
     "title": "从模板开始"
@@ -1078,6 +1140,17 @@
     "newUser": "新用户",
     "next": "下一步",
     "selectUser": "选择用户"
+  },
+  "userSettings": {
+    "email": "电子邮件",
+    "name": "名称",
+    "notSet": "未设置",
+    "provider": "登录方式",
+    "providers": {
+      "github": "GitHub",
+      "google": "Google"
+    },
+    "title": "用户设置"
   },
   "validation": {
     "invalidEmail": "无效的电子邮件地址",

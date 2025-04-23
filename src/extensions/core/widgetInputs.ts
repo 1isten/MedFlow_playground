@@ -18,16 +18,6 @@ import { mergeInputSpec } from '@/utils/nodeDefUtil'
 import { applyTextReplacements } from '@/utils/searchAndReplace'
 import { isPrimitiveNode } from '@/utils/typeGuardUtil'
 
-const VALID_TYPES = [
-  'STRING',
-  'combo',
-  'number',
-  'toggle',
-  'BOOLEAN',
-  'text',
-  'string'
-]
-
 const replacePropertyName = 'Run widget replace on values'
 export class PrimitiveNode extends LGraphNode {
   controlValues?: any[]
@@ -47,7 +37,7 @@ export class PrimitiveNode extends LGraphNode {
   applyToGraph(extraLinks: LLink[] = []) {
     if (!this.outputs[0].links?.length) return
 
-    let links = [
+    const links = [
       ...this.outputs[0].links.map((l) => app.graph.links[l]),
       ...extraLinks
     ]
@@ -58,30 +48,35 @@ export class PrimitiveNode extends LGraphNode {
 
     // For each output link copy our value over the original widget value
     for (const linkInfo of links) {
-      // @ts-expect-error fixme ts strict error
-      const node = this.graph.getNodeById(linkInfo.target_id)
-      // @ts-expect-error fixme ts strict error
-      const input = node.inputs[linkInfo.target_slot]
-      let widget: IWidget | undefined
-      const widgetName = (input.widget as { name: string }).name
-      if (widgetName) {
-        // @ts-expect-error fixme ts strict error
-        widget = node.widgets.find((w) => w.name === widgetName)
+      const node = this.graph?.getNodeById(linkInfo.target_id)
+      const input = node?.inputs[linkInfo.target_slot]
+      if (!input) {
+        console.warn('Unable to resolve node or input for link', linkInfo)
+        continue
       }
 
-      if (widget) {
-        widget.value = v
-        if (widget.callback) {
-          widget.callback(
-            widget.value,
-            app.canvas,
-            // @ts-expect-error fixme ts strict error
-            node,
-            app.canvas.graph_mouse,
-            {} as CanvasMouseEvent
-          )
-        }
+      const widgetName = input.widget?.name
+      if (!widgetName) {
+        console.warn('Invalid widget or widget name', input.widget)
+        continue
       }
+
+      const widget = node.widgets?.find((w) => w.name === widgetName)
+      if (!widget) {
+        console.warn(
+          `Unable to find widget "${widgetName}" on node [${node.id}]`
+        )
+        continue
+      }
+
+      widget.value = v
+      widget.callback?.(
+        widget.value,
+        app.canvas,
+        node,
+        app.canvas.graph_mouse,
+        {} as CanvasMouseEvent
+      )
     }
   }
 
@@ -347,31 +342,6 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  isValidWidgetLink(
-    originSlot: number,
-    targetNode: LGraphNode,
-    targetWidget: IWidget
-  ) {
-    const config2 = getConfig.call(targetNode, targetWidget.name) ?? [
-      targetWidget.type,
-      targetWidget.options || {}
-    ]
-    if (!isConvertibleWidget(targetWidget, config2)) return false
-
-    const output = this.outputs[originSlot]
-    if (
-      !(
-        output.widget?.[CONFIG] ??
-        (output.widget?.[GET_CONFIG] as () => InputSpec)?.()
-      )
-    ) {
-      // No widget defined for this primitive yet so allow it
-      return true
-    }
-
-    return !!mergeIfValid.call(this, output, config2)
-  }
-
   #isValidConnection(input: INodeInputSlot, forceUpdate?: boolean) {
     // Only allow connections where the configs match
     const output = this.outputs?.[0]
@@ -437,13 +407,6 @@ function getConfig(this: LGraphNode, widgetName: string) {
   return (
     nodeData?.input?.required?.[widgetName] ??
     nodeData?.input?.optional?.[widgetName]
-  )
-}
-
-function isConvertibleWidget(widget: IWidget, config: InputSpec): boolean {
-  return (
-    // @ts-expect-error InputSpec is not typed correctly
-    VALID_TYPES.includes(widget.type) || VALID_TYPES.includes(config[0])
   )
 }
 

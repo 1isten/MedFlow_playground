@@ -34,6 +34,7 @@ import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
 import { useExecutionStore } from '@/stores/executionStore'
 import { useExtensionStore } from '@/stores/extensionStore'
+import { useFirebaseAuthStore } from '@/stores/firebaseAuthStore'
 import { KeyComboImpl, useKeybindingStore } from '@/stores/keybindingStore'
 import { useModelStore } from '@/stores/modelStore'
 import { SYSTEM_NODE_DEFS, useNodeDefStore } from '@/stores/nodeDefStore'
@@ -480,9 +481,8 @@ export class ComfyApp {
           if (match) {
             const uri = event.dataTransfer.getData(match)?.split('\n')?.[0]
             if (uri) {
-              await this.handleFile(
-                new File([await (await fetch(uri)).blob()], uri)
-              )
+              const blob = await (await fetch(uri)).blob()
+              await this.handleFile(new File([blob], uri, { type: blob.type }))
             }
           }
         }
@@ -673,7 +673,17 @@ export class ComfyApp {
     })
 
     api.addEventListener('execution_error', ({ detail }) => {
-      useDialogService().showExecutionErrorDialog(detail)
+      // Check if this is an auth-related error or credits-related error
+      if (detail.exception_message === 'Please login first to use this node.') {
+        useDialogService().showSignInRequiredDialog({ type: 'signIn' })
+      } else if (
+        detail.exception_message ===
+        'Payment Required: Please add credits to your account to use this node.'
+      ) {
+        useDialogService().showSignInRequiredDialog({ type: 'credits' })
+      } else {
+        useDialogService().showExecutionErrorDialog(detail)
+      }
       this.canvas.draw(true, true)
     })
 
@@ -1172,6 +1182,16 @@ export class ComfyApp {
     const executionStore = useExecutionStore()
     executionStore.lastNodeErrors = null
 
+    let comfyOrgAuthToken =
+      (await useFirebaseAuthStore().getIdToken()) ?? undefined
+    // Check if we're in a secure context before using the auth token
+    if (comfyOrgAuthToken && !window.isSecureContext) {
+      comfyOrgAuthToken = undefined
+      console.warn(
+        'Auth token not used: Not in a secure context. Authentication requires a secure connection.'
+      )
+    }
+
     try {
       while (this.#queueItems.length) {
         const { number, batchCount } = this.#queueItems.pop()!
@@ -1183,7 +1203,7 @@ export class ComfyApp {
 
           const p = await this.graphToPrompt()
           try {
-            const res = await api.queuePrompt(number, p)
+            const res = await api.queuePrompt(number, p, comfyOrgAuthToken)
             executionStore.lastNodeErrors = res.node_errors ?? null
             if (executionStore.lastNodeErrors?.length) {
               this.canvas.draw(true, true)
@@ -1511,15 +1531,16 @@ export class ComfyApp {
 
       if (!def?.input) continue
 
-      // @ts-expect-error fixme ts strict error
-      for (const widget of node.widgets) {
-        if (widget.type === 'combo') {
-          if (def['input'].required?.[widget.name] !== undefined) {
-            // @ts-expect-error Requires discriminated union
-            widget.options.values = def['input'].required[widget.name][0]
-          } else if (def['input'].optional?.[widget.name] !== undefined) {
-            // @ts-expect-error Requires discriminated union
-            widget.options.values = def['input'].optional[widget.name][0]
+      if (node.widgets) {
+        for (const widget of node.widgets) {
+          if (widget.type === 'combo') {
+            if (def['input'].required?.[widget.name] !== undefined) {
+              // @ts-expect-error Requires discriminated union
+              widget.options.values = def['input'].required[widget.name][0]
+            } else if (def['input'].optional?.[widget.name] !== undefined) {
+              // @ts-expect-error Requires discriminated union
+              widget.options.values = def['input'].optional[widget.name][0]
+            }
           }
         }
       }

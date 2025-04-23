@@ -744,7 +744,9 @@
     "Camera": "Camera",
     "Scene": "Scene",
     "3D": "3D",
-    "Light": "Light"
+    "Light": "Light",
+    "User": "User",
+    "Credits": "Credits"
   },
   "serverConfigItems": {
     "listen": {
@@ -1080,6 +1082,9 @@
     "login": {
       "title": "Log in to your account",
       "signInOrSignUp": "Sign In / Sign Up",
+      "forgotPasswordError": "Failed to send password reset email",
+      "passwordResetSent": "Password reset email sent",
+      "passwordResetSentDetail": "Please check your email for a link to reset your password.",
       "newUser": "New here?",
       "signUp": "Sign up",
       "emailLabel": "Email",
@@ -1117,20 +1122,6 @@
       "signOut": "Log Out",
       "success": "Signed out successfully",
       "successDetail": "You have been signed out of your account."
-    },
-    "required": {
-      "signIn": {
-        "title": "Sign-In Required to Execute Workflow",
-        "message": "This workflow includes nodes that require an active account. Please log in or create one to continue.",
-        "hint": "To login go to: Settings > User > Login",
-        "action": "Open Settings to Login"
-      },
-      "credits": {
-        "title": "Credits Required to Execute Workflow",
-        "message": "This workflow includes nodes that require credits. Please add credits to your account to continue.",
-        "hint": "To add credits go to: Settings > User > Credits",
-        "action": "Open Settings to Add Credits"
-      }
     }
   },
   "validation": {

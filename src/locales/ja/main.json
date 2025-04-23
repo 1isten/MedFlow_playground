@@ -17,6 +17,7 @@
       "emailPlaceholder": "メールアドレスを入力してください",
       "failed": "ログイン失敗",
       "forgotPassword": "パスワードを忘れましたか？",
+      "forgotPasswordError": "パスワードリセット用メールの送信に失敗しました",
       "genericErrorMessage": "申し訳ありませんが、エラーが発生しました。{supportEmail} までご連絡ください。",
       "loginButton": "ログイン",
       "loginWithGithub": "Githubでログイン",
@@ -25,6 +26,8 @@
       "orContinueWith": "または以下で続ける",
       "passwordLabel": "パスワード",
       "passwordPlaceholder": "パスワードを入力してください",
+      "passwordResetSent": "パスワードリセット用メールを送信しました",
+      "passwordResetSentDetail": "パスワードをリセットするためのリンクが記載されたメールをご確認ください。",
       "privacyLink": "プライバシーポリシー",
       "signInOrSignUp": "サインイン / サインアップ",
       "signUp": "サインアップ",
@@ -32,20 +35,6 @@
       "termsLink": "利用規約",
       "termsText": "「次へ」または「サインアップ」をクリックすると、私たちの",
       "title": "アカウントにログインする"
-    },
-    "required": {
-      "credits": {
-        "action": "設定を開いてクレジットを追加",
-        "hint": "クレジットを追加するには: 設定 > ユーザー > クレジット",
-        "message": "このワークフローにはクレジットが必要なノードが含まれています。続行するにはアカウントにクレジットを追加してください。",
-        "title": "ワークフロー実行にはクレジットが必要です"
-      },
-      "signIn": {
-        "action": "設定を開いてログイン",
-        "hint": "ログインするには: 設定 > ユーザー > ログイン",
-        "message": "このワークフローにはアクティブなアカウントが必要なノードが含まれています。続行するにはログインまたはアカウントを作成してください。",
-        "title": "ワークフロー実行にはサインインが必要です"
-      }
     },
     "signOut": {
       "signOut": "ログアウト",
@@ -928,6 +917,7 @@
     "Comfy": "Comfy",
     "Comfy-Desktop": "Comfyデスクトップ",
     "ContextMenu": "コンテキストメニュー",
+    "Credits": "クレジット",
     "CustomColorPalettes": "カスタムカラーパレット",
     "DevMode": "開発モード",
     "EditTokenWeight": "トークンの重みを編集",
@@ -962,6 +952,7 @@
     "Sidebar": "サイドバー",
     "Tree Explorer": "ツリーエクスプローラー",
     "UV": "UV",
+    "User": "ユーザー",
     "Validation": "検証",
     "Window": "ウィンドウ",
     "Workflow": "ワークフロー"

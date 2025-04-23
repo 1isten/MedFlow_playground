@@ -178,15 +178,31 @@
       <ConfirmPopup group="confirm_saving" />
     </Panel>
     <div
-      class="fixed top-0 right-0 pointer-events-none"
+      class="fixed top-0 right-0 pointer-events-none flex flex-col transform scale-75 origin-top-right"
       :class="showTerminal ? 'z-[9999]' : '-z-[1]'"
+      style="transform: scale(var(--tw-scale-x), var(--tw-scale-y))"
     >
       <PmTerminal
-        class="overflow-hidden border-black border-solid border-r border-b-4 border-l-4 transform scale-75 origin-top-right"
-        :class="showTerminal ? 'pointer-events-auto' : 'invisible'"
-        style="transform: scale(var(--tw-scale-x), var(--tw-scale-y))"
+        class="overflow-hidden border-black border-solid border-r border-b-4 border-l-4"
+        :class="
+          showTerminal ? 'pointer-events-auto flex-auto' : 'invisible flex-none'
+        "
         @terminal-created="terminalCreated"
       />
+      <div
+        v-show="showTerminal"
+        class="pointer-events-auto h-12 p-1 w-full flex-none flex overflow-hidden rounded-bl-xl border-0 border-t border-solid border-white border-opacity-30 bg-black"
+      >
+        <span
+          class="inline-flex items-center px-2 text-lg font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-neutral-900 text-blue-600"
+          >LLM</span
+        >
+        <input
+          placeholder="prompt..."
+          class="block flex-1 h-full px-2 border-2 border-solid focus:outline-none text-lg font-mono border-black rounded-lg"
+          type="text"
+        />
+      </div>
     </div>
   </teleport>
 </template>

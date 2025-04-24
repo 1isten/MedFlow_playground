@@ -138,7 +138,7 @@
           class="btn-term"
           size="small"
           :aria-label="'Terminal'"
-          icon="pi pi-code"
+          :icon="llmRunning ? 'pi pi-spin pi-spinner' : 'pi pi-code'"
           :severity="showTerminal ? 'primary' : 'secondary'"
           :loading="false"
           :disabled="loading || deleting"

@@ -471,7 +471,7 @@ const llmRunPrompt = () => {
                       end
                     } = data
                     if (new_plugins) {
-                      // console.log('new_plugins:', new_plugins)
+                      console.log('new_plugins:', new_plugins)
                       // term?.write(`\x1B[0;94m${'got new_plugins ...'}\x1B[0m`)
                       // term?.write('\r\n')
                       try {

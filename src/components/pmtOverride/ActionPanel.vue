@@ -12,14 +12,15 @@
           icon="pi pi-play-circle"
           severity="secondary"
           :loading="running"
-          :disabled="loading || saving || deleting"
+          :disabled="loading || saving || deleting || llmRunning"
           @click="run"
           @contextmenu.prevent="
             !!pipelineId &&
               !loading &&
               !saving &&
-              !running &&
               !deleting &&
+              !running &&
+              !llmRunning &&
               runMenu.show($event)
           "
         />
@@ -431,6 +432,8 @@ const llmRunPrompt = () => {
   })
     .then(async (res) => {
       let content = ''
+      let code = null
+      let library = null
       const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
       while (true) {
         const { value, done } = await reader.read()
@@ -451,13 +454,22 @@ const llmRunPrompt = () => {
                     .replaceAll('\n', '\r\n')
                     .replaceAll('\r\r', '\r\n')
                   if (text) {
-                    console.log('text:', data.text)
+                    // console.log('text:', data.text)
                     text += text.endsWith('\r') ? '\n' : ''
                     term?.write(`\x1B[0;94m${text}\x1B[0m`)
                     content += data.text || ''
                   }
                   if (chatAPI.value.endsWith('/api/auto_pipeline')) {
-                    const { new_plugins, non_linked, linked, end } = data
+                    const {
+                      new_plugins,
+                      non_linked,
+                      linked,
+                      filled_pipeline,
+                      explanation,
+                      // code,
+                      // library,
+                      end
+                    } = data
                     if (new_plugins) {
                       // console.log('new_plugins:', new_plugins)
                       // term?.write(`\x1B[0;94m${'got new_plugins ...'}\x1B[0m`)
@@ -522,11 +534,53 @@ const llmRunPrompt = () => {
                         console.error(err)
                       }
                     }
+                    if (filled_pipeline) {
+                      console.log('filled_pipeline:', filled_pipeline)
+                      // term?.write(`\x1B[0;94m${'got filled_pipeline ...'}\x1B[0m`)
+                      // term?.write('\r\n')
+                      try {
+                        const workflow = workflowStore.createTemporary(
+                          `llm/pipeline_filled_${Date.now()}.json`,
+                          JSON.parse(JSON.stringify(filled_pipeline))
+                        )
+                        workflowStore
+                          .closeWorkflow(workflowStore.activeWorkflow)
+                          .then(() => {
+                            workflowService.openWorkflow(workflow)
+                          })
+                      } catch (err) {
+                        console.error(err)
+                      }
+                    }
+                    if (explanation) {
+                      let text = (explanation || '')
+                        .replaceAll('\n\n', '\r\r')
+                        .replaceAll('\n', '\r\n')
+                        .replaceAll('\r\r', '\r\n')
+                      if (text) {
+                        // console.log('explanation:', data.explanation)
+                        text += text.endsWith('\r') ? '\n' : ''
+                        term?.write(`\x1B[0;96m${text}\x1B[0m`)
+                      }
+                    }
                     if (end) {
                       console.log('end')
                       // term?.write(`\x1B[0;94m${'end'}\x1B[0m \r\n`)
                       // term?.write('\r\n')
                     }
+                    if (data.code) {
+                      if (!code) {
+                        code = data.code
+                        llmGenPyCode({ id: pipelineId, code })
+                      }
+                    }
+                    if (data.library) {
+                      if (!library) {
+                        library = data.library
+                        //
+                      }
+                    }
+                    return
                   }
                 } else if (data === '[DONE]') {
                   console.log(data)
@@ -546,6 +600,16 @@ const llmRunPrompt = () => {
           term?.write('\r\n')
         }
       }
+      if (code) {
+        // console.log({ code })
+      } else if (chatAPI.value.endsWith('/api/auto_pipeline')) {
+        console.warn('code not received')
+      }
+      if (library) {
+        // console.log({ library })
+      } else if (chatAPI.value.endsWith('/api/auto_pipeline')) {
+        //
+      }
     })
     .catch((err) => {
       if (err?.name === 'AbortError') {
@@ -556,6 +620,42 @@ const llmRunPrompt = () => {
     .finally(() => {
       llmRunning.value = false
     })
+}
+
+function llmGenPyCode(payload) {
+  const port = ports['mod-pipelines']
+  if (port) {
+    port.postMessage({
+      type: 'llm-gen-py-code',
+      payload: { ...payload, ts: Date.now() }
+    })
+  }
+}
+function llmGenPyCodeHandled(payload) {
+  if (payload.id === pipelineId) {
+    console.log('llm-gen-py-code-handled')
+  } else {
+    return
+  }
+  if (payload.meta) {
+    async function handle() {
+      try {
+        const jsonContent = JSON.parse(payload.meta)
+        if (jsonContent?.plugin_name) {
+          // eslint-disable-next-line no-undef
+          const defs = $pluginConfig2ComfyNodeDefs(jsonContent, false)
+          await comfyApp.registerNodes(defs)
+          await commandStore.execute('Comfy.RefreshNodeDefinitions')
+          workflowService.reloadCurrentWorkflow()
+        }
+      } catch (err) {
+        console.error(err)
+      }
+    }
+    void handle()
+  } else if (payload.msg) {
+    console.log(payload.msg)
+  }
 }
 
 onMounted(async () => {
@@ -1787,6 +1887,11 @@ onMounted(async () => {
             }
             case 'deleted-pipeline': {
               handleDeletePipeline(payload)
+              break
+            }
+            // ...
+            case 'llm-gen-py-code-handled': {
+              llmGenPyCodeHandled(payload)
               break
             }
             // ...

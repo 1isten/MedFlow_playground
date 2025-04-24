@@ -195,13 +195,22 @@
       >
         <span
           class="inline-flex items-center px-2 text-lg font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-neutral-900 text-blue-600"
-          >LLM</span
         >
+          {{ 'LLM' }}
+        </span>
         <input
+          v-model="llmPrompt"
           placeholder="prompt..."
           class="block flex-1 h-full px-2 border-2 border-solid focus:outline-none text-lg font-mono border-black rounded-lg"
           type="text"
+          @keyup.enter="llmRunPrompt"
         />
+        <button
+          class="inline-flex items-center justify-center px-3 border-2 border-solid border-black rounded-lg bg-neutral-900 hover:bg-neutral-800 transition hover:cursor-pointer"
+          @click="removeChatHistory"
+        >
+          <i class="pi pi-eraser"></i>
+        </button>
       </div>
     </div>
   </teleport>
@@ -361,6 +370,91 @@ const terminalCreated = (terminal) => {
     // })
     window['$terminal'] = term
   }
+}
+
+const chatAPI = ref('http://localhost:5555/api/chat')
+let chatHistory = []
+const removeChatHistory = () => {
+  chatHistory = []
+  term?.clear()
+}
+
+const llmPrompt = ref('')
+const llmRunning = ref(false)
+const llmRunPrompt = () => {
+  if (llmRunning.value) {
+    return
+  }
+  const cmd = llmPrompt.value
+  llmPrompt.value = ''
+  term?.write(`\x1B[4;37m${cmd}\x1B[0m \r\n`)
+  term?.write('\r\n')
+  chatHistory.push({ role: 'user', content: [{ type: 'text', text: cmd }] })
+  const formData = {
+    model: 'anthropic/claude-3.7-sonnet',
+    messages: [...chatHistory],
+    temperature: 0.7,
+    stream: true
+  }
+  llmRunning.value = true
+  return fetch(chatAPI.value || '/', {
+    method: 'POST',
+    headers: {
+      // Authorization: 'Bearer ' + token,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+  })
+    .then(async (res) => {
+      let content = ''
+      const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+      while (true) {
+        const { value, done } = await reader.read()
+        if (done) {
+          break
+        }
+        if (value) {
+          value
+            .replace('\n\n\n', '\n\n')
+            .split('\n\n')
+            .forEach((msg) => {
+              if (msg && msg.startsWith('data:')) {
+                let data = msg.slice('data:'.length).trim()
+                if (data.startsWith('{')) {
+                  data = JSON.parse(data)
+                  let text = (data.text || '')
+                    .replaceAll('\n\n', '\r\r')
+                    .replaceAll('\n', '\r\n')
+                    .replaceAll('\r\r', '\r\n')
+                  if (text) {
+                    console.log(data)
+                    text += text.endsWith('\r') ? '\n' : ''
+                    term?.write(`\x1B[0;94m${text}\x1B[0m`)
+                    content += data.text || ''
+                  }
+                } else if (data === '[DONE]') {
+                  console.log(data)
+                  term?.write('\r\n')
+                  term?.write('\r\n')
+                  chatHistory.push({
+                    role: 'assistant',
+                    content: [{ type: 'text', text: content }]
+                  })
+                }
+              }
+            })
+        }
+      }
+    })
+    .catch((err) => {
+      if (err?.name === 'AbortError') {
+        return console.warn(err.message)
+      }
+      console.error(err)
+    })
+    .finally(() => {
+      llmRunning.value = false
+    })
 }
 
 onMounted(async () => {

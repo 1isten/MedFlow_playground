@@ -200,16 +200,28 @@
         </span>
         <input
           v-model="llmPrompt"
-          placeholder="prompt..."
+          :placeholder="llmRunning ? 'processing...' : 'prompt...'"
           class="block flex-1 h-full px-2 border-2 border-solid focus:outline-none text-lg font-mono border-black rounded-lg"
           type="text"
+          :disabled="llmRunning"
           @keyup.enter="llmRunPrompt"
         />
         <button
-          class="inline-flex items-center justify-center px-3 border-2 border-solid border-black rounded-lg bg-neutral-900 hover:bg-neutral-800 transition hover:cursor-pointer"
+          class="inline-flex items-center justify-center px-2 border-2 border-solid border-black rounded-lg transition"
+          :class="
+            llmRunning
+              ? 'pointer-events-none bg-black'
+              : 'bg-neutral-900 hover:bg-neutral-800 hover:cursor-pointer'
+          "
+          :disabled="llmRunning"
           @click="removeChatHistory"
         >
-          <i class="pi pi-eraser"></i>
+          <template v-if="llmRunning">
+            <i class="pi pi-spin pi-spinner text-lg"></i>
+          </template>
+          <template v-else>
+            <i class="pi pi-eraser text-lg"></i>
+          </template>
         </button>
       </div>
     </div>
@@ -373,6 +385,7 @@ const terminalCreated = (terminal) => {
 }
 
 const chatAPI = ref('http://localhost:5555/api/chat')
+chatAPI.value = 'http://localhost:5555/api/auto_pipeline'
 let chatHistory = []
 const removeChatHistory = () => {
   chatHistory = []
@@ -389,12 +402,23 @@ const llmRunPrompt = () => {
   llmPrompt.value = ''
   term?.write(`\x1B[4;37m${cmd}\x1B[0m \r\n`)
   term?.write('\r\n')
-  chatHistory.push({ role: 'user', content: [{ type: 'text', text: cmd }] })
-  const formData = {
-    model: 'anthropic/claude-3.7-sonnet',
-    messages: [...chatHistory],
-    temperature: 0.7,
-    stream: true
+  let formData = {}
+  if (chatAPI.value.endsWith('/api/chat')) {
+    chatHistory.push({ role: 'user', content: [{ type: 'text', text: cmd }] })
+    formData = {
+      model: 'anthropic/claude-3.7-sonnet',
+      messages: [...chatHistory],
+      temperature: 0.7,
+      stream: true
+    }
+  } else if (chatAPI.value.endsWith('/api/auto_pipeline')) {
+    formData = {
+      query: cmd // "I want to create a pipeline that does image segmentation using U-Net and then applies a Gaussian filter to the segmented images."
+    }
+  } else {
+    formData = {
+      prompt: cmd
+    }
   }
   llmRunning.value = true
   return fetch(chatAPI.value || '/', {
@@ -427,14 +451,85 @@ const llmRunPrompt = () => {
                     .replaceAll('\n', '\r\n')
                     .replaceAll('\r\r', '\r\n')
                   if (text) {
-                    console.log(data)
+                    console.log('text:', data.text)
                     text += text.endsWith('\r') ? '\n' : ''
                     term?.write(`\x1B[0;94m${text}\x1B[0m`)
                     content += data.text || ''
                   }
+                  if (chatAPI.value.endsWith('/api/auto_pipeline')) {
+                    const { new_plugins, non_linked, linked, end } = data
+                    if (new_plugins) {
+                      // console.log('new_plugins:', new_plugins)
+                      // term?.write(`\x1B[0;94m${'got new_plugins ...'}\x1B[0m`)
+                      // term?.write('\r\n')
+                      try {
+                        const newPlugins =
+                          typeof new_plugins === 'object'
+                            ? new_plugins
+                            : JSON.parse(new_plugins)
+                        Object.keys(newPlugins).forEach(async (plugin) => {
+                          const jsonContent = newPlugins[plugin]
+                          if (jsonContent?.plugin_name) {
+                            // eslint-disable-next-line no-undef
+                            const defs = $pluginConfig2ComfyNodeDefs(
+                              jsonContent,
+                              false
+                            )
+                            await comfyApp.registerNodes(defs)
+                            await commandStore.execute(
+                              'Comfy.RefreshNodeDefinitions'
+                            )
+                            workflowService.reloadCurrentWorkflow()
+                          }
+                        })
+                      } catch (err) {
+                        console.error(err)
+                      }
+                    }
+                    if (non_linked) {
+                      console.log('non_linked:', non_linked)
+                      // term?.write(`\x1B[0;94m${'got non_linked ...'}\x1B[0m`)
+                      // term?.write('\r\n')
+                      try {
+                        const workflow = workflowStore.createTemporary(
+                          `llm/pipeline_non_linked_${Date.now()}.json`,
+                          JSON.parse(JSON.stringify(non_linked))
+                        )
+                        workflowStore
+                          .closeWorkflow(workflowStore.activeWorkflow)
+                          .then(() => {
+                            workflowService.openWorkflow(workflow)
+                          })
+                      } catch (err) {
+                        console.error(err)
+                      }
+                    }
+                    if (linked) {
+                      console.log('linked:', linked)
+                      // term?.write(`\x1B[0;94m${'got linked ...'}\x1B[0m`)
+                      // term?.write('\r\n')
+                      try {
+                        const workflow = workflowStore.createTemporary(
+                          `llm/pipeline_linked_${Date.now()}.json`,
+                          JSON.parse(JSON.stringify(linked))
+                        )
+                        workflowStore
+                          .closeWorkflow(workflowStore.activeWorkflow)
+                          .then(() => {
+                            workflowService.openWorkflow(workflow)
+                          })
+                      } catch (err) {
+                        console.error(err)
+                      }
+                    }
+                    if (end) {
+                      console.log('end')
+                      // term?.write(`\x1B[0;94m${'end'}\x1B[0m \r\n`)
+                      // term?.write('\r\n')
+                    }
+                  }
                 } else if (data === '[DONE]') {
                   console.log(data)
-                  term?.write('\r\n')
                   term?.write('\r\n')
                   chatHistory.push({
                     role: 'assistant',
@@ -443,6 +538,12 @@ const llmRunPrompt = () => {
                 }
               }
             })
+        }
+      }
+      if (content) {
+        term?.write('\r\n')
+        if (!content.endsWith('\r')) {
+          term?.write('\r\n')
         }
       }
     })

@@ -1107,9 +1107,10 @@
     "python_module": "custom_nodes.ocr_deident.deident_ocr",
     "input": {
       "required": {
-        "dicom_obj": ["DICOM"]
+        "pixel_data": ["2D"]
       },
       "optional": {
+        "other_tags": ["DICT"],
         "sensitive_list": [
           "STRING",
           {
@@ -1160,8 +1161,8 @@
       }
     },
     "input_order": {
-      "required": ["dicom_obj"],
-      "optional": ["sensitive_list", "x", "y", "width", "height", "roi_only", "use_gpu"]
+      "required": ["pixel_data"],
+      "optional": ["other_tags", "sensitive_list", "x", "y", "width", "height", "roi_only", "use_gpu"]
     },
     "output": ["2D"],
     "output_name": ["data"],

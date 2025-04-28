@@ -263,7 +263,7 @@ useExtensionService().registerExtension({
               ...(pmt_fields || {}),
               outputs: seriesList.map(
                 ({ id, oid, tagSeriesNumber, tagSeriesDescription }) => ({
-                  output_name: `${tagSeriesDescription} #${tagSeriesNumber}`,
+                  output_name: `${tagSeriesDescription || 'NONAME'} #${tagSeriesNumber}`,
                   level: ParsedLevel.SERIES,
                   study_oid: studyOid,
                   tag_series_number: tagSeriesNumber,
@@ -282,12 +282,9 @@ useExtensionService().registerExtension({
               }
             }
             filterParams = node.pmt_fields.filter_params
-            node.addOutputs(
-              node.pmt_fields.outputs.map(({ output_name }) => [
-                output_name,
-                'SERIES_FILE_LIST'
-              ])
-            )
+            node.pmt_fields.outputs.forEach(({ output_name }) => {
+              node.addOutput(output_name, 'SERIES_FILE_LIST')
+            })
           }
         })
         .catch((err) => {

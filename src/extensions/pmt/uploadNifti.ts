@@ -452,12 +452,9 @@ useExtensionService().registerExtension({
               }
             }
             filterParams = node.pmt_fields.filter_params
-            node.addOutputs(
-              node.pmt_fields.outputs.map(({ output_name }) => [
-                output_name,
-                'DICOM_FILE'
-              ])
-            )
+            node.pmt_fields.outputs.forEach(({ output_name }) => {
+              node.addOutput(output_name, 'DICOM_FILE')
+            })
           }
         })
         .catch((err) => {

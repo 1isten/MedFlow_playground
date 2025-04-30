@@ -73,7 +73,7 @@
                 </InputGroupAddon>
                 <InputText
                   v-model="pipelineName"
-                  placeholder="Enter Name"
+                  placeholder="Enter name"
                   type="text"
                   :style="{ color: pipelineColor }"
                   :readonly="false"
@@ -107,6 +107,38 @@
                 :rows="2"
                 :readonly="false"
               />
+            </div>
+            <div class="flex mt-2">
+              <Select
+                v-model="pipelineEnv"
+                :options="pythonKernels"
+                option-label="name"
+                option-value="path"
+                :placeholder="
+                  loadingPythonKernels
+                    ? 'Listing python kernels...'
+                    : 'Specify python kernel'
+                "
+                :loading="loadingPythonKernels"
+                class="w-full"
+              >
+                <template #value="slotProps">
+                  <span class="text-sm text-muted">{{
+                    slotProps.value || slotProps.placeholder
+                  }}</span>
+                </template>
+                <template #option="slotProps">
+                  <div class="flex flex-col space-y-1">
+                    <code class="font-mono text-sm"
+                      >{{ slotProps.option.name
+                      }}{{ slotProps.option.isActive ? ' *' : '' }}</code
+                    >
+                    <small class="text-xs text-muted">{{
+                      slotProps.option.path
+                    }}</small>
+                  </div>
+                </template>
+              </Select>
             </div>
             <div class="flex items-center justify-end mt-3">
               <Button
@@ -244,6 +276,7 @@ import InputText from 'primevue/inputtext'
 import Menu from 'primevue/menu'
 import Panel from 'primevue/panel'
 import Popover from 'primevue/popover'
+import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
 import { useConfirm } from 'primevue/useconfirm'
 import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
@@ -290,6 +323,7 @@ const {
 const pipelineName = ref('New Workflow')
 const pipelineDescription = ref('')
 const pipelineColor = ref('#FFFFFF')
+const pipelineEnv = ref(null)
 
 const embeddedView = computed(() => pipelineEmbedded === 'embedded')
 const readonlyView = computed(() => pipelineReadonly === 'readonly')
@@ -300,6 +334,7 @@ const pipeline = ref({
   name: pipelineName.value,
   description: pipelineDescription.value,
   color: pipelineColor.value,
+  env: null,
   readonly: false
 })
 const pipelineWorkflow = computed(() =>
@@ -311,6 +346,7 @@ const commitPipEdit = (e) => {
   pipeline.value.name = pipelineName.value
   pipeline.value.description = pipelineDescription.value
   pipeline.value.color = pipelineColor.value
+  pipeline.value.env = pipelineEnv.value
   togglePipOver(e)
 }
 
@@ -359,6 +395,57 @@ const presets = {
   default: `{"last_node_id":4,"last_link_id":4,"nodes":[{"id":1,"type":"rag_llm.prompt","pos":[105.33335876464844,322.6666564941406],"size":[400,400],"flags":{},"order":0,"mode":0,"inputs":[{"name":"history","type":"LOOP","link":4,"shape":7},{"name":"text","type":"STRING","link":null,"widget":{"name":"text"}},{"name":"optional_text","type":"STRING","link":null,"widget":{"name":"optional_text"},"shape":7}],"outputs":[{"name":"prompt","type":"STRING","links":[1],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.prompt"},"widgets_values":["","hub","rlm/rag-prompt","You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\\nQuestion: {question} \\nContext: {context} \\nAnswer:","{messages}","",null],"pmt_fields":{"args":{"type":"hub","hub_link":"rlm/rag-prompt","system":"You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\\nQuestion: {question} \\nContext: {context} \\nAnswer:","human":"{messages}","prompt_template_vars":{"question":"","context":"","messages":""}},"status":""}},{"id":2,"type":"rag_llm.model","pos":[559.333251953125,333.3333435058594],"size":[315,106],"flags":{},"order":1,"mode":0,"inputs":[{"name":"text","type":"STRING","link":1,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[2],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.model"},"widgets_values":["","gpt-4o-mini",0.5],"pmt_fields":{"args":{"model_name":"gpt-4o-mini","temperature":0.5},"status":""}},{"id":3,"type":"rag_llm.response","pos":[922,137.3333282470703],"size":[315,126],"flags":{},"order":2,"mode":0,"inputs":[{"name":"text","type":"STRING","link":2,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[3],"slot_index":0},{"name":"history","type":"LOOP","links":[4],"slot_index":1}],"properties":{"Node name for S&R":"rag_llm.response"},"widgets_values":["",true,10000],"pmt_fields":{"args":{"enable_history":true,"max_tokens":10000},"status":""}},{"id":4,"type":"rag_llm.preview_text","pos":[1282.6666259765625,272.0000305175781],"size":[300,200],"flags":{},"order":3,"mode":0,"inputs":[{"name":"text","type":"STRING","link":3,"widget":{"name":"text"}}],"outputs":[],"properties":{"Node name for S&R":"rag_llm.preview_text"},"widgets_values":["",null],"pmt_fields":{"args":{},"status":""}}],"links":[[1,1,0,2,0,"STRING"],[2,2,0,3,0,"STRING"],[3,3,0,4,0,"STRING"],[4,3,1,1,0,"LOOP"]],"groups":[],"config":{},"extra":{"ds":{"scale":1,"offset":[0,0]}},"version":0.4}`,
   rag: `{"last_node_id":7,"last_link_id":7,"nodes":[{"id":5,"type":"rag_llm.knowledge","pos":[-1120.1199951171875,387.8730773925781],"size":[400,200],"flags":{},"order":0,"mode":0,"inputs":[],"outputs":[{"name":"kownledge","type":"STRING","links":[5],"slot_index":0},{"name":"log","type":"STRING","links":null}],"properties":{"Node name for S&R":"rag_llm.knowledge"},"widgets_values":["web",""],"pmt_fields":{"args":{"type":"web","sources":""},"status":""}},{"id":6,"type":"rag_llm.text_splitter","pos":[-661.6609497070312,327.746826171875],"size":[315,154],"flags":{},"order":1,"mode":0,"inputs":[{"name":"text","type":"STRING","link":5,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[6],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.text_splitter"},"widgets_values":["","token",350,0,""],"pmt_fields":{"args":{"type":"token","chunk_size":350,"chunk_overlap":0,"separators":""},"status":""}},{"id":7,"type":"rag_llm.vector_db","pos":[-292.3180236816406,386.7991638183594],"size":[315,130],"flags":{},"order":2,"mode":0,"inputs":[{"name":"text","type":"STRING","link":6,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[7],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.vector_db"},"widgets_values":["","chroma","openai",3],"pmt_fields":{"args":{"type":"chroma","embedding_type":"openai","retrieve_num":3},"status":""}},{"id":1,"type":"rag_llm.prompt","pos":[105.33335876464844,322.6666564941406],"size":[400,400],"flags":{},"order":3,"mode":0,"inputs":[{"name":"history","type":"LOOP","link":4,"shape":7},{"name":"text","type":"STRING","link":7,"widget":{"name":"text"}},{"name":"optional_text","type":"STRING","link":null,"widget":{"name":"optional_text"},"shape":7}],"outputs":[{"name":"prompt","type":"STRING","links":[1],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.prompt"},"widgets_values":["","hub","rlm/rag-prompt","You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\\nQuestion: {question} \\nContext: {context} \\nAnswer:","{messages}","",null],"pmt_fields":{"args":{"type":"hub","hub_link":"rlm/rag-prompt","system":"You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\\nQuestion: {question} \\nContext: {context} \\nAnswer:","human":"{messages}","prompt_template_vars":{"question":"","context":"","messages":""}},"status":""}},{"id":2,"type":"rag_llm.model","pos":[559.333251953125,333.3333435058594],"size":[315,106],"flags":{},"order":4,"mode":0,"inputs":[{"name":"text","type":"STRING","link":1,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[2],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.model"},"widgets_values":["","gpt-4o-mini",0.5],"pmt_fields":{"args":{"model_name":"gpt-4o-mini","temperature":0.5},"status":""}},{"id":3,"type":"rag_llm.response","pos":[922,137.3333282470703],"size":[315,126],"flags":{},"order":5,"mode":0,"inputs":[{"name":"text","type":"STRING","link":2,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[3],"slot_index":0},{"name":"history","type":"LOOP","links":[4],"slot_index":1}],"properties":{"Node name for S&R":"rag_llm.response"},"widgets_values":["",true,10000],"pmt_fields":{"args":{"enable_history":true,"max_tokens":10000},"status":""}},{"id":4,"type":"rag_llm.preview_text","pos":[1282.6666259765625,272.0000305175781],"size":[300,200],"flags":{},"order":6,"mode":0,"inputs":[{"name":"text","type":"STRING","link":3,"widget":{"name":"text"}}],"outputs":[],"properties":{"Node name for S&R":"rag_llm.preview_text"},"widgets_values":["",null],"pmt_fields":{"args":{},"status":""}}],"links":[[1,1,0,2,0,"STRING"],[2,2,0,3,0,"STRING"],[3,3,0,4,0,"STRING"],[4,3,1,1,0,"LOOP"],[5,5,0,6,0,"STRING"],[6,6,0,7,0,"STRING"],[7,7,0,1,1,"STRING"]],"groups":[],"config":{},"extra":{"ds":{"scale":1,"offset":[0,0]}},"version":0.4}`,
   crag: `{"last_node_id":12,"last_link_id":14,"nodes":[{"id":5,"type":"rag_llm.knowledge","pos":[-1795.305419921875,219.73934936523438],"size":[400,200],"flags":{},"order":0,"mode":0,"inputs":[],"outputs":[{"name":"kownledge","type":"STRING","links":[5],"slot_index":0},{"name":"log","type":"STRING","links":null}],"properties":{"Node name for S&R":"rag_llm.knowledge"},"widgets_values":["web",""],"pmt_fields":{"args":{"type":"web","sources":""},"status":""}},{"id":6,"type":"rag_llm.text_splitter","pos":[-1314.37060546875,248.50851440429688],"size":[315,154],"flags":{},"order":1,"mode":0,"inputs":[{"name":"text","type":"STRING","link":5,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[6],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.text_splitter"},"widgets_values":["","token",350,0,""],"pmt_fields":{"args":{"type":"token","chunk_size":350,"chunk_overlap":0,"separators":""},"status":""}},{"id":7,"type":"rag_llm.vector_db","pos":[-879.9946899414062,331.4211730957031],"size":[315,130],"flags":{},"order":2,"mode":0,"inputs":[{"name":"text","type":"STRING","link":6,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[8],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.vector_db"},"widgets_values":["","chroma","openai",3],"pmt_fields":{"args":{"type":"chroma","embedding_type":"openai","retrieve_num":3},"status":""}},{"id":8,"type":"rag_llm.prompt.grade_docs","pos":[-1945.737548828125,588.7113647460938],"size":[400,400],"flags":{},"order":3,"mode":0,"inputs":[{"name":"history","type":"LOOP","link":null,"shape":7},{"name":"text","type":"STRING","link":8,"widget":{"name":"text"}},{"name":"optional_text","type":"STRING","link":null,"widget":{"name":"optional_text"},"shape":7}],"outputs":[{"name":"prompt","type":"STRING","links":[9],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.prompt.grade_docs"},"widgets_values":["","customize","","You are a document retrieval evaluator that's responsible for checking the relevancy of a retrieved document to the user's question.\\n\\nIf the document contains keyword(s) or semantic meaning related to the question, grade it as relevant.\\n\\nOutput a binary score 'yes' or 'no' to indicate whether the document is relevant to the question.","Retrieved document:\\n\\n{document}\\n\\nUser question: {question}","",null],"pmt_fields":{"args":{"type":"customize","hub_link":"","system":"You are a document retrieval evaluator that's responsible for checking the relevancy of a retrieved document to the user's question.\\n\\nIf the document contains keyword(s) or semantic meaning related to the question, grade it as relevant.\\n\\nOutput a binary score 'yes' or 'no' to indicate whether the document is relevant to the question.","human":"Retrieved document:\\n\\n{document}\\n\\nUser question: {question}","prompt_template_vars":{"document":"","question":""}},"status":""}},{"id":9,"type":"rag_llm.model.grade_docs","pos":[-1483.99658203125,621.377685546875],"size":[315,106],"flags":{},"order":4,"mode":0,"inputs":[{"name":"text","type":"STRING","link":9,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[10,11],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.model.grade_docs"},"widgets_values":["","gpt-4o-mini",0.5],"pmt_fields":{"args":{"model_name":"gpt-4o-mini","temperature":0.5},"status":""}},{"id":10,"type":"rag_llm.prompt.transform_query","pos":[-1117.678466796875,694.4251098632812],"size":[400,400],"flags":{},"order":5,"mode":0,"inputs":[{"name":"history","type":"LOOP","link":null,"shape":7},{"name":"text","type":"STRING","link":11,"widget":{"name":"text"}},{"name":"optional_text","type":"STRING","link":null,"widget":{"name":"optional_text"},"shape":7}],"outputs":[{"name":"prompt","type":"STRING","links":[12],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.prompt.transform_query"},"widgets_values":["","customize","","You are a question re-writer that converts an input question to a better version that is optimized for web search.\\n\\nLook at the input and try to reason about the underlying semantic intent / meaning.","Here is the initial question:\\n\\n{question}\\n\\nFormulate an improved question.","",null],"pmt_fields":{"args":{"type":"customize","hub_link":"","system":"You are a question re-writer that converts an input question to a better version that is optimized for web search.\\n\\nLook at the input and try to reason about the underlying semantic intent / meaning.","human":"Here is the initial question:\\n\\n{question}\\n\\nFormulate an improved question.","prompt_template_vars":{"question":""}},"status":""}},{"id":11,"type":"rag_llm.model.transform_query","pos":[-655.8319091796875,621.2080688476562],"size":[315,106],"flags":{},"order":6,"mode":0,"inputs":[{"name":"text","type":"STRING","link":12,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[13],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.model.transform_query"},"widgets_values":["","gpt-4o-mini",0.5],"pmt_fields":{"args":{"model_name":"gpt-4o-mini","temperature":0.5},"status":""}},{"id":12,"type":"rag_llm.web_search","pos":[-282.0015563964844,544.7903442382812],"size":[315,82],"flags":{},"order":7,"mode":0,"inputs":[{"name":"text","type":"STRING","link":13,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[14],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.web_search"},"widgets_values":["",57],"pmt_fields":{"args":{"k":57},"status":""}},{"id":1,"type":"rag_llm.prompt","pos":[105.33335876464844,322.6666564941406],"size":[400,400],"flags":{},"order":8,"mode":0,"inputs":[{"name":"history","type":"LOOP","link":4,"shape":7},{"name":"text","type":"STRING","link":10,"widget":{"name":"text"}},{"name":"optional_text","type":"STRING","link":14,"widget":{"name":"optional_text"},"shape":7}],"outputs":[{"name":"prompt","type":"STRING","links":[1],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.prompt"},"widgets_values":["","hub","rlm/rag-prompt","You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\\nQuestion: {question} \\nContext: {context} \\nAnswer:","{messages}","",null],"pmt_fields":{"args":{"type":"hub","hub_link":"rlm/rag-prompt","system":"You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question. If you don't know the answer, just say that you don't know. Use three sentences maximum and keep the answer concise.\\nQuestion: {question} \\nContext: {context} \\nAnswer:","human":"{messages}","prompt_template_vars":{"question":"","context":"","messages":""}},"status":""}},{"id":2,"type":"rag_llm.model","pos":[559.333251953125,333.3333435058594],"size":[315,106],"flags":{},"order":9,"mode":0,"inputs":[{"name":"text","type":"STRING","link":1,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[2],"slot_index":0}],"properties":{"Node name for S&R":"rag_llm.model"},"widgets_values":["","gpt-4o-mini",0.5],"pmt_fields":{"args":{"model_name":"gpt-4o-mini","temperature":0.5},"status":""}},{"id":3,"type":"rag_llm.response","pos":[922,137.3333282470703],"size":[315,126],"flags":{},"order":10,"mode":0,"inputs":[{"name":"text","type":"STRING","link":2,"widget":{"name":"text"}}],"outputs":[{"name":"text","type":"STRING","links":[3],"slot_index":0},{"name":"history","type":"LOOP","links":[4],"slot_index":1}],"properties":{"Node name for S&R":"rag_llm.response"},"widgets_values":["",true,10000],"pmt_fields":{"args":{"enable_history":true,"max_tokens":10000},"status":""}},{"id":4,"type":"rag_llm.preview_text","pos":[1282.6666259765625,272.0000305175781],"size":[300,200],"flags":{},"order":11,"mode":0,"inputs":[{"name":"text","type":"STRING","link":3,"widget":{"name":"text"}}],"outputs":[],"properties":{"Node name for S&R":"rag_llm.preview_text"},"widgets_values":["",null],"pmt_fields":{"args":{},"status":""}}],"links":[[1,1,0,2,0,"STRING"],[2,2,0,3,0,"STRING"],[3,3,0,4,0,"STRING"],[4,3,1,1,0,"LOOP"],[5,5,0,6,0,"STRING"],[6,6,0,7,0,"STRING"],[8,7,0,8,1,"STRING"],[9,8,0,9,0,"STRING"],[10,9,0,1,1,"STRING"],[11,9,0,10,1,"STRING"],[12,10,0,11,0,"STRING"],[13,11,0,12,0,"STRING"],[14,12,0,1,2,"STRING"]],"groups":[],"config":{},"extra":{"ds":{"scale":1,"offset":[0,0]}},"version":0.4}`
+}
+
+const pythonKernels = shallowRef([])
+const loadingPythonKernels = ref(false)
+function getPythonKernelList() {
+  if (loadingPythonKernels.value) {
+    return
+  }
+  loadingPythonKernels.value = true
+  return fetch('connect://localhost/api/get-python-kernel-list', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json()
+      }
+      return []
+    })
+    .then((data) => {
+      if (data.error) {
+        throw new Error(data.message)
+      }
+      if (data.kernels) {
+        pythonKernels.value = data.kernels.map(({ $typeName, ...kernel }) => {
+          const env = {
+            name: kernel.name,
+            path: kernel.path,
+            isActive: kernel.isActive
+          }
+          if (
+            !pipelineEnv.value ||
+            pythonKernels.value.findIndex((k) => k.path === env.path) === -1
+          ) {
+            pipelineEnv.value = null
+          }
+          if (env.isActive) {
+            pipelineEnv.value = env.path
+          }
+          return env
+        })
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+    })
+    .finally(() => {
+      loadingPythonKernels.value = false
+    })
 }
 
 const showTerminal = ref(false)
@@ -1065,7 +1152,7 @@ onMounted(async () => {
   comfyApp.canvasEl.addEventListener('drop', onDrop)
 
   if (pipelineId) {
-    // console.log('saved pipelines:', pipelines.value)
+    getPythonKernelList()
   } else {
     const workflowData =
       workflow_name && workflow_name in presets
@@ -1175,6 +1262,10 @@ function togglePipOver(e) {
   pipelineName.value = pipeline.value.name
   pipelineDescription.value = pipeline.value.description
   pipelineColor.value = pipeline.value.color
+  pipelineEnv.value =
+    pipeline.value.env ||
+    pythonKernels.value.find((k) => k.isActive)?.path ||
+    null
   pipOver.value.toggle(e)
 }
 
@@ -1350,7 +1441,8 @@ async function save() {
         name: pipelineName.value,
         description: pipelineDescription.value,
         color: pipelineColor.value,
-        workflow: JSON.stringify(json)
+        workflow: JSON.stringify(json),
+        env: pipelineEnv.value
       })
     } else {
       updatePipeline({
@@ -2038,7 +2130,6 @@ function handleGetPipeline(payload) {
   pipeline.value.name = payload.name
   pipeline.value.description = payload.description
   pipeline.value.color = payload.color
-  pipeline.value.readonly = !!payload.readonly
   if (payload.workflow) {
     pipeline.value.workflow = payload.workflow
   } else {
@@ -2059,6 +2150,11 @@ function handleGetPipeline(payload) {
       })
     })
   }
+  if (payload.env) {
+    pipeline.value.env = payload.env
+    pipelineEnv.value = pipeline.value.env
+  }
+  pipeline.value.readonly = !!payload.readonly
   loading.value = false
 }
 
@@ -2085,6 +2181,10 @@ function handleCreatePipeline(payload) {
   } else {
     delete pipeline.value.workflow
   }
+  if (payload.env) {
+    pipeline.value.env = payload.env
+    pipelineEnv.value = pipeline.value.env
+  }
   saving.value = false
 }
 
@@ -2110,6 +2210,10 @@ function handleUpdatePipeline(payload) {
     pipeline.value.workflow = payload.workflow
   } else {
     delete pipeline.value.workflow
+  }
+  if (payload.env) {
+    pipeline.value.env = payload.env
+    pipelineEnv.value = pipeline.value.env
   }
   saving.value = false
 }

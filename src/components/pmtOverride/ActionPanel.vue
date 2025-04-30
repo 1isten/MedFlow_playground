@@ -421,23 +421,25 @@ function getPythonKernelList() {
         throw new Error(data.message)
       }
       if (data.kernels) {
-        pythonKernels.value = data.kernels.map(({ $typeName, ...kernel }) => {
-          const env = {
-            name: kernel.name,
-            path: kernel.path,
-            isActive: kernel.isActive
+        pythonKernels.value = data.kernels.map(
+          ({ $typeName, ...kernel }, i, arr) => {
+            const env = {
+              name: kernel.name,
+              path: kernel.path,
+              isActive: kernel.isActive
+            }
+            if (
+              !!pipelineEnv.value &&
+              arr.findIndex((k) => k.path === pipelineEnv.value) === -1
+            ) {
+              pipelineEnv.value = null
+            }
+            if (!pipelineEnv.value && env.isActive) {
+              pipelineEnv.value = env.path
+            }
+            return env
           }
-          if (
-            !pipelineEnv.value ||
-            pythonKernels.value.findIndex((k) => k.path === env.path) === -1
-          ) {
-            pipelineEnv.value = null
-          }
-          if (env.isActive) {
-            pipelineEnv.value = env.path
-          }
-          return env
-        })
+        )
       }
     })
     .catch((err) => {

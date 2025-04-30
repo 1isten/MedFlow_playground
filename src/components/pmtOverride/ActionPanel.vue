@@ -1357,7 +1357,8 @@ async function run(e, mode = 'complete') {
       body: JSON.stringify({
         id: pipeline.value.id,
         workflow: JSON.stringify(json),
-        mode: runningMode.value
+        mode: runningMode.value,
+        env: pipelineEnv.value || pipeline.value.env
       }),
       signal: runPipelineOnceAbortController.signal
     })

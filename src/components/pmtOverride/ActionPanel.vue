@@ -1886,7 +1886,8 @@ async function validatePipelineGraphJson(json) {
         },
         body: JSON.stringify({
           id: pipeline.value.id,
-          workflow: JSON.stringify(json)
+          workflow: JSON.stringify(json),
+          env: pipelineEnv.value || pipeline.value.env
         })
       }
     )

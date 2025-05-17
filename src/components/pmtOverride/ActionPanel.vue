@@ -444,6 +444,13 @@ function getPythonKernelList() {
     })
     .catch((err) => {
       console.error(err)
+      if (window.$electron) {
+        window.$electron.toggleModal(true, {
+          type: 'error',
+          title: 'Error',
+          message: err.message || err
+        })
+      }
     })
     .finally(() => {
       loadingPythonKernels.value = false
@@ -1291,7 +1298,7 @@ async function resetNodeById(nodeId) {
     if (res.ok) {
       const { error, message, nodeIds } = await res.json()
       if (error) {
-        console.error(error, message)
+        throw new Error(message)
       } else {
         if (nodeId === -1) {
           comfyApp.graph.nodes.forEach((node) => {
@@ -1313,6 +1320,13 @@ async function resetNodeById(nodeId) {
     }
   } catch (err) {
     console.error(err)
+    if (window.$electron) {
+      window.$electron.toggleModal(true, {
+        type: 'error',
+        title: 'Error',
+        message: err.message || err
+      })
+    }
   }
 }
 function resetNodeStatus(node) {
@@ -1896,7 +1910,7 @@ async function validatePipelineGraphJson(json) {
     if (res.ok) {
       const { error, message, result: data } = await res.json()
       if (error) {
-        console.error(error, message)
+        throw new Error(message)
       } else if (data) {
         result = JSON.parse(data)
         console.log('validation result:', result)
@@ -1905,6 +1919,13 @@ async function validatePipelineGraphJson(json) {
     }
   } catch (err) {
     console.error(err)
+    if (window.$electron) {
+      window.$electron.toggleModal(true, {
+        type: 'error',
+        title: 'Error',
+        message: err.message || err
+      })
+    }
   }
   return result
 }

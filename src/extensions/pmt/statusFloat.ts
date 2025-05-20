@@ -81,9 +81,9 @@ useExtensionService().registerExtension({
           const pmt_fields = node.pmt_fields as any
           if (pmt_fields) {
             let linkedToExport = false
-            node.outputs.forEach((o) => {
+            node.outputs.forEach((o, idx) => {
               if (o?.links?.length) {
-                const outputNodes = node.getOutputNodes(o.slot_index)
+                const outputNodes = node.getOutputNodes(o.slot_index ?? idx)
                 linkedToExport =
                   outputNodes.findIndex(
                     (outputNode) => outputNode.type === 'output.export'

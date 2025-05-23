@@ -357,6 +357,9 @@ const commitPipEdit = (e) => {
 
 const loading = ref(!!pipeline.value?.id)
 
+const confirm = useConfirm()
+const toast = useToastStore()
+
 const nodesSelected = shallowRef([])
 const nodesSelectedCount = computed(() => nodesSelected.value.length)
 const updateNodesSelected = useThrottleFn(() => {
@@ -800,7 +803,11 @@ onMounted(async () => {
         null, // inserts a divider
         {
           content: 'Reset All Nodes',
-          callback: () => resetNodeById(-1)
+          callback: () => {
+            toast.removeAll()
+            removeChatHistory()
+            resetNodeById(-1)
+          }
         },
         {
           content: window.location.reload
@@ -817,6 +824,8 @@ onMounted(async () => {
         {
           content: 'Clear Workflow',
           callback: async () => {
+            toast.removeAll()
+            removeChatHistory()
             await commandStore.execute('Comfy.ClearWorkflow')
           }
         }
@@ -1236,9 +1245,6 @@ function onDrop(e) {
   }
   e.preventDefault()
 }
-
-const toast = useToastStore()
-const confirm = useConfirm()
 
 const runMenu = ref()
 const runMenuItems = computed(() => [

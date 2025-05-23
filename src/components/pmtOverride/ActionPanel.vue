@@ -2109,10 +2109,13 @@ function handleStreamChunk(chunk) {
         if (msg1.endsWith(']')) {
           const [msg1_, level] = msg1.split(' [')
           if (msg1_) {
-            // msg1 = msg1_
+            msg1 = msg1_
           }
           if (level) {
             logLevel = level.split(']')[0].toUpperCase()
+            if (msg1_) {
+              // msg1 = `[${logLevel}] ` + msg1_
+            }
           }
         }
         switch (logLevel) {
@@ -2144,7 +2147,7 @@ function handleStreamChunk(chunk) {
               summary: msg1 && 'Warning',
               detail: msg2
             })
-            term?.write(`\x1B[0;93m[PIPELINE] ${msg2}\x1B[0m`)
+            term?.write(`\x1B[0;93m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
             break
           case 'ERROR':
             toast.add({
@@ -2152,10 +2155,10 @@ function handleStreamChunk(chunk) {
               summary: msg1 && 'Error',
               detail: msg2
             })
-            term?.write(`\x1B[0;91m[PIPELINE] ${msg2}\x1B[0m`)
+            term?.write(`\x1B[0;91m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
             break
           default:
-            term?.write(`[PIPELINE] ${msg2}`)
+            term?.write(`[${logLevel}] [PIPELINE] ${msg2}`)
             break
         }
       }

@@ -2117,19 +2117,17 @@ function handleStreamChunk(chunk) {
         }
         switch (logLevel) {
           case 'WARNING':
-            msg1 = '\x1B[0;93m' + msg1 + '\x1B[0m'
+            term?.write(`\r\n` + `\x1B[0;93m${msg1}\x1B[0m` + '\r\n')
             break
           case 'ERROR':
-            msg1 = '\x1B[0;91m' + msg1 + '\x1B[0m'
+            term?.write(`\r\n` + `\x1B[0;91m${msg1}\x1B[0m` + '\r\n')
             break
           default:
-            //
+            term?.write(`\r\n` + msg1 + '\r\n')
             break
         }
-        term?.write(`\r\n` + msg1 + '\r\n')
       }
       if (msg2) {
-        msg2 = '[PIPELINE] ' + msg2
         if (msg2.endsWith('\r\n')) {
           //
         } else if (msg2.endsWith('\r')) {
@@ -2141,16 +2139,25 @@ function handleStreamChunk(chunk) {
         }
         switch (logLevel) {
           case 'WARNING':
-            msg2 = '\x1B[0;93m' + msg2 + '\x1B[0m'
+            toast.add({
+              severity: 'warn',
+              summary: msg1 && 'Warning',
+              detail: msg2
+            })
+            term?.write(`\x1B[0;93m[PIPELINE] ${msg2}\x1B[0m`)
             break
           case 'ERROR':
-            msg2 = '\x1B[0;91m' + msg2 + '\x1B[0m'
+            toast.add({
+              severity: 'error',
+              summary: msg1 && 'Error',
+              detail: msg2
+            })
+            term?.write(`\x1B[0;91m[PIPELINE] ${msg2}\x1B[0m`)
             break
           default:
-            // white
+            term?.write(`[PIPELINE] ${msg2}`)
             break
         }
-        term?.write(msg2)
       }
       return
     }

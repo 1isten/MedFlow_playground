@@ -211,31 +211,36 @@
       <ConfirmPopup group="confirm_saving" />
     </Panel>
     <div
-      class="fixed top-0 right-0 pointer-events-none flex flex-col transform scale-75 origin-top-right will-change-transform"
+      class="fixed top-0 right-0 pointer-events-none flex flex-col shadow-md drop-shadow-md"
       :class="showTerminal ? 'z-[9999]' : '-z-[1]'"
-      style="transform: scale(var(--tw-scale-x), var(--tw-scale-y))"
     >
       <PmTerminal
-        class="overflow-hidden border-black border-solid border-r border-b-4 border-l-4"
+        class="overflow-hidden border-black border-solid border-r border-l-4 border-b-0"
         :class="
           showTerminal ? 'pointer-events-auto flex-auto' : 'invisible flex-none'
         "
         @terminal-created="terminalCreated"
       />
       <div
+        v-if="showTerminal"
+        class="p-1 rounded-bl-lg border-0 border-t border-solid border-black bg-black"
+      ></div>
+      <div
+        v-else
         v-show="showTerminal"
-        class="pointer-events-auto h-12 p-1 w-full flex-none flex overflow-hidden rounded-bl-xl border-0 border-t border-solid border-white border-opacity-30 bg-black"
+        class="pointer-events-auto h-10 p-1 w-full flex-none flex overflow-hidden rounded-bl-lg border-0 border-t border-solid border-neutral-900 bg-black"
       >
         <span
-          class="inline-flex items-center px-2 text-lg font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-neutral-900 text-blue-600"
+          class="inline-flex items-center px-2 text-sm font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-neutral-900 text-blue-600 cursor-default"
         >
           {{ 'LLM' }}
         </span>
         <input
           v-model="llmPrompt"
           :placeholder="llmRunning ? 'processing...' : 'prompt...'"
-          class="block flex-1 h-full px-2 border-2 border-solid focus:outline-none text-lg font-mono border-black rounded-lg"
+          class="block flex-1 h-full px-2 border-2 border-solid focus:outline-none text-sm font-mono border-black rounded-lg"
           type="text"
+          :readonly="true"
           :disabled="llmRunning"
           @keyup.enter="llmRunPrompt"
         />
@@ -250,10 +255,10 @@
           @click="removeChatHistory"
         >
           <template v-if="llmRunning">
-            <i class="pi pi-spin pi-spinner text-lg"></i>
+            <i class="pi pi-spin pi-spinner text-sm"></i>
           </template>
           <template v-else>
-            <i class="pi pi-eraser text-lg"></i>
+            <i class="pi pi-eraser text-sm"></i>
           </template>
         </button>
       </div>
@@ -2048,9 +2053,12 @@ function handleStreamChunk(chunk) {
         const node = comfyApp.graph.getNodeById(id)
         if (node && node.pmt_fields) {
           const { outputs, status, type } = result.pmt_fields
-          if (outputs) {
+          if (outputs && node.pmt_fields.outputs?.length > 0) {
             console.log(result.pmt_fields)
             outputs.forEach((output, o) => {
+              if (!node.pmt_fields.outputs[o]) {
+                return
+              }
               const { name, type, oid, path, value } = output
               if (oid) {
                 node.pmt_fields.outputs[o].oid = Array.isArray(
@@ -2094,6 +2102,58 @@ function handleStreamChunk(chunk) {
     })
   }
   if (msg) {
+    if (msg.includes(' [PIPELINE] ')) {
+      let logLevel
+      let [msg1, msg2] = msg.split(' [PIPELINE] ')
+      if (msg1) {
+        if (msg1.endsWith(']')) {
+          const [msg1_, level] = msg1.split(' [')
+          if (msg1_) {
+            // msg1 = msg1_
+          }
+          if (level) {
+            logLevel = level.split(']')[0].toUpperCase()
+          }
+        }
+        switch (logLevel) {
+          case 'WARNING':
+            msg1 = '\x1B[0;93m' + msg1 + '\x1B[0m'
+            break
+          case 'ERROR':
+            msg1 = '\x1B[0;91m' + msg1 + '\x1B[0m'
+            break
+          default:
+            //
+            break
+        }
+        term?.write(`\r\n` + msg1 + '\r\n')
+      }
+      if (msg2) {
+        msg2 = '[PIPELINE] ' + msg2
+        if (msg2.endsWith('\r\n')) {
+          //
+        } else if (msg2.endsWith('\r')) {
+          msg2 = msg2 + '\n'
+        } else if (msg2.endsWith('\n')) {
+          msg2 = msg2.slice(0, -1) + '\r\n'
+        } else {
+          msg2 = msg2 + '\r\n'
+        }
+        switch (logLevel) {
+          case 'WARNING':
+            msg2 = '\x1B[0;93m' + msg2 + '\x1B[0m'
+            break
+          case 'ERROR':
+            msg2 = '\x1B[0;91m' + msg2 + '\x1B[0m'
+            break
+          default:
+            // white
+            break
+        }
+        term?.write(msg2)
+      }
+      return
+    }
     term?.write(msg + (msg.endsWith('\r') ? '\n' : ''))
     console.log(msg, results.length > 0 ? results : '')
   }

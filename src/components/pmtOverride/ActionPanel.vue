@@ -211,7 +211,7 @@
       <ConfirmPopup group="confirm_saving" />
     </Panel>
     <div
-      class="fixed top-0 right-0 pointer-events-none flex flex-col transform scale-75 origin-top-right"
+      class="fixed top-0 right-0 pointer-events-none flex flex-col transform scale-75 origin-top-right will-change-transform"
       :class="showTerminal ? 'z-[9999]' : '-z-[1]'"
       style="transform: scale(var(--tw-scale-x), var(--tw-scale-y))"
     >

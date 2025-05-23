@@ -19,6 +19,8 @@ const terminalCreated = (
   { terminal, useAutoSize }: ReturnType<typeof useTerminal>,
   root: Ref<HTMLElement | undefined>
 ) => {
+  terminal.options.fontSize = 12
+
   useAutoSize({
     root,
     autoRows: true,

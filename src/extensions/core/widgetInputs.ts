@@ -3,13 +3,16 @@ import type {
   INodeInputSlot,
   INodeOutputSlot,
   ISlotType,
-  IWidget,
   LLink,
   Vector2
 } from '@comfyorg/litegraph'
 import type { CanvasMouseEvent } from '@comfyorg/litegraph/dist/types/events'
+import type { IBaseWidget } from '@comfyorg/litegraph/dist/types/widgets'
 
-import { useChainCallback } from '@/composables/functional/useChainCallback'
+import {
+  type CallbackParams,
+  useChainCallback
+} from '@/composables/functional/useChainCallback'
 import type { InputSpec } from '@/schemas/nodeDefSchema'
 import { app } from '@/scripts/app'
 import { ComfyWidgets, addValueControlWidgets } from '@/scripts/widgets'
@@ -22,7 +25,7 @@ const replacePropertyName = 'Run widget replace on values'
 export class PrimitiveNode extends LGraphNode {
   controlValues?: any[]
   lastType?: string
-  static category: string
+  static override category: string
   constructor(title: string) {
     super(title)
     this.addOutput('connect to widget input', '*')
@@ -34,7 +37,7 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  applyToGraph(extraLinks: LLink[] = []) {
+  override applyToGraph(extraLinks: LLink[] = []) {
     if (!this.outputs[0].links?.length) return
 
     const links = [
@@ -80,7 +83,7 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  refreshComboInNode() {
+  override refreshComboInNode() {
     const widget = this.widgets?.[0]
     if (widget?.type === 'combo') {
       // @ts-expect-error fixme ts strict error
@@ -95,7 +98,7 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  onAfterGraphConfigured() {
+  override onAfterGraphConfigured() {
     if (this.outputs[0].links?.length && !this.widgets?.length) {
       this.#onFirstConnection()
 
@@ -114,7 +117,11 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  onConnectionsChange(_type: ISlotType, _index: number, connected: boolean) {
+  override onConnectionsChange(
+    _type: ISlotType,
+    _index: number,
+    connected: boolean
+  ) {
     if (app.configuringGraph) {
       // Dont run while the graph is still setting up
       return
@@ -135,7 +142,7 @@ export class PrimitiveNode extends LGraphNode {
     }
   }
 
-  onConnectOutput(
+  override onConnectOutput(
     slot: number,
     _type: string,
     input: INodeInputSlot,
@@ -219,7 +226,7 @@ export class PrimitiveNode extends LGraphNode {
 
     // Store current size as addWidget resizes the node
     const [oldWidth, oldHeight] = this.size
-    let widget: IWidget | undefined
+    let widget: IBaseWidget | undefined
     if (type in ComfyWidgets) {
       widget = (ComfyWidgets[type](this, 'value', inputData, app) || {}).widget
     } else {
@@ -419,7 +426,7 @@ function getConfig(this: LGraphNode, widgetName: string) {
  */
 export function convertToInput(
   node: LGraphNode,
-  widget: IWidget
+  widget: IBaseWidget
 ): INodeInputSlot | undefined {
   console.warn(
     'Please remove call to convertToInput. Widget to socket conversion is no longer necessary, as they co-exist now.'
@@ -499,8 +506,7 @@ export function mergeIfValid(
     }
   }
 
-  // @ts-expect-error fixme ts strict error
-  return { customConfig: customSpec[1] }
+  return { customConfig: customSpec?.[1] ?? {} }
 }
 
 app.registerExtension({
@@ -564,12 +570,9 @@ app.registerExtension({
     const origOnInputDblClick = nodeType.prototype.onInputDblClick
     nodeType.prototype.onInputDblClick = function (
       this: LGraphNode,
-      slot: number
+      ...[slot, ...args]: CallbackParams<typeof origOnInputDblClick>
     ) {
-      const r = origOnInputDblClick
-        ? // @ts-expect-error fixme ts strict error
-          origOnInputDblClick.apply(this, arguments)
-        : undefined
+      const r = origOnInputDblClick?.apply(this, [slot, ...args])
 
       const input = this.inputs[slot]
       if (!input.widget) {

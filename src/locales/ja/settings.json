@@ -25,6 +25,10 @@
     },
     "tooltip": "システムタイトルバーを非表示にするにはカスタムオプションを選択してください"
   },
+  "Comfy_Canvas_BackgroundImage": {
+    "name": "キャンバス背景画像",
+    "tooltip": "キャンバスの背景画像のURLです。出力パネルで画像を右クリックし、「背景として設定」を選択すると使用できます。"
+  },
   "Comfy_Canvas_SelectionToolbox": {
     "name": "選択ツールボックスを表示"
   },
@@ -193,6 +197,9 @@
       "Show all": "すべて表示"
     }
   },
+  "Comfy_NodeBadge_ShowApiPricing": {
+    "name": "APIノードの料金バッジを表示"
+  },
   "Comfy_NodeSearchBoxImpl": {
     "name": "ノード検索ボックスの実装",
     "options": {
@@ -293,6 +300,9 @@
       "small": "小"
     }
   },
+  "Comfy_Sidebar_UnifiedWidth": {
+    "name": "サイドバーの幅を統一"
+  },
   "Comfy_SnapToGrid_GridSize": {
     "name": "グリッドサイズにスナップ",
     "tooltip": "シフトを押しながらノードをドラッグおよびサイズ変更すると、グリッドに整列されます。これにより、そのグリッドのサイズが制御されます。"
@@ -377,8 +387,16 @@
   "LiteGraph_ContextMenu_Scaling": {
     "name": "ズームイン時にノードコンボウィジェットメニュー（リスト）をスケーリングする"
   },
+  "LiteGraph_Node_DefaultPadding": {
+    "name": "新しいノードを常に縮小",
+    "tooltip": "ノード作成時に可能な限り小さいサイズにリサイズします。無効にすると、新しく追加されたノードはウィジェットの値が表示されるように少し幅広くなります。"
+  },
   "LiteGraph_Node_TooltipDelay": {
     "name": "ツールチップ遅延"
+  },
+  "LiteGraph_Pointer_TrackpadGestures": {
+    "name": "トラックパッドジェスチャーを有効にする",
+    "tooltip": "この設定を有効にすると、キャンバスでトラックパッドモードが有効になり、ピンチズームや2本指でのパン操作が可能になります。"
   },
   "LiteGraph_Reroute_SplineOffset": {
     "name": "リルートスプラインオフセット",

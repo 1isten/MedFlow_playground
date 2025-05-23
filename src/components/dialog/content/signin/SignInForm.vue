@@ -80,15 +80,15 @@ import ProgressSpinner from 'primevue/progressspinner'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 
+import { useFirebaseAuthActions } from '@/composables/auth/useFirebaseAuthActions'
 import { type SignInData, signInSchema } from '@/schemas/signInSchema'
 import { useFirebaseAuthStore } from '@/stores/firebaseAuthStore'
-import { useToastStore } from '@/stores/toastStore'
 
 const authStore = useFirebaseAuthStore()
+const firebaseAuthActions = useFirebaseAuthActions()
 const loading = computed(() => authStore.loading)
 
 const { t } = useI18n()
-const toast = useToastStore()
 
 const emit = defineEmits<{
   submit: [values: SignInData]
@@ -102,19 +102,6 @@ const onSubmit = (event: FormSubmitEvent) => {
 
 const handleForgotPassword = async (email: string) => {
   if (!email) return
-  await authStore.sendPasswordReset(email)
-  if (authStore.error) {
-    toast.add({
-      severity: 'error',
-      summary: t('auth.login.forgotPasswordError'),
-      detail: authStore.error
-    })
-  } else {
-    toast.add({
-      severity: 'success',
-      summary: t('auth.login.passwordResetSent'),
-      detail: t('auth.login.passwordResetSentDetail')
-    })
-  }
+  await firebaseAuthActions.sendPasswordReset(email)
 }
 </script>

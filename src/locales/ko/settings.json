@@ -25,6 +25,10 @@
     },
     "tooltip": "시스템 제목 표시 줄을 숨기려면 사용자 정의 옵션을 선택하세요"
   },
+  "Comfy_Canvas_BackgroundImage": {
+    "name": "캔버스 배경 이미지",
+    "tooltip": "캔버스 배경에 사용할 이미지 URL입니다. 출력 패널에서 이미지를 마우스 오른쪽 버튼으로 클릭한 후 \"배경으로 설정\"을 선택해 사용할 수 있습니다."
+  },
   "Comfy_Canvas_SelectionToolbox": {
     "name": "선택 도구 상자 표시"
   },
@@ -193,6 +197,9 @@
       "Show all": "모두 표시"
     }
   },
+  "Comfy_NodeBadge_ShowApiPricing": {
+    "name": "API 노드 가격 배지 표시"
+  },
   "Comfy_NodeSearchBoxImpl": {
     "name": "노드 검색 상자 구현",
     "options": {
@@ -293,6 +300,9 @@
       "small": "작음"
     }
   },
+  "Comfy_Sidebar_UnifiedWidth": {
+    "name": "통합 사이드바 너비"
+  },
   "Comfy_SnapToGrid_GridSize": {
     "name": "그리드 크기에 스냅",
     "tooltip": "Shift 키를 누른 상태에서 노드를 드래그하거나 크기를 조절하면 그리드에 맞춰 정렬됩니다. 이 설정은 그리드의 크기를 제어합니다."
@@ -377,8 +387,16 @@
   "LiteGraph_ContextMenu_Scaling": {
     "name": "확대시 노드 콤보 위젯 메뉴 (목록) 스케일링"
   },
+  "LiteGraph_Node_DefaultPadding": {
+    "name": "새 노드를 항상 축소",
+    "tooltip": "노드를 생성할 때 가능한 가장 작은 크기로 크기를 조정합니다. 비활성화하면 새로 추가된 노드가 위젯 값을 표시하기 위해 약간 넓어집니다."
+  },
   "LiteGraph_Node_TooltipDelay": {
     "name": "툴팁 지연"
+  },
+  "LiteGraph_Pointer_TrackpadGestures": {
+    "name": "트랙패드 제스처 활성화",
+    "tooltip": "이 설정을 켜면 캔버스에서 트랙패드 모드를 사용할 수 있으며, 두 손가락으로 확대/축소 및 이동이 가능합니다."
   },
   "LiteGraph_Reroute_SplineOffset": {
     "name": "경유점 스플라인 오프셋",

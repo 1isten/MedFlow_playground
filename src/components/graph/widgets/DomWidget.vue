@@ -11,30 +11,27 @@
       v-if="isComponentWidget(widget)"
       :model-value="widget.value"
       :widget="widget"
+      v-bind="widget.props"
       @update:model-value="emit('update:widgetValue', $event)"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useEventListener } from '@vueuse/core'
+import { useElementBounding, useEventListener } from '@vueuse/core'
 import { CSSProperties, computed, onMounted, ref, watch } from 'vue'
 
 import { useAbsolutePosition } from '@/composables/element/useAbsolutePosition'
 import { useDomClipping } from '@/composables/element/useDomClipping'
-import {
-  type BaseDOMWidget,
-  isComponentWidget,
-  isDOMWidget
-} from '@/scripts/domWidget'
+import { isComponentWidget, isDOMWidget } from '@/scripts/domWidget'
 import { DomWidgetState } from '@/stores/domWidgetStore'
 import { useCanvasStore } from '@/stores/graphStore'
 import { useSettingStore } from '@/stores/settingStore'
 
-const { widget, widgetState } = defineProps<{
-  widget: BaseDOMWidget<string | object>
+const { widgetState } = defineProps<{
   widgetState: DomWidgetState
 }>()
+const widget = widgetState.widget
 
 const emit = defineEmits<{
   'update:widgetValue': [value: string | object]
@@ -42,18 +39,16 @@ const emit = defineEmits<{
 
 const widgetElement = ref<HTMLElement | undefined>()
 
+/**
+ * @note Do NOT convert style to a computed value, as it will cause lag when
+ * updating the style on different animation frames. Vue's computed value is
+ * evaluated asynchronously.
+ */
+const style = ref<CSSProperties>({})
 const { style: positionStyle, updatePosition } = useAbsolutePosition({
   useTransform: true
 })
 const { style: clippingStyle, updateClipPath } = useDomClipping()
-const style = computed<CSSProperties>(() => ({
-  ...positionStyle.value,
-  ...(enableDomClipping.value ? clippingStyle.value : {}),
-  zIndex: widgetState.zIndex,
-  pointerEvents:
-    widgetState.readonly || widget.computedDisabled ? 'none' : 'auto',
-  opacity: widget.computedDisabled ? 0.5 : 1
-}))
 
 const canvasStore = useCanvasStore()
 const settingStore = useSettingStore()
@@ -92,12 +87,27 @@ const updateDomClipping = () => {
   )
 }
 
+/**
+ * @note mapping between canvas position and client position depends on the
+ * canvas element's position, so we need to watch the canvas element's position
+ * and update the position of the widget accordingly.
+ */
+const { left, top } = useElementBounding(canvasStore.getCanvas().canvas)
 watch(
-  () => widgetState,
-  (newState) => {
-    updatePosition(newState)
+  [() => widgetState, left, top],
+  ([widgetState, _, __]) => {
+    updatePosition(widgetState)
     if (enableDomClipping.value) {
       updateDomClipping()
+    }
+
+    style.value = {
+      ...positionStyle.value,
+      ...(enableDomClipping.value ? clippingStyle.value : {}),
+      zIndex: widgetState.zIndex,
+      pointerEvents:
+        widgetState.readonly || widget.computedDisabled ? 'none' : 'auto',
+      opacity: widget.computedDisabled ? 0.5 : 1
     }
   },
   { deep: true }

@@ -1,13 +1,15 @@
 import _ from 'lodash'
 import { defineStore } from 'pinia'
-import { computed, markRaw, ref } from 'vue'
+import { computed, markRaw, ref, watch } from 'vue'
 
 import { ComfyWorkflowJSON } from '@/schemas/comfyWorkflowSchema'
 import { api } from '@/scripts/api'
+import { app as comfyApp } from '@/scripts/app'
 import { ChangeTracker } from '@/scripts/changeTracker'
 import { defaultGraphJSON } from '@/scripts/defaultGraph'
 import { getPathDetails } from '@/utils/formatUtil'
 import { syncEntities } from '@/utils/syncUtil'
+import { isSubgraph } from '@/utils/typeGuardUtil'
 
 import { UserFile } from './userFileStore'
 
@@ -31,7 +33,7 @@ export class ComfyWorkflow extends UserFile {
     super(options.path, options.modified, options.size)
   }
 
-  get key() {
+  override get key() {
     return this.path.substring(ComfyWorkflow.basePath.length)
   }
 
@@ -43,15 +45,15 @@ export class ComfyWorkflow extends UserFile {
     return this.changeTracker?.initialState ?? null
   }
 
-  get isLoaded(): boolean {
+  override get isLoaded(): boolean {
     return this.changeTracker !== null
   }
 
-  get isModified(): boolean {
+  override get isModified(): boolean {
     return this._isModified
   }
 
-  set isModified(value: boolean) {
+  override set isModified(value: boolean) {
     this._isModified = value
   }
 
@@ -62,7 +64,7 @@ export class ComfyWorkflow extends UserFile {
    * @param force Whether to force loading the content even if it is already loaded.
    * @returns this
    */
-  async load({
+  override async load({
     force = false
   }: { force?: boolean } = {}): Promise<LoadedComfyWorkflow> {
     await super.load({ force })
@@ -83,13 +85,13 @@ export class ComfyWorkflow extends UserFile {
     return this as LoadedComfyWorkflow
   }
 
-  unload(): void {
+  override unload(): void {
     console.debug('unload workflow', this.path)
     this.changeTracker = null
     super.unload()
   }
 
-  async save() {
+  override async save() {
     this.content = JSON.stringify(this.activeState)
     // Force save to ensure the content is updated in remote storage incase
     // the isModified state is screwed by changeTracker.
@@ -104,7 +106,7 @@ export class ComfyWorkflow extends UserFile {
    * @param path The path to save the workflow to. Note: with 'workflows/' prefix.
    * @returns this
    */
-  async saveAs(path: string) {
+  override async saveAs(path: string) {
     this.content = JSON.stringify(this.activeState)
     return await super.saveAs(path)
   }
@@ -128,7 +130,7 @@ export interface LoadedComfyWorkflow extends ComfyWorkflow {
 export interface WorkflowStore {
   activeWorkflow: LoadedComfyWorkflow | null
   isActive: (workflow: ComfyWorkflow) => boolean
-  openWorkflows: LoadedComfyWorkflow[]
+  openWorkflows: ComfyWorkflow[]
   openedWorkflowIndexShift: (shift: number) => LoadedComfyWorkflow | null
   openWorkflow: (workflow: ComfyWorkflow) => Promise<LoadedComfyWorkflow>
   openWorkflowsInBackground: (paths: {
@@ -153,6 +155,13 @@ export interface WorkflowStore {
   getWorkflowByPath: (path: string) => ComfyWorkflow | null
   syncWorkflows: (dir?: string) => Promise<void>
   reorderWorkflows: (from: number, to: number) => void
+
+  /** An ordered list of all parent subgraphs, ending with the current subgraph. */
+  subgraphNamePath: string[]
+  /** `true` if any subgraph is currently being viewed. */
+  isSubgraphActive: boolean
+  /** Updates the {@link subgraphNamePath} and {@link isSubgraphActive} values. */
+  updateActiveGraph: () => void
 }
 
 export const useWorkflowStore = defineStore('workflow', () => {
@@ -418,6 +427,29 @@ export const useWorkflowStore = defineStore('workflow', () => {
     }
   }
 
+  /** @see WorkflowStore.subgraphNamePath */
+  const subgraphNamePath = ref<string[]>([])
+  /** @see WorkflowStore.isSubgraphActive */
+  const isSubgraphActive = ref(false)
+
+  /** @see WorkflowStore.updateActiveGraph */
+  const updateActiveGraph = () => {
+    if (!comfyApp.canvas) return
+
+    const { subgraph } = comfyApp.canvas
+    isSubgraphActive.value = isSubgraph(subgraph)
+
+    if (subgraph) {
+      const [, ...pathFromRoot] = subgraph.pathToRootGraph
+
+      subgraphNamePath.value = pathFromRoot.map((graph) => graph.name)
+    } else {
+      subgraphNamePath.value = []
+    }
+  }
+
+  watch(activeWorkflow, updateActiveGraph)
+
   return {
     activeWorkflow,
     isActive,
@@ -439,7 +471,11 @@ export const useWorkflowStore = defineStore('workflow', () => {
     persistedWorkflows,
     modifiedWorkflows,
     getWorkflowByPath,
-    syncWorkflows
+    syncWorkflows,
+
+    subgraphNamePath,
+    isSubgraphActive,
+    updateActiveGraph
   }
 }) as () => WorkflowStore
 

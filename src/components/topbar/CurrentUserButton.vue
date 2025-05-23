@@ -1,49 +1,47 @@
 <!-- A button that shows current authenticated user's avatar -->
 <template>
-  <Button
-    v-if="isAuthenticated"
-    v-tooltip="{ value: $t('userSettings.title'), showDelay: 300 }"
-    class="user-profile-button p-1"
-    severity="secondary"
-    text
-    :aria-label="$t('userSettings.title')"
-    @click="openUserSettings"
-  >
-    <div
-      class="flex items-center gap-2 pr-2 rounded-full bg-[var(--p-content-background)]"
+  <div>
+    <Button
+      v-if="isLoggedIn"
+      class="user-profile-button p-1"
+      severity="secondary"
+      text
+      aria-label="user profile"
+      @click="popover?.toggle($event)"
     >
-      <!-- User Avatar if available -->
-      <div v-if="user?.photoURL" class="flex items-center gap-1">
-        <img
-          :src="user.photoURL"
-          :alt="user.displayName || ''"
-          class="w-8 h-8 rounded-full"
-        />
-      </div>
+      <div
+        class="flex items-center rounded-full bg-[var(--p-content-background)]"
+      >
+        <UserAvatar :photo-url="photoURL" />
 
-      <!-- User Icon if no avatar -->
-      <div v-else class="w-8 h-8 rounded-full flex items-center justify-center">
-        <i class="pi pi-user text-sm" />
+        <i class="pi pi-chevron-down px-1" :style="{ fontSize: '0.5rem' }" />
       </div>
+    </Button>
 
-      <i class="pi pi-chevron-down" :style="{ fontSize: '0.5rem' }" />
-    </div>
-  </Button>
+    <Popover ref="popover" :show-arrow="false">
+      <CurrentUserPopover @close="closePopover" />
+    </Popover>
+  </div>
 </template>
 
 <script setup lang="ts">
 import Button from 'primevue/button'
-import { computed } from 'vue'
+import Popover from 'primevue/popover'
+import { computed, ref } from 'vue'
 
-import { useDialogService } from '@/services/dialogService'
-import { useFirebaseAuthStore } from '@/stores/firebaseAuthStore'
+import UserAvatar from '@/components/common/UserAvatar.vue'
+import { useCurrentUser } from '@/composables/auth/useCurrentUser'
 
-const authStore = useFirebaseAuthStore()
-const dialogService = useDialogService()
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-const user = computed(() => authStore.currentUser)
+import CurrentUserPopover from './CurrentUserPopover.vue'
 
-const openUserSettings = () => {
-  dialogService.showSettingsDialog('user')
+const { isLoggedIn, userPhotoUrl } = useCurrentUser()
+
+const popover = ref<InstanceType<typeof Popover> | null>(null)
+const photoURL = computed<string | undefined>(
+  () => userPhotoUrl.value ?? undefined
+)
+
+const closePopover = () => {
+  popover.value?.hide()
 }
 </script>

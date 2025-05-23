@@ -49,6 +49,7 @@ import { useLitegraphService } from '@/services/litegraphService'
 import { useCanvasStore } from '@/stores/graphStore'
 import { ComfyNodeDefImpl, useNodeDefStore } from '@/stores/nodeDefStore'
 import { useSettingStore } from '@/stores/settingStore'
+import { useWorkflowStore } from '@/stores/workflowStore'
 import { useSearchBoxStore } from '@/stores/workspace/searchBoxStore'
 import { LinkReleaseTriggerAction } from '@/types/searchBoxTypes'
 import { FuseFilterWithValue } from '@/utils/fuseUtil'
@@ -101,6 +102,8 @@ const addNode = (nodeDef: ComfyNodeDefImpl) => {
 
   canvasStore.getCanvas().linkConnector.connectToNode(node, triggerEvent)
 
+  // Notify changeTracker - new step should be added
+  useWorkflowStore().activeWorkflow?.changeTracker?.checkState()
   window.requestAnimationFrame(closeDialog)
 }
 
@@ -158,7 +161,10 @@ const showContextMenu = (e: CanvasPointerEvent) => {
   const commonOptions = {
     e,
     allow_searchbox: true,
-    showSearchBox: () => showSearchBox(e)
+    showSearchBox: () => {
+      cancelResetOnContextClose()
+      showSearchBox(e)
+    }
   }
   const connectionOptions =
     toType === 'input'
@@ -200,7 +206,12 @@ const showContextMenu = (e: CanvasPointerEvent) => {
   )
 
   // Reset when the context menu is closed
-  useEventListener(menu.controller.signal, 'abort', reset, options)
+  const cancelResetOnContextClose = useEventListener(
+    menu.controller.signal,
+    'abort',
+    reset,
+    options
+  )
 }
 
 // Disable litegraph's default behavior of release link and search box.
@@ -246,7 +257,7 @@ const cancelNextReset = (e: CustomEvent<CanvasPointerEvent>) => {
   e.preventDefault()
 
   const canvas = canvasStore.getCanvas()
-  canvas._highlight_pos = [e.detail.canvasX, e.detail.canvasY]
+  canvas.linkConnector.state.snapLinksPos = [e.detail.canvasX, e.detail.canvasY]
   useEventListener(canvas.linkConnector.events, 'reset', preventDefault, {
     once: true
   })
@@ -283,7 +294,6 @@ const reset = () => {
   if (disconnectOnReset) canvas.linkConnector.disconnectLinks()
 
   canvas.linkConnector.reset()
-  canvas._highlight_pos = undefined
   canvas.setDirty(true, true)
 }
 

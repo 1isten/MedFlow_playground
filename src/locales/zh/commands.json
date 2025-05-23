@@ -140,6 +140,9 @@
   "Comfy_Manager_ToggleManagerProgressDialog": {
     "label": "切换进度对话框"
   },
+  "Comfy_MaskEditor_OpenMaskEditor": {
+    "label": "打开选中节点的遮罩编辑器"
+  },
   "Comfy_NewBlankWorkflow": {
     "label": "新建空白工作流"
   },
@@ -154,6 +157,9 @@
   },
   "Comfy_QueuePromptFront": {
     "label": "执行提示词（前端）"
+  },
+  "Comfy_QueueSelectedOutputNodes": {
+    "label": "队列所选输出节点"
   },
   "Comfy_Redo": {
     "label": "重做"
@@ -178,6 +184,9 @@
   },
   "Comfy_User_OpenSignInDialog": {
     "label": "打开登录对话框"
+  },
+  "Comfy_User_SignOut": {
+    "label": "退出登录"
   },
   "Workspace_CloseWorkflow": {
     "label": "关闭当前工作流"

@@ -25,6 +25,7 @@ export const zBaseInputOptions = z
     tooltip: z.string().optional(),
     hidden: z.boolean().optional(),
     advanced: z.boolean().optional(),
+    widgetType: z.string().optional(),
     /** Backend-only properties. */
     rawLink: z.boolean().optional(),
     lazy: z.boolean().optional()
@@ -35,7 +36,7 @@ export const zNumericInputOptions = zBaseInputOptions.extend({
   min: z.number().optional(),
   max: z.number().optional(),
   step: z.number().optional(),
-  // Note: Many node authors are using INT/FLOAT to pass list of INT/FLOAT.
+  /** Note: Many node authors are using INT/FLOAT to pass list of INT/FLOAT. */
   default: z.union([z.number(), z.array(z.number())]).optional(),
   display: z.enum(['slider', 'number', 'knob']).optional()
 })

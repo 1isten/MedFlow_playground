@@ -1,5 +1,4 @@
-import { LinkMarkerShape } from '@comfyorg/litegraph'
-import { LiteGraph } from '@comfyorg/litegraph'
+import { LinkMarkerShape, LiteGraph } from '@comfyorg/litegraph'
 
 import type { ColorPalettes } from '@/schemas/colorPaletteSchema'
 import type { Keybinding } from '@/schemas/keyBindingSchema'
@@ -7,6 +6,13 @@ import { NodeBadgeMode } from '@/types/nodeSource'
 import { LinkReleaseTriggerAction } from '@/types/searchBoxTypes'
 import type { SettingParams } from '@/types/settingTypes'
 
+/**
+ * Core settings are essential configuration parameters required for ComfyUI's basic functionality.
+ * These settings must be present in the settings store and cannot be omitted.
+ *
+ * IMPORTANT: To prevent ID conflicts, settings should be marked as deprecated rather than removed
+ * when they are no longer needed.
+ */
 export const CORE_SETTINGS: SettingParams[] = [
   {
     id: 'Comfy.Validation.Workflows',
@@ -87,6 +93,14 @@ export const CORE_SETTINGS: SettingParams[] = [
     options: ['normal', 'small'],
     // Default to small if the window is less than 1536px(2xl) wide.
     defaultValue: () => (window.innerWidth < 1536 ? 'small' : 'normal')
+  },
+  {
+    id: 'Comfy.Sidebar.UnifiedWidth',
+    category: ['Appearance', 'Sidebar', 'UnifiedWidth'],
+    name: 'Unified sidebar width',
+    type: 'boolean',
+    defaultValue: true,
+    versionAdded: '1.18.1'
   },
   {
     id: 'Comfy.TextareaWidget.FontSize',
@@ -307,6 +321,14 @@ export const CORE_SETTINGS: SettingParams[] = [
     type: 'combo',
     options: [NodeBadgeMode.None, NodeBadgeMode.ShowAll],
     defaultValue: NodeBadgeMode.ShowAll
+  },
+  {
+    id: 'Comfy.NodeBadge.ShowApiPricing',
+    category: ['Comfy', 'API Nodes'],
+    name: 'Show API node pricing badge',
+    type: 'boolean',
+    defaultValue: true,
+    versionAdded: '1.20.3'
   },
   {
     id: 'Comfy.ConfirmClear',
@@ -794,5 +816,36 @@ export const CORE_SETTINGS: SettingParams[] = [
     type: 'boolean',
     defaultValue: true,
     versionAdded: '1.16.1'
+  },
+  {
+    id: 'LiteGraph.Node.DefaultPadding',
+    name: 'Always shrink new nodes',
+    tooltip:
+      'Resize nodes to the smallest possible size when created. When disabled, a newly added node will be widened slightly to show widget values.',
+    type: 'boolean',
+    defaultValue: false,
+    versionAdded: '1.18.0'
+  },
+  {
+    id: 'Comfy.Canvas.BackgroundImage',
+    category: ['Appearance', 'Canvas', 'Background'],
+    name: 'Canvas background image',
+    type: 'backgroundImage',
+    tooltip:
+      'Image URL for the canvas background. You can right-click an image in the outputs panel and select "Set as Background" to use it, or upload your own image using the upload button.',
+    defaultValue: '',
+    versionAdded: '1.20.4',
+    versionModified: '1.20.5'
+  },
+  {
+    id: 'LiteGraph.Pointer.TrackpadGestures',
+    category: ['LiteGraph', 'Pointer', 'Trackpad Gestures'],
+    experimental: true,
+    name: 'Enable trackpad gestures',
+    tooltip:
+      'This setting enables trackpad mode for the canvas, allowing pinch-to-zoom and panning with two fingers.',
+    type: 'boolean',
+    defaultValue: false,
+    versionAdded: '1.19.1'
   }
 ]

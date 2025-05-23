@@ -510,16 +510,62 @@ The selection toolbox will display the command button when items are selected:
 
 </details>
 
+## Contributing
+
+We're building this frontend together and would love your help — no matter how you'd like to pitch in! You don't need to write code to make a difference.
+
+Here are some ways to get involved:
+
+- **Pull Requests:** Add features, fix bugs, or improve code health. Browse [issues](https://github.com/Comfy-Org/ComfyUI_frontend/issues) for inspiration.
+- **Vote on Features:** Give a 👍 to the feature requests you care about to help us prioritize.
+- **Verify Bugs:** Try reproducing reported issues and share your results (even if the bug doesn't occur!).
+- **Community Support:** Hop into our [Discord](https://www.comfy.org/discord) to answer questions or get help.
+- **Share & Advocate:** Tell your friends, tweet about us, or share tips to support the project.
+
+Have another idea? Drop into Discord or open an issue, and let's chat!
+
 ## Development
 
-### Tech Stack
+### Prerequisites & Technology Stack
 
-- [Vue 3](https://vuejs.org/) with [TypeScript](https://www.typescriptlang.org/)
-- [Pinia](https://pinia.vuejs.org/) for state management
-- [PrimeVue](https://primevue.org/) with [TailwindCSS](https://tailwindcss.com/) for UI
-- [litegraph.js](https://github.com/Comfy-Org/litegraph.js) for node editor
-- [zod](https://zod.dev/) for schema validation
-- [vue-i18n](https://github.com/intlify/vue-i18n) for internationalization
+- **Required Software**:
+  - Node.js (v16 or later) and npm
+  - Git for version control
+  - A running ComfyUI backend instance
+  
+- **Tech Stack**:
+  - [Vue 3](https://vuejs.org/) with [TypeScript](https://www.typescriptlang.org/)
+  - [Pinia](https://pinia.vuejs.org/) for state management
+  - [PrimeVue](https://primevue.org/) with [TailwindCSS](https://tailwindcss.com/) for UI
+  - [litegraph.js](https://github.com/Comfy-Org/litegraph.js) for node editor
+  - [zod](https://zod.dev/) for schema validation
+  - [vue-i18n](https://github.com/intlify/vue-i18n) for internationalization
+
+### Initial Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Comfy-Org/ComfyUI_frontend.git
+   cd ComfyUI_frontend
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Configure environment (optional):
+   Create a `.env` file in the project root based on the provided [.env.example](.env.example) file.
+
+   **Note about ports**: By default, the dev server expects the ComfyUI backend at `localhost:8188`. If your ComfyUI instance runs on a different port, update this in your `.env` file.
+
+### Dev Server Configuration
+
+To launch ComfyUI and have it connect to your development server:
+
+```bash
+python main.py --port 8188
+```
 
 ### Git pre-commit hooks
 
@@ -557,6 +603,12 @@ After you start the dev server, you should see following logs:
 Make sure your desktop machine and touch device are on the same network. On your touch device,
 navigate to `http://<server_ip>:5173` (e.g. `http://192.168.2.20:5173` here), to access the ComfyUI frontend.
 
+### Recommended Code Editor Configuration
+
+This project includes `.vscode/launch.json.default` and `.vscode/settings.json.default` files with recommended launch and workspace settings for editors that use the `.vscode` directory (e.g., VS Code, Cursor, etc.).
+
+We've also included a list of recommended extensions in `.vscode/extensions.json`. Your editor should detect this file and show a human friendly list in the Extensions panel, linking each entry to its marketplace page.
+
 ### Unit Test
 
 - `npm i` to install all dependencies
@@ -586,3 +638,103 @@ This will replace the litegraph package in this repo with the local litegraph re
 ### i18n
 
 See [locales/README.md](src/locales/README.md) for details.
+
+## Troubleshooting
+
+> **Note**: For comprehensive troubleshooting and how-to guides, please refer to our [official documentation](https://docs.comfy.org/). This section covers only the most common issues related to frontend development.
+
+> **Desktop Users**: For issues specific to the desktop application, please refer to the [ComfyUI desktop repository](https://github.com/Comfy-Org/desktop).
+
+### Debugging Custom Node (Extension) Issues
+
+If you're experiencing crashes, errors, or unexpected behavior with ComfyUI, it's often caused by custom nodes (extensions). Follow these steps to identify and resolve the issues:
+
+#### Step 1: Verify if custom nodes are causing the problem
+
+Run ComfyUI with the `--disable-all-custom-nodes` flag:
+
+```bash
+python main.py --disable-all-custom-nodes
+```
+
+If the issue disappears, a custom node is the culprit. Proceed to the next step.
+
+#### Step 2: Identify the problematic custom node using binary search
+
+Rather than disabling nodes one by one, use this more efficient approach:
+
+1. Temporarily move half of your custom nodes out of the `custom_nodes` directory
+   ```bash
+   # Create a temporary directory
+   # Linux/Mac
+   mkdir ~/custom_nodes_disabled
+   
+   # Windows
+   mkdir %USERPROFILE%\custom_nodes_disabled
+   
+   # Move half of your custom nodes (assuming you have node1 through node8)
+   # Linux/Mac
+   mv custom_nodes/node1 custom_nodes/node2 custom_nodes/node3 custom_nodes/node4 ~/custom_nodes_disabled/
+   
+   # Windows
+   move custom_nodes\node1 custom_nodes\node2 custom_nodes\node3 custom_nodes\node4 %USERPROFILE%\custom_nodes_disabled\
+   ```
+
+2. Run ComfyUI again
+   - If the issue persists: The problem is in nodes 5-8 (the remaining half)
+   - If the issue disappears: The problem is in nodes 1-4 (the moved half)
+
+3. Let's assume the issue disappeared, so the problem is in nodes 1-4. Move half of these for the next test:
+   ```bash
+   # Move nodes 3-4 back to custom_nodes
+   # Linux/Mac
+   mv ~/custom_nodes_disabled/node3 ~/custom_nodes_disabled/node4 custom_nodes/
+   
+   # Windows
+   move %USERPROFILE%\custom_nodes_disabled\node3 %USERPROFILE%\custom_nodes_disabled\node4 custom_nodes\
+   ```
+
+4. Run ComfyUI again
+   - If the issue reappears: The problem is in nodes 3-4
+   - If issue still gone: The problem is in nodes 1-2
+
+5. Let's assume the issue reappeared, so the problem is in nodes 3-4. Test each one:
+   ```bash
+   # Move node 3 back to disabled
+   # Linux/Mac
+   mv custom_nodes/node3 ~/custom_nodes_disabled/
+   
+   # Windows
+   move custom_nodes\node3 %USERPROFILE%\custom_nodes_disabled\
+   ```
+
+6. Run ComfyUI again
+   - If the issue disappears: node3 is the problem
+   - If issue persists: node4 is the problem
+
+7. Repeat until you identify the specific problematic node
+
+#### Step 3: Update or replace the problematic node
+
+Once identified:
+1. Check for updates to the problematic custom node
+2. Consider alternatives with similar functionality
+3. Report the issue to the custom node developer with specific details
+
+### Common Issues and Solutions
+
+- **"Module not found" errors**: Usually indicates missing Python dependencies. Check the custom node's `requirements.txt` file for required packages and install them:
+  ```bash
+  pip install -r custom_nodes/problematic_node/requirements.txt
+  ```
+
+- **Frontend or Templates Package Not Updated**: After updating ComfyUI via Git, ensure you update the frontend dependencies:
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+- **Can't Find Custom Node**: Make sure to disable node validation in ComfyUI settings.
+
+- **Error Toast About Workflow Failing Validation**: Report the issue to the ComfyUI team. As a temporary workaround, disable workflow validation in settings.
+
+- **Login Issues When Not on Localhost**: Normal login is only available when accessing from localhost. If you're running ComfyUI via LAN, another domain, or headless, you can use our API key feature to authenticate. The API key lets you log in normally through the UI. Generate an API key at [platform.comfy.org/login](https://platform.comfy.org/login) and use it in the API Key field in the login dialog or with the `--api-key` command line argument. Refer to our [API Key Integration Guide](https://docs.comfy.org/essentials/comfyui-server/api-key-integration#integration-of-api-key-to-use-comfyui-api-nodes) for complete setup instructions.

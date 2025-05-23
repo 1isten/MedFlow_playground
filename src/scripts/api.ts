@@ -1,6 +1,7 @@
 import axios from 'axios'
 
 import type {
+  DisplayComponentWsMessage,
   EmbeddingsResponse,
   ExecutedWsMessage,
   ExecutingWsMessage,
@@ -14,6 +15,7 @@ import type {
   LogsRawResponse,
   LogsWsMessage,
   PendingTaskItem,
+  ProgressTextWsMessage,
   ProgressWsMessage,
   PromptResponse,
   RunningTaskItem,
@@ -58,6 +60,21 @@ interface QueuePromptRequestBody {
      * ```
      */
     auth_token_comfy_org?: string
+    /**
+     * The auth token for the comfy org account if the user is logged in.
+     *
+     * Backend node can access this token by specifying following input:
+     * ```python
+     * def INPUT_TYPES(s):
+     *   return {
+     *     "hidden": { "api_key": "API_KEY_COMFY_ORG" }
+     *   }
+     *
+     * def execute(self, api_key: str):
+     *   print(f"API Key: {api_key}")
+     * ```
+     */
+    api_key_comfy_org?: string
   }
   front?: boolean
   number?: number
@@ -84,8 +101,10 @@ interface BackendApiCalls {
   execution_interrupted: ExecutionInterruptedWsMessage
   execution_cached: ExecutionCachedWsMessage
   logs: LogsWsMessage
-  /** Mr Blob Preview, I presume? */
+  /** Binary preview/progress data */
   b_preview: Blob
+  progress_text: ProgressTextWsMessage
+  display_component: DisplayComponentWsMessage
 }
 
 /** Dictionary of all api calls */
@@ -215,6 +234,24 @@ export class ComfyApi extends EventTarget {
 
   reportedUnknownMessageTypes = new Set<string>()
 
+  /**
+   * The auth token for the comfy org account if the user is logged in.
+   * This is only used for {@link queuePrompt} now. It is not directly
+   * passed as parameter to the function because some custom nodes are hijacking
+   * {@link queuePrompt} improperly, which causes extra parameters to be lost
+   * in the function call chain.
+   *
+   * Ref: https://cs.comfy.org/search?q=context:global+%22api.queuePrompt+%3D%22&patternType=keyword&sm=0
+   *
+   * TODO: Move this field to parameter of {@link queuePrompt} once all
+   * custom nodes are patched.
+   */
+  authToken?: string
+  /**
+   * The API key for the comfy org account if the user logged in via API key.
+   */
+  apiKey?: string
+
   constructor() {
     super()
     this.user = ''
@@ -267,7 +304,7 @@ export class ComfyApi extends EventTarget {
     return fetch(this.apiURL(route), options)
   }
 
-  addEventListener<TEvent extends keyof ApiEvents>(
+  override addEventListener<TEvent extends keyof ApiEvents>(
     type: TEvent,
     callback: ((event: ApiEvents[TEvent]) => void) | null,
     options?: AddEventListenerOptions | boolean
@@ -277,7 +314,7 @@ export class ComfyApi extends EventTarget {
     this.#registered.add(type)
   }
 
-  removeEventListener<TEvent extends keyof ApiEvents>(
+  override removeEventListener<TEvent extends keyof ApiEvents>(
     type: TEvent,
     callback: ((event: ApiEvents[TEvent]) => void) | null,
     options?: EventListenerOptions | boolean
@@ -308,7 +345,7 @@ export class ComfyApi extends EventTarget {
   }
 
   /** @deprecated Use {@link dispatchCustomEvent}. */
-  dispatchEvent(event: never): boolean {
+  override dispatchEvent(event: never): boolean {
     return super.dispatchEvent(event)
   }
 
@@ -379,21 +416,31 @@ export class ComfyApi extends EventTarget {
         if (event.data instanceof ArrayBuffer) {
           const view = new DataView(event.data)
           const eventType = view.getUint32(0)
-          const buffer = event.data.slice(4)
+
+          let imageMime
           switch (eventType) {
+            case 3:
+              const decoder = new TextDecoder()
+              const data = event.data.slice(4)
+              const nodeIdLength = view.getUint32(4)
+              this.dispatchCustomEvent('progress_text', {
+                nodeId: decoder.decode(data.slice(4, 4 + nodeIdLength)),
+                text: decoder.decode(data.slice(4 + nodeIdLength))
+              })
+              break
             case 1:
-              const view2 = new DataView(event.data)
-              const imageType = view2.getUint32(0)
-              let imageMime
+              const imageType = view.getUint32(4)
+              const imageData = event.data.slice(8)
               switch (imageType) {
+                case 2:
+                  imageMime = 'image/png'
+                  break
                 case 1:
                 default:
                   imageMime = 'image/jpeg'
                   break
-                case 2:
-                  imageMime = 'image/png'
               }
-              const imageBlob = new Blob([buffer.slice(4)], {
+              const imageBlob = new Blob([imageData], {
                 type: imageMime
               })
               this.dispatchCustomEvent('b_preview', imageBlob)
@@ -576,13 +623,11 @@ export class ComfyApi extends EventTarget {
    * Queues a prompt to be executed
    * @param {number} number The index at which to queue the prompt, passing -1 will insert the prompt at the front of the queue
    * @param {object} prompt The prompt data to queue
-   * @param {string} authToken The auth token for the comfy org account if the user is logged in
    * @throws {PromptExecutionError} If the prompt fails to execute
    */
   async queuePrompt(
     number: number,
-    data: { output: ComfyApiWorkflow; workflow: ComfyWorkflowJSON },
-    authToken?: string
+    data: { output: ComfyApiWorkflow; workflow: ComfyWorkflowJSON }
   ): Promise<PromptResponse> {
     const { output: prompt, workflow } = data
 
@@ -590,7 +635,8 @@ export class ComfyApi extends EventTarget {
       client_id: this.clientId ?? '', // TODO: Unify clientId access
       prompt,
       extra_data: {
-        auth_token_comfy_org: authToken,
+        auth_token_comfy_org: this.authToken,
+        api_key_comfy_org: this.apiKey,
         extra_pnginfo: { workflow }
       }
     }
@@ -927,52 +973,6 @@ export class ComfyApi extends EventTarget {
       }
     )
     return resp
-  }
-
-  /**
-   * @overload
-   * Lists user data files for the current user
-   * @param { string } dir The directory in which to list files
-   * @param { boolean } [recurse] If the listing should be recursive
-   * @param { true } [split] If the paths should be split based on the os path separator
-   * @returns { Promise<string[][]> } The list of split file paths in the format [fullPath, ...splitPath]
-   */
-  /**
-   * @overload
-   * Lists user data files for the current user
-   * @param { string } dir The directory in which to list files
-   * @param { boolean } [recurse] If the listing should be recursive
-   * @param { false | undefined } [split] If the paths should be split based on the os path separator
-   * @returns { Promise<string[]> } The list of files
-   */
-  async listUserData(
-    dir: string,
-    recurse: boolean,
-    split?: true
-  ): Promise<string[][]>
-  async listUserData(
-    dir: string,
-    recurse: boolean,
-    split?: false
-  ): Promise<string[]>
-  /**
-   * @deprecated Use `listUserDataFullInfo` instead.
-   */
-  async listUserData(dir: string, recurse: boolean, split?: boolean) {
-    const resp = await this.fetchApi(
-      `/userdata?${new URLSearchParams({
-        recurse: recurse ? 'true' : 'false',
-        dir,
-        split: split ? 'true' : 'false'
-      })}`
-    )
-    if (resp.status === 404) return []
-    if (resp.status !== 200) {
-      throw new Error(
-        `Error getting user data list '${dir}': ${resp.status} ${resp.statusText}`
-      )
-    }
-    return resp.json()
   }
 
   async listUserDataFullInfo(dir: string): Promise<UserDataFullInfo[]> {

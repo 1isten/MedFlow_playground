@@ -140,6 +140,9 @@
   "Comfy_Manager_ToggleManagerProgressDialog": {
     "label": "Переключить диалоговое окно прогресса"
   },
+  "Comfy_MaskEditor_OpenMaskEditor": {
+    "label": "Открыть редактор масок для выбранной ноды"
+  },
   "Comfy_NewBlankWorkflow": {
     "label": "Новый пустой рабочий процесс"
   },
@@ -154,6 +157,9 @@
   },
   "Comfy_QueuePromptFront": {
     "label": "Очередь запросов (передняя)"
+  },
+  "Comfy_QueueSelectedOutputNodes": {
+    "label": "Добавить выбранные выходные узлы в очередь"
   },
   "Comfy_Redo": {
     "label": "Повторить"
@@ -178,6 +184,9 @@
   },
   "Comfy_User_OpenSignInDialog": {
     "label": "Открыть окно входа"
+  },
+  "Comfy_User_SignOut": {
+    "label": "Выйти"
   },
   "Workspace_CloseWorkflow": {
     "label": "Закрыть текущий рабочий процесс"

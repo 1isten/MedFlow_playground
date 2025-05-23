@@ -140,6 +140,9 @@
   "Comfy_Manager_ToggleManagerProgressDialog": {
     "label": "プログレスダイアログの切り替え"
   },
+  "Comfy_MaskEditor_OpenMaskEditor": {
+    "label": "選択したノードのマスクエディタを開く"
+  },
   "Comfy_NewBlankWorkflow": {
     "label": "新しい空のワークフロー"
   },
@@ -154,6 +157,9 @@
   },
   "Comfy_QueuePromptFront": {
     "label": "キュープロンプト（フロント）"
+  },
+  "Comfy_QueueSelectedOutputNodes": {
+    "label": "選択した出力ノードをキューに追加"
   },
   "Comfy_Redo": {
     "label": "やり直す"
@@ -178,6 +184,9 @@
   },
   "Comfy_User_OpenSignInDialog": {
     "label": "サインインダイアログを開く"
+  },
+  "Comfy_User_SignOut": {
+    "label": "サインアウト"
   },
   "Workspace_CloseWorkflow": {
     "label": "現在のワークフローを閉じる"

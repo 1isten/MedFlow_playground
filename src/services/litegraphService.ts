@@ -1,10 +1,12 @@
 import {
   type IContextMenuValue,
+  LGraphCanvas,
   LGraphEventMode,
   LGraphNode,
   LiteGraph,
   RenderShape,
-  type Vector2
+  type Vector2,
+  createBounds
 } from '@comfyorg/litegraph'
 import type {
   ISerialisableNodeInput,
@@ -31,6 +33,7 @@ import { $el } from '@/scripts/ui'
 import { useCanvasStore } from '@/stores/graphStore'
 import { useNodeOutputStore } from '@/stores/imagePreviewStore'
 import { ComfyNodeDefImpl } from '@/stores/nodeDefStore'
+import { useSettingStore } from '@/stores/settingStore'
 import { useToastStore } from '@/stores/toastStore'
 import { useWidgetStore } from '@/stores/widgetStore'
 import { normalizeI18nKey } from '@/utils/formatUtil'
@@ -57,8 +60,8 @@ export const useLitegraphService = () => {
   async function registerNodeDef(nodeId: string, nodeDefV1: ComfyNodeDefV1) {
     const node = class ComfyNode extends LGraphNode {
       static comfyClass: string
-      static title: string
-      static category: string
+      static override title: string
+      static override category: string
       static nodeData: ComfyNodeDefV1 & ComfyNodeDefV2
 
       /**
@@ -79,6 +82,13 @@ export const useLitegraphService = () => {
         this.#addOutputs(ComfyNode.nodeData.outputs)
         this.#setInitialSize()
         this.serialize_widgets = true
+
+        // Mark API Nodes yellow by default to distinguish with other nodes.
+        if (ComfyNode.nodeData.api_node) {
+          this.color = LGraphCanvas.node_colors.yellow.color
+          this.bgcolor = LGraphCanvas.node_colors.yellow.bgcolor
+        }
+
         void extensionService.invokeExtensionsAsync('nodeCreated', this)
       }
 
@@ -125,7 +135,9 @@ export const useLitegraphService = () => {
       #addInputSocket(inputSpec: InputSpec) {
         const inputName = inputSpec.name
         const nameKey = `${this.#nodeKey}.inputs.${normalizeI18nKey(inputName)}.name`
-        const widgetConstructor = widgetStore.widgets.get(inputSpec.type)
+        const widgetConstructor = widgetStore.widgets.get(
+          inputSpec.widgetType ?? inputSpec.type
+        )
         if (widgetConstructor && !inputSpec.forceInput) return
 
         this.addInput(inputName, inputSpec.type, {
@@ -139,9 +151,13 @@ export const useLitegraphService = () => {
        * (unless `socketless`), an input socket is also added.
        */
       #addInputWidget(inputSpec: InputSpec) {
+        const widgetInputSpec = { ...inputSpec }
+        if (inputSpec.widgetType) {
+          widgetInputSpec.type = inputSpec.widgetType
+        }
         const inputName = inputSpec.name
         const nameKey = `${this.#nodeKey}.inputs.${normalizeI18nKey(inputName)}.name`
-        const widgetConstructor = widgetStore.widgets.get(inputSpec.type)
+        const widgetConstructor = widgetStore.widgets.get(widgetInputSpec.type)
         if (!widgetConstructor || inputSpec.forceInput) return
 
         const {
@@ -151,7 +167,7 @@ export const useLitegraphService = () => {
         } = widgetConstructor(
           this,
           inputName,
-          transformInputSpecV2ToV1(inputSpec),
+          transformInputSpecV2ToV1(widgetInputSpec),
           app
         ) ?? {}
 
@@ -165,7 +181,7 @@ export const useLitegraphService = () => {
         }
 
         if (!widget?.options?.socketless) {
-          const inputSpecV1 = transformInputSpecV2ToV1(inputSpec)
+          const inputSpecV1 = transformInputSpecV2ToV1(widgetInputSpec)
           this.addInput(inputName, inputSpec.type, {
             shape: inputSpec.isOptional ? RenderShape.HollowCircle : undefined,
             localized_name: st(nameKey, inputName),
@@ -220,7 +236,11 @@ export const useLitegraphService = () => {
        */
       #setInitialSize() {
         const s = this.computeSize()
-        s[0] = Math.max(this.#initialMinSize.width, s[0] * 1.5)
+        // Expand the width a little to fit widget values on screen.
+        const pad =
+          this.widgets?.length &&
+          !useSettingStore().get('LiteGraph.Node.DefaultPadding')
+        s[0] = Math.max(this.#initialMinSize.width, s[0] + (pad ? 60 : 0))
         s[1] = Math.max(this.#initialMinSize.height, s[1])
         this.setSize(s)
       }
@@ -644,11 +664,23 @@ export const useLitegraphService = () => {
     canvas.setDirty(true, true)
   }
 
+  function fitView() {
+    const canvas = canvasStore.canvas
+    if (!canvas) return
+
+    const bounds = createBounds(app.graph.nodes)
+    if (!bounds) return
+
+    canvas.ds.fitToBounds(bounds)
+    canvas.setDirty(true, true)
+  }
+
   return {
     registerNodeDef,
     addNodeOnGraph,
     getCanvasCenter,
     goToNode,
-    resetView
+    resetView,
+    fitView
   }
 }

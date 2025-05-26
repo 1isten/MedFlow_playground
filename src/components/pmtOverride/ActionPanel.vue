@@ -211,8 +211,8 @@
       <ConfirmPopup group="confirm_saving" />
     </Panel>
     <div
-      class="fixed top-0 right-0 pointer-events-none flex flex-col shadow-md drop-shadow-md"
-      :class="showTerminal ? 'z-[9999]' : '-z-[1]'"
+      class="fixed top-0 right-0 pointer-events-none flex flex-col"
+      :class="showTerminal ? 'shadow-md drop-shadow-md z-[9999]' : '-z-[1]'"
     >
       <PmTerminal
         class="overflow-hidden border-black border-solid border-r border-l-4 border-b-0"

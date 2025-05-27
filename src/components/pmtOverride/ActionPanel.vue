@@ -288,7 +288,7 @@ import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
-import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
+import { ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
 import { useWorkflowService } from '@/services/workflowService'
 // import { useKeybindingService } from '@/services/keybindingService'
@@ -2177,8 +2177,10 @@ function handleStreamChunk(chunk) {
 }
 
 function handleBatchStreamChunk(chunk) {
-  const { error, comfyNodeId, numOfDone, numOfTotal } = chunk || {}
+  const { comfyNodeId, graphJson, pythonMsg } = chunk || {}
   const node = comfyApp.graph.getNodeById(comfyNodeId)
+  console.log('batch chunk:', chunk, node)
+  /*
   if (node) {
     let status = null
     let countStr = `${numOfDone}/${numOfTotal}`
@@ -2211,6 +2213,7 @@ function handleBatchStreamChunk(chunk) {
       countEl.style.visibility = 'visible'
     }
   }
+  */
 }
 
 function getPipeline(payload, port) {

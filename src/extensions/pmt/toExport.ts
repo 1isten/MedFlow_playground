@@ -31,6 +31,25 @@ useExtensionService().registerExtension({
         return _onAfterGraphConfigured?.apply(this, args)
       }
 
+      const _onAdded = node.onAdded
+      node.onAdded = function (...args) {
+        if (node.inputs.length > 1 && node.inputs[0].type === '*') {
+          while (
+            node.inputs.length > 1 &&
+            node.inputs.find((i) => i.type !== '*' && !i.link)
+          ) {
+            node.removeInput(
+              node.inputs.findIndex((i) => i.type !== '*' && !i.link)
+            )
+          }
+        }
+        requestAnimationFrame(() => {
+          node.setSize([node.size[0], 26])
+          node.setDirtyCanvas(true)
+        })
+        return _onAdded?.apply(this, args)
+      }
+
       const _onConnectionsChange = node.onConnectionsChange
       node.onConnectionsChange = function (...args) {
         const [type, index, isConnected, link_info, inputOrOutput] = args

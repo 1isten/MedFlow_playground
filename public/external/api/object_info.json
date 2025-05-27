@@ -2011,6 +2011,102 @@
     "output_node": false
   },
 
+  "preview.boolean": {
+    "name": "preview.boolean",
+    "category": "preview/Scalar",
+    "display_name": "Boolean",
+    "description": "BOOLEAN",
+    "python_module": "custom_nodes.preview.boolean",
+    "input": {
+      "required": {
+        "bool": [
+          "BOOLEAN",
+          {
+            "forceInput": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["bool"]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  },
+  "preview.number": {
+    "name": "preview.number",
+    "category": "preview/Scalar",
+    "display_name": "Number",
+    "description": "FLOAT",
+    "python_module": "custom_nodes.preview.number",
+    "input": {
+      "required": {
+        "float_num": [
+          "FLOAT",
+          {
+            "forceInput": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["float_num"]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  },
+  "preview.text": {
+    "name": "preview.text",
+    "category": "preview/Scalar",
+    "display_name": "Text",
+    "description": "STRING",
+    "python_module": "custom_nodes.preview.text",
+    "input": {
+      "required": {
+        "str": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["str"]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  },
+  "preview.json": {
+    "name": "preview.json",
+    "category": "preview/Scalar",
+    "display_name": "JSON",
+    "description": "JSON",
+    "python_module": "custom_nodes.preview.json",
+    "input": {
+      "required": {
+        "json_str": [
+          "STRING",
+          {
+            "forceInput": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["json_str"]
+    },
+    "output": [],
+    "output_name": [],
+    "output_is_list": [],
+    "output_node": true
+  },
   "preview.volview": {
     "name": "preview.volview",
     "category": "preview",

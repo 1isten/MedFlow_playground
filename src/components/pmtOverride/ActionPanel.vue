@@ -771,6 +771,7 @@ onMounted(async () => {
   }
 
   const hideTypes = [
+    'preview.json',
     'input.load_json',
     'input.load_image',
     'input.load_nifti',

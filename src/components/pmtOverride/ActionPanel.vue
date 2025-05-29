@@ -1292,7 +1292,11 @@ function togglePipOver(e) {
 
 async function resetNodeById(nodeId) {
   try {
-    if (pipelineId && nodeId === -1) {
+    if (
+      pipelineId &&
+      nodeId === -1 &&
+      comfyApp.graph.nodes.find((node) => node.type === 'manual.segmentation')
+    ) {
       fetch(
         `connect://localhost/api/volview/sessions/-1?pipelineId=${pipelineId}`,
         {
@@ -1599,11 +1603,12 @@ const confirmDelete = (e) => {
       label: 'Delete',
       severity: 'danger'
     },
-    accept: () => {
+    accept: async () => {
       if (!pipelineId) {
         return
       }
       deleting.value = true
+      await resetNodeById(-1)
       return deletePipeline({ id: pipeline.value.id })
     },
     reject: () => {}

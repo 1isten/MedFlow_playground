@@ -172,6 +172,10 @@ useExtensionService().registerExtension({
       div,
       {}
     )
+    requestAnimationFrame(() => {
+      node.setSize([210, 120])
+      node.setDirtyCanvas(true)
+    })
 
     const _onDrawBackground = node.onDrawBackground
     node.onDrawBackground = function (...args) {

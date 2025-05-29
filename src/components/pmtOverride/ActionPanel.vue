@@ -2608,4 +2608,8 @@ div.comfy-menu.no-drag {
   .p-button[aria-label='Open Manager'] {
   display: none !important;
 }
+
+.dom-widget {
+  background-color: #353535;
+}
 </style>

@@ -1292,6 +1292,29 @@ function togglePipOver(e) {
 
 async function resetNodeById(nodeId) {
   try {
+    if (pipelineId && nodeId === -1) {
+      fetch(
+        `connect://localhost/api/volview/sessions/-1?pipelineId=${pipelineId}`,
+        {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
+        .then((res) => {
+          if (res.ok) {
+            return res.json()
+          }
+          return []
+        })
+        .then((deletedSegs) => {
+          console.log('deleted segs:', deletedSegs)
+        })
+        .catch((err) => {
+          console.error(err)
+        })
+    }
     const { json } = exportJson(false)
     const res = await fetch(
       'connect://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',

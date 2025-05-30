@@ -288,7 +288,7 @@ import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
-import { ParsedLevel } from '@/constants/pmtCore'
+import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
 import { useWorkflowService } from '@/services/workflowService'
 // import { useKeybindingService } from '@/services/keybindingService'
@@ -2077,6 +2077,72 @@ onMounted(async () => {
   }
 })
 
+function handlePythonMsg(msg) {
+  if (msg.includes(' [PIPELINE] ')) {
+    let logLevel
+    let [msg1, msg2] = msg.split(' [PIPELINE] ')
+    if (msg1) {
+      if (msg1.endsWith(']')) {
+        const [msg1_, level] = msg1.split(' [')
+        if (msg1_) {
+          msg1 = msg1_
+        }
+        if (level) {
+          logLevel = level.split(']')[0].toUpperCase()
+          if (msg1_) {
+            // msg1 = `[${logLevel}] ` + msg1_
+          }
+        }
+      }
+      switch (logLevel) {
+        case 'WARNING':
+          term?.write(`\r\n` + `\x1B[0;93m${msg1}\x1B[0m` + '\r\n')
+          break
+        case 'ERROR':
+          term?.write(`\r\n` + `\x1B[0;91m${msg1}\x1B[0m` + '\r\n')
+          break
+        default:
+          term?.write(`\r\n` + msg1 + '\r\n')
+          break
+      }
+    }
+    if (msg2) {
+      if (msg2.endsWith('\r\n')) {
+        //
+      } else if (msg2.endsWith('\r')) {
+        msg2 = msg2 + '\n'
+      } else if (msg2.endsWith('\n')) {
+        msg2 = msg2.slice(0, -1) + '\r\n'
+      } else {
+        msg2 = msg2 + '\r\n'
+      }
+      switch (logLevel) {
+        case 'WARNING':
+          toast.add({
+            severity: 'warn',
+            summary: msg1 && 'Warning',
+            detail: msg2
+          })
+          term?.write(`\x1B[0;93m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
+          break
+        case 'ERROR':
+          toast.add({
+            severity: 'error',
+            summary: msg1 && 'Error',
+            detail: msg2
+          })
+          term?.write(`\x1B[0;91m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
+          break
+        default:
+          term?.write(`[${logLevel}] [PIPELINE] ${msg2}`)
+          break
+      }
+    }
+    return
+  }
+  term?.write(msg + (msg.endsWith('\r') ? '\n' : ''))
+}
+
 function handleStreamChunk(chunk) {
   const { pythonMsg, graphJson } = chunk || {}
   const msg = pythonMsg?.msg || ''
@@ -2137,111 +2203,75 @@ function handleStreamChunk(chunk) {
     })
   }
   if (msg) {
-    if (msg.includes(' [PIPELINE] ')) {
-      let logLevel
-      let [msg1, msg2] = msg.split(' [PIPELINE] ')
-      if (msg1) {
-        if (msg1.endsWith(']')) {
-          const [msg1_, level] = msg1.split(' [')
-          if (msg1_) {
-            msg1 = msg1_
-          }
-          if (level) {
-            logLevel = level.split(']')[0].toUpperCase()
-            if (msg1_) {
-              // msg1 = `[${logLevel}] ` + msg1_
-            }
-          }
-        }
-        switch (logLevel) {
-          case 'WARNING':
-            term?.write(`\r\n` + `\x1B[0;93m${msg1}\x1B[0m` + '\r\n')
-            break
-          case 'ERROR':
-            term?.write(`\r\n` + `\x1B[0;91m${msg1}\x1B[0m` + '\r\n')
-            break
-          default:
-            term?.write(`\r\n` + msg1 + '\r\n')
-            break
-        }
-      }
-      if (msg2) {
-        if (msg2.endsWith('\r\n')) {
-          //
-        } else if (msg2.endsWith('\r')) {
-          msg2 = msg2 + '\n'
-        } else if (msg2.endsWith('\n')) {
-          msg2 = msg2.slice(0, -1) + '\r\n'
-        } else {
-          msg2 = msg2 + '\r\n'
-        }
-        switch (logLevel) {
-          case 'WARNING':
-            toast.add({
-              severity: 'warn',
-              summary: msg1 && 'Warning',
-              detail: msg2
-            })
-            term?.write(`\x1B[0;93m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
-            break
-          case 'ERROR':
-            toast.add({
-              severity: 'error',
-              summary: msg1 && 'Error',
-              detail: msg2
-            })
-            term?.write(`\x1B[0;91m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
-            break
-          default:
-            term?.write(`[${logLevel}] [PIPELINE] ${msg2}`)
-            break
-        }
-      }
-      return
-    }
-    term?.write(msg + (msg.endsWith('\r') ? '\n' : ''))
+    handlePythonMsg(msg)
     console.log(msg, results.length > 0 ? results : '')
   }
 }
 
 function handleBatchStreamChunk(chunk) {
-  const { comfyNodeId, graphJson, pythonMsg } = chunk || {}
-  const node = comfyApp.graph.getNodeById(comfyNodeId)
-  console.log('batch chunk:', chunk, node)
-  /*
-  if (node) {
-    let status = null
-    let countStr = `${numOfDone}/${numOfTotal}`
-    if (error) {
-      status = 'error'
-      console.error(comfyNodeId, chunk.message)
-    } else if (numOfTotal > 0) {
-      if (numOfDone > 0) {
-        status = 'pending'
-        if (numOfDone === numOfTotal) {
-          status = 'done'
-        }
-      }
-      console.log(comfyNodeId, countStr, chunk.message)
-    }
-    if (status) {
-      node.pmt_fields = {
-        ...(node.pmt_fields || {}),
-        status
-      }
-      node.setDirtyCanvas(true)
-    }
-    const statusWidget = node.widgets.find((w) => {
-      return w.name === 'status-float'
-    })
-    const countEl = statusWidget?.element?.querySelector('span')
-    if (countEl) {
-      countEl.textContent = countStr
-      countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
-      countEl.style.visibility = 'visible'
-    }
+  const taskIds = Object.keys(chunk || {})
+  if (taskIds.length === 0) {
+    return
   }
-  */
+  taskIds.forEach((task) => {
+    const { pythonMsg, graphJson } = chunk[task] || {}
+    const msg = pythonMsg?.msg || ''
+    if (graphJson) {
+      graphJson.forEach(({ id, pmt_fields }) => {
+        const node = comfyApp.graph.getNodeById(id)
+        if (node) {
+          const numOfTotal = taskIds.length
+          let numOfDone = 0
+          taskIds.forEach((t) => {
+            if (
+              chunk[t]?.graphJson?.find((n) => n.id === id)?.pmt_fields
+                ?.status === 'done'
+            ) {
+              numOfDone++
+            }
+          })
+          let status = pmt_fields?.status
+          let countStr = `${numOfDone}/${numOfTotal}`
+          if (status === 'error') {
+            if (msg) {
+              console.error({ task }, `Node ${node.id}:`)
+              console.dir(msg)
+            }
+          } else if (status === 'waiting') {
+            // TODO: handle waiting status for manual node
+            // ...
+          } else if (numOfTotal > 0) {
+            if (numOfDone > 0) {
+              status = 'pending'
+              if (numOfDone === numOfTotal) {
+                status = 'done'
+              }
+            }
+            if (msg) {
+              // console.log({ task }, `Node ${node.id}:`)
+              // console.dir(msg)
+            }
+          }
+          if (status) {
+            node.pmt_fields = {
+              ...(node.pmt_fields || {}),
+              status
+            }
+            node.setDirtyCanvas(true)
+          }
+          const statusWidget = node.widgets.find((w) => {
+            return w.name === 'status-float'
+          })
+          const countEl = statusWidget?.element?.querySelector('span')
+          if (countEl) {
+            countEl.textContent = countStr
+            countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
+            countEl.style.visibility = 'visible'
+          }
+        }
+      })
+    }
+  })
 }
 
 function getPipeline(payload, port) {

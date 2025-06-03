@@ -1738,6 +1738,44 @@
     "output_node": false
   },
 
+  "converter.file_to_data.json_to_dict": {
+    "name": "converter.file_to_data.json_to_dict",
+    "category": "coverters/file_to_data",
+    "display_name": "JSON to Dict",
+    "description": "Convert JSON file to python dictionary.",
+    "python_module": "custom_nodes.file_to_data.json_to_dict",
+    "input": {
+      "required": {
+        "JSON_FILE": ["JSON_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["JSON_FILE"]
+    },
+    "output": ["DICT"],
+    "output_name": ["dictionary"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_data.json_to_table": {
+    "name": "converter.file_to_data.json_to_table",
+    "category": "coverters/file_to_data",
+    "display_name": "JSON to Table",
+    "description": "Convert JSON file to a table of data in pandas.Dataframe.",
+    "python_module": "custom_nodes.file_to_data.json_to_table",
+    "input": {
+      "required": {
+        "JSON_FILE": ["JSON_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["JSON_FILE"]
+    },
+    "output": ["TABLE"],
+    "output_name": ["dataFrame"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "converter.file_to_data.image_to_2d": {
     "name": "converter.file_to_data.image_to_2d",
     "category": "coverters/file_to_data",
@@ -1831,6 +1869,44 @@
     "output": ["3D", "2D"],
     "output_name": ["data", "affine"],
     "output_is_list": [false, false],
+    "output_node": false
+  },
+  "converter.data_to_file.dict_to_json": {
+    "name": "converter.data_to_file.dict_to_json",
+    "category": "coverters/data_to_file",
+    "display_name": "Dict to JSON",
+    "description": "Convert the structured dictionary data in Python to a JSON file. Non-serielizable data types replaced by a string of its python type.",
+    "python_module": "custom_nodes.data_to_file.dict_to_json",
+    "input": {
+      "required": {
+        "DICT": ["DICT"]
+      }
+    },
+    "input_order": {
+      "required": ["DICT"]
+    },
+    "output": ["JSON_FILE"],
+    "output_name": ["file.json"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.data_to_file.table_to_json": {
+    "name": "converter.data_to_file.table_to_json",
+    "category": "coverters/data_to_file",
+    "display_name": "Table to JSON",
+    "description": "onvert the structured table data in pandas.DataFrame to a JSON file.",
+    "python_module": "custom_nodes.data_to_file.table_to_json",
+    "input": {
+      "required": {
+        "TABLE": ["TABLE"]
+      }
+    },
+    "input_order": {
+      "required": ["TABLE"]
+    },
+    "output": ["JSON_FILE"],
+    "output_name": ["file.json"],
+    "output_is_list": [false],
     "output_node": false
   },
   "converter.data_to_file.2d_to_image": {

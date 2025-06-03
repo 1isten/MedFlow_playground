@@ -77,8 +77,11 @@ useExtensionService().registerExtension({
           if (mayPreview) {
             const output = pmt_fields?.outputs?.[link_info.origin_slot]
             if (output) {
-              pre.textContent =
+              const textContent =
                 output.value !== undefined ? `${output.value}` : ''
+              if (pre.textContent !== textContent) {
+                pre.textContent = textContent
+              }
               handled = true
             }
           }

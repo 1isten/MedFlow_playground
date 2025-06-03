@@ -7,22 +7,26 @@ export const DATATYPE_COLOR = {
   '1D': '#facc15', // yellow
   DICT: '#fb923c', // orange
   TABLE: '#a3e635', // lime
+  JSON_FILE: '#b45309', // amber
 
   '2D': '#22d3ee', // cyan
   DICOM: '#2dd4bf', // teal
-  DICOM_FILE: '#0d9488', // teal
+  DICOM_FILE: '#0f766e', // teal
 
   DICOM_VOLUME_FILE: '#7d6e91', // teal+pink
-  DICOM_FILE_LIST: '#ec4899', // pink
+  DICOM_FILE_LIST: '#f472b6', // pink
   SERIES_FILE_LIST: '#ec4899', // pink
   STUDY_FILE_LIST: '#8b5cf6', // violet
 
   '3D': '#e879f9', // fuchsia
-  NIFTI: '#f472b6', // pink
-  NIFTI_FILE: '#db2777', // pink
+  NIFTI: '#db2777', // pink
+  NIFTI_FILE: '#be185d', // pink
   // LABELMAP: '#86efac', // green
 
-  IMAGE_FILE: '#60a5fa', // blue
+  IMAGE_FILE: '#2563eb', // blue
+
+  // other general file types
+  FILE: '#4338ca', // indigo
 
   LOOP: '#be123c' // rose
 }

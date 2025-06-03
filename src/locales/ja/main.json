@@ -294,6 +294,7 @@
     "findIssues": "問題を見つける",
     "firstTimeUIMessage": "新しいUIを初めて使用しています。「メニュー > 新しいメニューを使用 > 無効」を選択することで古いUIに戻すことが可能です。",
     "goToNode": "ノードに移動",
+    "help": "ヘルプ",
     "icon": "アイコン",
     "imageFailedToLoad": "画像の読み込みに失敗しました",
     "imageUrl": "画像URL",
@@ -836,6 +837,14 @@
     "video": "ビデオ",
     "video_models": "ビデオモデル"
   },
+  "nodeHelpPage": {
+    "documentationPage": "ドキュメントページ",
+    "inputs": "入力",
+    "loadError": "ヘルプの読み込みに失敗しました: {error}",
+    "moreHelp": "さらに詳しい情報は、",
+    "outputs": "出力",
+    "type": "タイプ"
+  },
   "nodeTemplates": {
     "enterName": "名前を入力",
     "saveAsTemplate": "テンプレートとして保存"
@@ -1065,7 +1074,23 @@
     "newBlankWorkflow": "新しい空のワークフローを作成",
     "nodeLibrary": "ノードライブラリ",
     "nodeLibraryTab": {
-      "sortOrder": "並び順"
+      "groupBy": "グループ化",
+      "groupStrategies": {
+        "category": "カテゴリ",
+        "categoryDesc": "ノードカテゴリでグループ化",
+        "module": "モジュール",
+        "moduleDesc": "モジュールソースでグループ化",
+        "source": "ソース",
+        "sourceDesc": "ソースタイプ（Core、Custom、API）でグループ化"
+      },
+      "resetView": "ビューをデフォルトにリセット",
+      "sortBy": {
+        "alphabetical": "アルファベット順",
+        "alphabeticalDesc": "グループ内でアルファベット順に並び替え",
+        "original": "元の順序",
+        "originalDesc": "元の順序を維持"
+      },
+      "sortMode": "並び替えモード"
     },
     "openWorkflow": "ローカルでワークフローを開く",
     "queue": "キュー",

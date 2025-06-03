@@ -4,13 +4,13 @@ export const DATATYPE_COLOR = {
   FLOAT: '#7F7', // green
   STRING: '#77F', // purple
 
-  '1D': '#facc15', // yellow
+  '1D': '#facc15', // yellow (Array, 1D np.ndarray)
   DICT: '#fb923c', // orange
-  TABLE: '#a3e635', // lime
+  TABLE: '#a3e635', // lime (DataFrame, pandas.DataFrame)
   JSON_FILE: '#b45309', // amber
 
-  '2D': '#22d3ee', // cyan
-  DICOM: '#2dd4bf', // teal
+  '2D': '#22d3ee', // cyan (Matrix, 2D np.ndarray)
+  DICOM_OBJ: '#2dd4bf', // teal
   DICOM_FILE: '#0f766e', // teal
 
   DICOM_VOLUME_FILE: '#7d6e91', // teal+pink
@@ -18,15 +18,14 @@ export const DATATYPE_COLOR = {
   SERIES_FILE_LIST: '#ec4899', // pink
   STUDY_FILE_LIST: '#8b5cf6', // violet
 
-  '3D': '#e879f9', // fuchsia
-  NIFTI: '#db2777', // pink
+  '3D': '#e879f9', // fuchsia (Volume, 3D np.ndarray)
+  NIFTI_OBJ: '#db2777', // pink
   NIFTI_FILE: '#be185d', // pink
   // LABELMAP: '#86efac', // green
 
   IMAGE_FILE: '#2563eb', // blue
 
-  // other general file types
-  FILE: '#4338ca', // indigo
+  FILE: '#4338ca', // indigo (other general file types)
 
   LOOP: '#be123c' // rose
 }

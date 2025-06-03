@@ -5,8 +5,8 @@ export const DATATYPE_COLOR = {
   STRING: '#77F', // purple
 
   '1D': '#facc15', // yellow (Array, 1D np.ndarray)
-  DICT: '#fb923c', // orange
   TABLE: '#a3e635', // lime (DataFrame, pandas.DataFrame)
+  DICT: '#fb923c', // orange
   JSON_FILE: '#b45309', // amber
 
   '2D': '#22d3ee', // cyan (Matrix, 2D np.ndarray)

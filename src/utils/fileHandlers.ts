@@ -162,6 +162,10 @@ const handleJsonFile: WorkflowFileHandler = async (file) => {
         const readerResult = reader.result as string
         const jsonContent = JSON.parse(readerResult)
 
+        if (jsonContent?.plugin_name) {
+          return // pmt plugin config
+        }
+
         if (jsonContent?.templates) {
           // This case will be handled separately in handleFile
           resolve({

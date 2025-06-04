@@ -34,7 +34,7 @@ useExtensionService().registerExtension({
       if (node.comfyClass !== 'manual.segmentation') {
         const countEl = document.createElement('span')
         countEl.textContent = `0/0`
-        // countEl.style.visibility = 'hidden'
+        countEl.style.visibility = 'hidden'
         countEl.classList.add('text-sm')
         div.appendChild(countEl)
       }

@@ -1583,9 +1583,13 @@ watch(
     if (loading.value) {
       return
     }
-    const saveBtn = document.querySelector('.btn-sav')
-    if (saveBtn) {
-      saveBtn.saveCheckpoints = saveCheckpoints
+    const btnSav = document.querySelector('.btn-sav')
+    if (btnSav) {
+      btnSav.saveCheckpoints = saveCheckpoints
+    }
+    const btnExp = document.querySelector('.btn-exp')
+    if (btnExp) {
+      btnExp.fireRightClick = () => exportJson(false)
     }
   },
   { flush: 'post' }
@@ -2167,29 +2171,24 @@ function handleStreamChunk(chunk) {
               if (!node.pmt_fields.outputs[o]) {
                 return
               }
+              const out = node.pmt_fields.outputs[o]
               const { name, type, oid, path, value } = output
               if (oid) {
-                node.pmt_fields.outputs[o].oid = Array.isArray(
-                  node.pmt_fields.outputs[o].oid
-                )
+                out.oid = Array.isArray(out.oid)
                   ? Array.isArray(oid)
                     ? oid
                     : [oid]
                   : oid
               }
               if (path && path !== 'None') {
-                node.pmt_fields.outputs[o].path = Array.isArray(
-                  node.pmt_fields.outputs[o].path
-                )
+                out.path = Array.isArray(out.path)
                   ? Array.isArray(path)
                     ? path
                     : [path]
                   : path
               }
               if (value) {
-                node.pmt_fields.outputs[o].value = Array.isArray(
-                  node.pmt_fields.outputs[o].value
-                )
+                out.value = Array.isArray(out.value)
                   ? Array.isArray(value)
                     ? value
                     : [value]
@@ -2227,26 +2226,85 @@ function handleBatchStreamChunk(chunk) {
       graphJson.forEach(({ id, pmt_fields }) => {
         const node = comfyApp.graph.getNodeById(id)
         if (node) {
+          const { outputs } = pmt_fields
+          if (outputs && node.pmt_fields?.outputs?.length > 0) {
+            outputs.forEach((output, o) => {
+              if (!node.pmt_fields.outputs_batch) {
+                node.pmt_fields.outputs_batch = {}
+              }
+              if (!node.pmt_fields.outputs_batch[task]) {
+                node.pmt_fields.outputs_batch[task] =
+                  node.pmt_fields.outputs.map((o) => {
+                    return {
+                      oid: null,
+                      path: null,
+                      value: null
+                    }
+                  })
+              }
+              const out = node.pmt_fields.outputs_batch[task][o]
+              const { name, type, oid, path, value } = output
+              if (oid) {
+                out.oid = Array.isArray(out.oid)
+                  ? Array.isArray(oid)
+                    ? oid
+                    : [oid]
+                  : oid
+              }
+              if (path && path !== 'None') {
+                out.path = Array.isArray(out.path)
+                  ? Array.isArray(path)
+                    ? path
+                    : [path]
+                  : path
+              }
+              if (value) {
+                out.value = Array.isArray(out.value)
+                  ? Array.isArray(value)
+                    ? value
+                    : [value]
+                  : value
+              }
+            })
+          }
           const numOfTotal = taskIds.length
+          let numOfError = 0
+          let numOfWaiting = 0
           let numOfDone = 0
           taskIds.forEach((t) => {
-            if (
-              chunk[t]?.graphJson?.find((n) => n.id === id)?.pmt_fields
-                ?.status === 'done'
-            ) {
-              numOfDone++
-            }
+            chunk[t]?.graphJson?.forEach((n) => {
+              if (n.id === id && n.pmt_fields?.status) {
+                switch (n.pmt_fields.status) {
+                  case 'error':
+                    numOfError++
+                    break
+                  case 'waiting':
+                    numOfWaiting++
+                    break
+                  case 'done':
+                    numOfDone++
+                    break
+                  default:
+                    break
+                }
+              }
+            })
           })
           let status = pmt_fields?.status
-          let countStr = `${numOfDone}/${numOfTotal}`
-          if (status === 'error') {
+          if (numOfError) {
+            status = 'error'
             if (msg) {
-              console.error({ task }, `Node ${node.id}:`)
-              console.dir(msg)
+              // console.error({ task }, `Node ${node.id}:`)
+              // console.dir(msg)
             }
-          } else if (status === 'waiting') {
+          } else if (numOfWaiting) {
+            status = 'waiting'
             // TODO: handle waiting status for manual node
             // ...
+            if (msg) {
+              // console.warn({ task }, `Node ${node.id}:`)
+              // console.dir(msg)
+            }
           } else if (numOfTotal > 0) {
             if (numOfDone > 0) {
               status = 'pending'
@@ -2259,21 +2317,25 @@ function handleBatchStreamChunk(chunk) {
               // console.dir(msg)
             }
           }
-          if (status) {
+          if (status && !node.type.startsWith('preview.')) {
             node.pmt_fields = {
               ...(node.pmt_fields || {}),
               status
             }
+            const statusWidget = node.widgets.find((w) => {
+              return w.name === 'status-float'
+            })
+            const countEl = statusWidget?.element?.querySelector('span')
+            if (countEl) {
+              countEl.textContent = `${numOfDone}/${numOfTotal}`
+              if (countEl.textContent === '0/0') {
+                countEl.style.visibility = 'hidden'
+              } else {
+                countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
+                countEl.style.visibility = 'visible'
+              }
+            }
             node.setDirtyCanvas(true)
-          }
-          const statusWidget = node.widgets.find((w) => {
-            return w.name === 'status-float'
-          })
-          const countEl = statusWidget?.element?.querySelector('span')
-          if (countEl) {
-            countEl.textContent = countStr
-            countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
-            countEl.style.visibility = 'visible'
           }
         }
       })
@@ -2428,6 +2490,7 @@ function handleGetManualList(payload) {
         const output = outputs[i]
         const item = JSON.parse(
           JSON.stringify({
+            taskId: input.taskId || undefined,
             level: input.level || undefined,
             oid: input.oid || null,
             path: input.path || null,
@@ -2439,7 +2502,12 @@ function handleGetManualList(payload) {
       })
     }
   }
-  const port = ports[`tab-volview-${payload.pipelineId}-manual-${manualNodeId}`]
+  const port =
+    ports[
+      embeddedView.value
+        ? `tab-volview-${payload.pipelineId}-embedded-manual-${manualNodeId}`
+        : `tab-volview-${payload.pipelineId}-manual-${manualNodeId}`
+    ]
   if (port) {
     port.postMessage({
       type: 'got-manual-list',

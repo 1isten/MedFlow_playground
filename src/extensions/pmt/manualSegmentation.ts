@@ -100,9 +100,16 @@ useExtensionService().registerExtension({
           ? document.location.hash.split('?')[1] || ''
           : document.location.search
       )
-      let search = `?manualType=segmentation&drawer=permanent&defaultTool=Paint&labelmapFormat=${labelmapFormat}&roi=true&heatmap=true`
+      let search = `?manualType=segmentation&drawer=permanent&defaultTool=Paint&labelmapFormat=${labelmapFormat}&roi=true`
+      // search += '&heatmap=true'
       const pipelineId = query.get('pipelineId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''
+      if (
+        pipelineId &&
+        document.location.href.includes('pipelineEmbedded=embedded')
+      ) {
+        search += `&pipelineEmbedded=embedded`
+      }
       // search += `&manualNodeId=${node.id}`
       return new URL(origin + pathname + search).href
     }
@@ -114,7 +121,16 @@ useExtensionService().registerExtension({
         // @ts-expect-error custom pmt_fields
         const pmt_fields = inputNode.pmt_fields as any
         if (pmt_fields?.status === 'done') {
-          if (pmt_fields.outputs?.length) {
+          if (pmt_fields.outputs_batch) {
+            Object.entries(pmt_fields.outputs_batch).forEach(
+              ([taskId, outs]) => {
+                outs.forEach((out) => {
+                  out.taskId = taskId
+                  inputs.push(out)
+                })
+              }
+            )
+          } else if (pmt_fields.outputs?.length) {
             inputs.push(...pmt_fields.outputs)
           }
         }
@@ -133,7 +149,16 @@ useExtensionService().registerExtension({
         // @ts-expect-error custom pmt_fields
         const pmt_fields = node.pmt_fields as any
         if (pmt_fields) {
-          if (pmt_fields.outputs?.length) {
+          if (pmt_fields.outputs_batch) {
+            Object.entries(pmt_fields.outputs_batch).forEach(
+              ([taskId, outs]) => {
+                outs.forEach((out) => {
+                  out.taskId = taskId
+                  outputs.push(out)
+                })
+              }
+            )
+          } else if (pmt_fields.outputs?.length) {
             outputs.push(...pmt_fields.outputs)
           }
         }
@@ -153,7 +178,11 @@ useExtensionService().registerExtension({
     const toggleEl = document.createElement('button')
     toggleEl.textContent = 'Open VolView'
     toggleEl.style.visibility = 'hidden'
-    toggleEl.classList.add('text-xs', 'hover:cursor-pointer')
+    toggleEl.classList.add(
+      'text-xs',
+      'hover:cursor-pointer',
+      '!pointer-events-auto'
+    )
     div.appendChild(toggleEl)
     const countEl = document.createElement('span')
     countEl.textContent = `0/0`
@@ -163,7 +192,11 @@ useExtensionService().registerExtension({
     const continueEl = document.createElement('button')
     continueEl.textContent = 'Continue'
     continueEl.style.visibility = 'hidden'
-    continueEl.classList.add('text-xs', 'hover:cursor-pointer')
+    continueEl.classList.add(
+      'text-xs',
+      'hover:cursor-pointer',
+      '!pointer-events-auto'
+    )
     div.appendChild(continueEl)
 
     const widget = node.addDOMWidget(
@@ -219,11 +252,49 @@ useExtensionService().registerExtension({
           if (outputCount === inputCount) {
             continueEl.style.visibility = 'visible'
             continueEl.onclick = (e) => {
+              if (pmt_fields.outputs_batch) {
+                const btnExp = document.querySelector(
+                  '#pmt-action-panel .btn-exp'
+                )
+                const { json } = btnExp?.fireRightClick?.() || {}
+                if (json) {
+                  const res = {
+                    pipelineId: new URLSearchParams(
+                      document.location.search
+                    ).get('pipelineId'),
+                    tasks: Object.keys(pmt_fields.outputs_batch).map(
+                      (taskId) => {
+                        const workflow = JSON.parse(JSON.stringify(json))
+                        workflow.nodes.forEach((node) => {
+                          if (node.pmt_fields) {
+                            if (node.pmt_fields.outputs_batch) {
+                              const outputs =
+                                node.pmt_fields.outputs_batch[taskId]
+                              node.pmt_fields.outputs =
+                                outputs || node.pmt_fields.outputs
+                              delete node.pmt_fields.outputs_batch
+                            }
+                          }
+                        })
+                        return {
+                          taskId,
+                          workflow
+                        }
+                      }
+                    )
+                  }
+                  console.log('resume:', res)
+                  return res
+                } else {
+                  return
+                }
+              }
               // pmt_fields.status = 'current'
               pmt_fields.status = 'done'
-              return document
-                .querySelector('#pmt-action-panel .btn-run')
-                ?.['click']?.()
+              const btnRun = document.querySelector(
+                '#pmt-action-panel .btn-run'
+              )
+              return btnRun?.['click']?.()
             }
           }
         } else {

@@ -8,6 +8,12 @@ useExtensionService().registerExtension({
     if (node?.comfyClass !== 'preview.volview') {
       return
     }
+    if (
+      document.location.href.includes('projectId=') ||
+      document.location.href.includes('pipelineEmbedded=embedded')
+    ) {
+      return
+    }
 
     const getVolViewUrl = () => {
       // eslint-disable-next-line prefer-const

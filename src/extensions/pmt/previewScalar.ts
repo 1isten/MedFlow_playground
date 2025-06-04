@@ -17,6 +17,12 @@ useExtensionService().registerExtension({
     ) {
       return
     }
+    if (
+      document.location.href.includes('projectId=') ||
+      document.location.href.includes('pipelineEmbedded=embedded')
+    ) {
+      return
+    }
 
     const div = document.createElement('div')
     div.classList.add('relative', 'overflow-hidden')

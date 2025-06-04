@@ -1373,6 +1373,13 @@ function resetNodeStatus(node) {
     if (node.pmt_fields?.status) {
       node.pmt_fields.status = null
     }
+    if (node?.type === 'manual.segmentation' || node?.type === 'manual.qna') {
+      node.pmt_fields.outputs.forEach((output, o) => {
+        output.oid = null
+        output.path = null
+        output.value = null
+      })
+    }
     node.setDirtyCanvas(true)
   }
 }

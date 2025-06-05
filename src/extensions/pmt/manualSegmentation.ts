@@ -143,8 +143,8 @@ useExtensionService().registerExtension({
       const outputs = []
       const outputInfo = node.getOutputInfo(0)
       if (
-        outputInfo?.type === 'NIFTI_FILE' ||
-        outputInfo?.type === 'DICOM_FILE'
+        outputInfo?.type === 'DICOM_FILE' ||
+        outputInfo?.type === 'NIFTI_FILE'
       ) {
         // @ts-expect-error custom pmt_fields
         const pmt_fields = node.pmt_fields as any

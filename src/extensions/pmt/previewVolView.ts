@@ -147,7 +147,7 @@ useExtensionService().registerExtension({
             ? decode
               ? `${VOLVIEW_URL}&names=[preview.png]&urls=[connect://localhost/orthanc/instances/${dicomOid}/preview]&layoutName=${'Axial Only'}`
               : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect://localhost/orthanc/instances/${dicomOid}/file]&uid=${dicomOid}`
-            : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect://localhost/file/${encodeURIComponent(dicomPath)}]&uid=${window.btoa(dicomPath)}&atob=true`
+            : `${VOLVIEW_URL}&names=[file.dcm]&urls=[connect://localhost/file/${encodeURIComponent(dicomPath)}]&uid=${window.btoa(dicomPath)}&atob=true&prefetch=true`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {

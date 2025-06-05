@@ -2071,7 +2071,7 @@ onMounted(async () => {
           switch (type) {
             case 'got-batch-stream-chunk': {
               if (payload && payload.pipelineId === pipelineId) {
-                handleBatchStreamChunk(payload.output)
+                handleBatchStreamChunk(payload)
               }
               break
             }
@@ -2255,12 +2255,12 @@ function handleStreamChunk(chunk) {
 }
 
 function handleBatchStreamChunk(chunk) {
-  const taskIds = Object.keys(chunk || {})
+  const { taskIds, tasks } = chunk
   if (taskIds.length === 0) {
     return
   }
   taskIds.forEach((task) => {
-    const { pythonMsg, graphJson } = chunk[task] || {}
+    const { pythonMsg, graphJson } = tasks[task] || {}
     const msg = pythonMsg?.msg || ''
     if (graphJson) {
       graphJson.forEach(({ id, pmt_fields }) => {
@@ -2312,7 +2312,7 @@ function handleBatchStreamChunk(chunk) {
           let numOfWaiting = 0
           let numOfDone = 0
           taskIds.forEach((t) => {
-            chunk[t]?.graphJson?.forEach((n) => {
+            tasks[t]?.graphJson?.forEach((n) => {
               if (n.id === id && n.pmt_fields?.status) {
                 switch (n.pmt_fields.status) {
                   case 'error':
@@ -2603,15 +2603,20 @@ function handleGetManualQnA(payload) {
   }
   const manualNodeId = payload.manualNodeId
   const manualNode = comfyApp.graph.getNodeById(manualNodeId)
-  if (manualNode) {
-    const port =
-      ports[`tab-volview-${payload.pipelineId}-manual-${manualNodeId}`]
-    if (port) {
-      port.postMessage({
-        type: 'got-manual-qna',
-        payload: manualNode.pmt_fields?.qna || null
-      })
-    }
+  if (!manualNode) {
+    return
+  }
+  const port =
+    ports[
+      embeddedView.value
+        ? `tab-volview-${payload.pipelineId}-embedded-manual-${manualNodeId}`
+        : `tab-volview-${payload.pipelineId}-manual-${manualNodeId}`
+    ]
+  if (port) {
+    port.postMessage({
+      type: 'got-manual-qna',
+      payload: manualNode.pmt_fields?.qna || null
+    })
   }
 }
 

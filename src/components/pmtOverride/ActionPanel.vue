@@ -1591,6 +1591,18 @@ watch(
     if (btnExp) {
       btnExp.fireRightClick = () => exportJson(false)
     }
+    const btnRun = document.querySelector('.btn-run')
+    if (btnRun) {
+      btnRun.continueRunBatch = (res) => {
+        const port = ports['batch-tasks-' + datasetId]
+        if (port) {
+          port.postMessage({
+            type: 'continue-run-batch',
+            payload: { ...res, ts: Date.now() }
+          })
+        }
+      }
+    }
   },
   { flush: 'post' }
 )

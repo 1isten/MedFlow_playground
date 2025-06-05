@@ -252,13 +252,16 @@ useExtensionService().registerExtension({
           if (outputCount === inputCount) {
             continueEl.style.visibility = 'visible'
             continueEl.onclick = (e) => {
+              // pmt_fields.status = 'current'
+              pmt_fields.status = 'done'
+              let res // resume
               if (pmt_fields.outputs_batch) {
                 const btnExp = document.querySelector(
                   '#pmt-action-panel .btn-exp'
                 )
                 const { json } = btnExp?.fireRightClick?.() || {}
                 if (json) {
-                  const res = {
+                  res = {
                     pipelineId: new URLSearchParams(
                       document.location.search
                     ).get('pipelineId'),
@@ -283,17 +286,14 @@ useExtensionService().registerExtension({
                       }
                     )
                   }
-                  console.log('resume:', res)
-                  return res
-                } else {
-                  return
                 }
               }
-              // pmt_fields.status = 'current'
-              pmt_fields.status = 'done'
               const btnRun = document.querySelector(
                 '#pmt-action-panel .btn-run'
               )
+              if (res) {
+                return btnRun?.continueRunBatch?.(res)
+              }
               return btnRun?.['click']?.()
             }
           }

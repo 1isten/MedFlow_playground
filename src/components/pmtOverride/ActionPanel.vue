@@ -355,6 +355,7 @@ const commitPipEdit = (e) => {
   togglePipOver(e)
 }
 
+const abortList = []
 const loading = ref(!!pipeline.value?.id)
 
 const confirm = useConfirm()
@@ -412,11 +413,14 @@ function getPythonKernelList() {
     return
   }
   loadingPythonKernels.value = true
+  const abortController = new AbortController()
+  abortList.push(abortController)
   return fetch('connect://localhost/api/get-python-kernel-list', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    signal: abortController.signal
   })
     .then((res) => {
       if (res.ok) {
@@ -451,13 +455,17 @@ function getPythonKernelList() {
       }
     })
     .catch((err) => {
-      console.error(err)
-      if (window.$electron) {
-        window.$electron.toggleModal(true, {
-          type: 'error',
-          title: 'Error',
-          message: err.message || err
-        })
+      if (err?.name === 'AbortError') {
+        console.warn(err.message)
+      } else {
+        console.error(err)
+        if (window.$electron) {
+          window.$electron.toggleModal(true, {
+            type: 'error',
+            title: 'Error',
+            message: err.message || err
+          })
+        }
       }
     })
     .finally(() => {
@@ -717,9 +725,10 @@ const llmRunPrompt = () => {
     })
     .catch((err) => {
       if (err?.name === 'AbortError') {
-        return console.warn(err.message)
+        console.warn(err.message)
+      } else {
+        console.error(err)
       }
-      console.error(err)
     })
     .finally(() => {
       llmRunning.value = false
@@ -1297,13 +1306,16 @@ async function resetNodeById(nodeId) {
       nodeId === -1 &&
       comfyApp.graph.nodes.find((node) => node.type === 'manual.segmentation')
     ) {
+      const abortController = new AbortController()
+      abortList.push(abortController)
       fetch(
         `connect://localhost/api/volview/sessions/-1?pipelineId=${pipelineId}`,
         {
           method: 'DELETE',
           headers: {
             'Content-Type': 'application/json'
-          }
+          },
+          signal: abortController.signal
         }
       )
         .then((res) => {
@@ -1320,6 +1332,8 @@ async function resetNodeById(nodeId) {
         })
     }
     const { json } = exportJson(false)
+    const abortController = new AbortController()
+    abortList.push(abortController)
     const res = await fetch(
       'connect://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',
       {
@@ -1327,6 +1341,7 @@ async function resetNodeById(nodeId) {
         headers: {
           'Content-Type': 'application/json'
         },
+        signal: abortController.signal,
         body: JSON.stringify({
           id: pipeline.value.id,
           workflow: JSON.stringify(json),
@@ -1358,13 +1373,17 @@ async function resetNodeById(nodeId) {
       }
     }
   } catch (err) {
-    console.error(err)
-    if (window.$electron) {
-      window.$electron.toggleModal(true, {
-        type: 'error',
-        title: 'Error',
-        message: err.message || err
-      })
+    if (err?.name === 'AbortError') {
+      console.warn(err.message)
+    } else {
+      console.error(err)
+      if (window.$electron) {
+        window.$electron.toggleModal(true, {
+          type: 'error',
+          title: 'Error',
+          message: err.message || err
+        })
+      }
     }
   }
 }
@@ -1411,6 +1430,7 @@ async function run(e, mode = 'complete') {
       return
     }
     runPipelineOnceAbortController = new AbortController()
+    abortList.push(runPipelineOnceAbortController)
     return fetch('connect://localhost/api/pipelines/run-once', {
       method: 'POST',
       headers: {
@@ -1437,9 +1457,10 @@ async function run(e, mode = 'complete') {
       })
       .catch((err) => {
         if (err?.name === 'AbortError') {
-          return console.warn(err.message)
+          console.warn(err.message)
+        } else {
+          console.error(err)
         }
-        console.error(err)
       })
       .finally(() => {
         running.value = false
@@ -1956,6 +1977,8 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
 async function validatePipelineGraphJson(json) {
   let result = null
   try {
+    const abortController = new AbortController()
+    abortList.push(abortController)
     const res = await fetch(
       'connect://localhost/api/pipelines/validate-pipeline-graph-json',
       {
@@ -1967,7 +1990,8 @@ async function validatePipelineGraphJson(json) {
           id: pipeline.value.id,
           workflow: JSON.stringify(json),
           env: pipelineEnv.value || pipeline.value.env
-        })
+        }),
+        signal: abortController.signal
       }
     )
     if (res.ok) {
@@ -1981,13 +2005,17 @@ async function validatePipelineGraphJson(json) {
       }
     }
   } catch (err) {
-    console.error(err)
-    if (window.$electron) {
-      window.$electron.toggleModal(true, {
-        type: 'error',
-        title: 'Error',
-        message: err.message || err
-      })
+    if (err?.name === 'AbortError') {
+      console.warn(err.message)
+    } else {
+      console.error(err)
+      if (window.$electron) {
+        window.$electron.toggleModal(true, {
+          type: 'error',
+          title: 'Error',
+          message: err.message || err
+        })
+      }
     }
   }
   return result
@@ -2696,6 +2724,17 @@ async function langchainChat(langchain_json) {
   }
   return answers
 }
+
+onMounted(() => {
+  window.addEventListener('beforeunload', (e) => {
+    abortList.forEach((ab) => {
+      if (ab?.signal?.aborted) {
+        return
+      }
+      ab.abort()
+    })
+  })
+})
 </script>
 
 <style scoped>

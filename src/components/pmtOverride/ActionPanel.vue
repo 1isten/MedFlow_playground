@@ -907,37 +907,46 @@ onMounted(async () => {
 
     async nodeCreated(node) {
       const _onMouseEnter = node.onMouseEnter
-      node.onMouseEnter = function (e) {
+      node.onMouseEnter = function (...args) {
         // ...
-        return _onMouseEnter?.apply(this, arguments)
+        return _onMouseEnter?.apply(this, args)
       }
       const _onMouseLeave = node.onMouseLeave
-      node.onMouseLeave = function (e) {
+      node.onMouseLeave = function (...args) {
         // ...
-        return _onMouseLeave?.apply(this, arguments)
+        return _onMouseLeave?.apply(this, args)
       }
       const _onMouseDown = node.onMouseDown
-      node.onMouseDown = function (e, pos, canvas) {
+      node.onMouseDown = function (...args) {
         // ...
-        return _onMouseDown?.apply(this, arguments)
+        return _onMouseDown?.apply(this, args)
       }
       const _onDblClick = node.onDblClick
-      node.onDblClick = function (e, pos, canvas) {
+      node.onDblClick = function (...args) {
         // ...
-        return _onDblClick?.apply(this, arguments)
+        return _onDblClick?.apply(this, args)
       }
       const _onDrawBackground = node.onDrawBackground
-      node.onDrawBackground = function (
-        ctx,
-        canvas,
-        canvasElement,
-        mousePosition
-      ) {
-        // ...
+      node.onDrawBackground = function (...args) {
         updateNodesSelected()
-        return _onDrawBackground?.apply(this, arguments)
+        return _onDrawBackground?.apply(this, args)
+      }
+      const _onConnectionsChange = node.onConnectionsChange
+      node.onConnectionsChange = function (...args) {
+        const [type, index, isConnected, link_info, inputOrOutput] = args
+        switch (type) {
+          case LiteGraph.INPUT: {
+            handleNodeInputConnectionChange(node, args)
+            break
+          }
+          case LiteGraph.OUTPUT: {
+            break
+          }
+        }
+        return _onConnectionsChange?.apply(this, args)
       }
 
+      /*
       if (
         node?.widgets?.findIndex((w) => {
           return w.type === 'customtext' && w.inputEl?.type === 'textarea'
@@ -948,6 +957,7 @@ onMounted(async () => {
           node.setDirtyCanvas(true)
         })
       }
+      */
 
       if (node?.comfyClass.startsWith('rag_llm.prompt')) {
         const prompt_template_vars = {}
@@ -1373,7 +1383,7 @@ async function resetNodeById(nodeId) {
         if (nodeId === -1) {
           comfyApp.graph.nodes.forEach((node) => {
             if (node) {
-              console.log('reset', node)
+              console.log('[reset]', node.id, node.type)
               resetNodeStatus(node)
             }
           })
@@ -1381,7 +1391,7 @@ async function resetNodeById(nodeId) {
           nodeIds.forEach((nodeId) => {
             const node = comfyApp.graph.getNodeById(nodeId)
             if (node) {
-              console.log('reset', node)
+              console.log('[reset]', node.id, node.type)
               resetNodeStatus(node)
             }
           })
@@ -2016,7 +2026,7 @@ async function validatePipelineGraphJson(json) {
         throw new Error(message)
       } else if (data) {
         result = JSON.parse(data)
-        console.log('validation result:', result)
+        console.log('[validate]', result)
         // ...
       }
     }
@@ -2143,6 +2153,19 @@ onMounted(async () => {
     }
   }
 })
+
+function handleNodeInputConnectionChange(node, args) {
+  const [type, index, isConnected, link_info, inputOrOutput] = args
+  if (!pipelineId) {
+    return
+  }
+  if (loading.value || running.value || saving.value || deleting.value) {
+    return
+  }
+  if (node.pmt_fields?.status && !node.type.startsWith('preview.')) {
+    resetNodeById(node.id)
+  }
+}
 
 function handlePythonMsg(msg) {
   if (msg.includes(' [PIPELINE] ')) {

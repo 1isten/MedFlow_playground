@@ -290,10 +290,10 @@ import { useRoute, useRouter } from 'vue-router'
 import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
 import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
+import { useKeybindingService } from '@/services/keybindingService'
 import { useWorkflowService } from '@/services/workflowService'
-// import { useKeybindingService } from '@/services/keybindingService'
-// import { KeybindingImpl, useKeybindingStore } from '@/stores/keybindingStore'
 import { useCommandStore } from '@/stores/commandStore'
+import { KeybindingImpl, useKeybindingStore } from '@/stores/keybindingStore'
 import { SYSTEM_NODE_DEFS, useNodeDefStore } from '@/stores/nodeDefStore'
 import { useToastStore } from '@/stores/toastStore'
 import { useWorkflowStore } from '@/stores/workflowStore'
@@ -305,8 +305,8 @@ let decodeMultiStream = (stream) => {
   return stream
 }
 
-// const keybindingStore = useKeybindingStore()
-// const keybindingService = useKeybindingService()
+const keybindingStore = useKeybindingStore()
+const keybindingService = useKeybindingService()
 const commandStore = useCommandStore()
 const nodeDefStore = useNodeDefStore()
 const workflowStore = useWorkflowStore()
@@ -772,12 +772,28 @@ function llmGenPyCodeHandled(payload) {
 }
 
 onMounted(async () => {
-  for (const keybinding of CORE_KEYBINDINGS) {
-    if (keybinding.commandId === 'Comfy.SaveWorkflow') {
-      // keybindingStore.unsetKeybinding(new KeybindingImpl(keybinding))
-      // await keybindingService.persistUserKeybindings()
+  setTimeout(async () => {
+    const unsetKeybindings = []
+    for (const k of CORE_KEYBINDINGS) {
+      if (
+        // k.commandId === 'Comfy.SaveWorkflow' ||
+        Object.keys(k.combo).length === 1
+      ) {
+        const keybinding = keybindingStore.getKeybinding(
+          new KeybindingImpl(k).combo
+        )
+        if (keybinding) {
+          unsetKeybindings.push(keybinding)
+        }
+      }
     }
-  }
+    if (unsetKeybindings.length > 0) {
+      for (const keybinding of unsetKeybindings) {
+        keybindingStore.unsetKeybinding(keybinding)
+      }
+      await keybindingService.persistUserKeybindings()
+    }
+  }, 500)
 
   const hideTypes = [
     'preview.json',

@@ -1402,7 +1402,9 @@ export class ComfyApp {
       reader.onload = async () => {
         const readerResult = reader.result as string
         const jsonContent = JSON.parse(readerResult)
-        if (jsonContent?.templates) {
+        if (jsonContent?.plugin_name) {
+          // pmt plugin config
+        } else if (jsonContent?.templates) {
           this.loadTemplateData(jsonContent)
         } else if (this.isApiJson(jsonContent)) {
           this.loadApiJson(jsonContent, fileName)

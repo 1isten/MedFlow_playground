@@ -2124,6 +2124,12 @@ onMounted(async () => {
               handleDeletePipeline(payload)
               break
             }
+            case 'reload-workflow': {
+              if (window.location.reload) {
+                window.location.reload()
+              }
+              break
+            }
             // ...
             case 'llm-gen-py-code-handled': {
               llmGenPyCodeHandled(payload)

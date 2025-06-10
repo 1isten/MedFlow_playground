@@ -6,6 +6,14 @@ import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.PreviewScalar',
+  beforeRegisterNodeDef(nodeType, nodeData) {
+    if (nodeData?.name === 'preview.json') {
+      if (window.$?.fn?.jsonViewer) {
+        nodeData.input['required'] = { JSON_FILE: ['JSON_FILE'] }
+        nodeData.input_order['required'] = ['JSON_FILE']
+      }
+    }
+  },
   nodeCreated(node) {
     if (
       ![
@@ -35,6 +43,12 @@ useExtensionService().registerExtension({
       'bg-neutral-800',
       'text-xs'
     )
+    if (node.getInputInfo(0)?.type === 'JSON_FILE') {
+      pre.$jsonView = {
+        path: null,
+        value: null
+      }
+    }
     div.appendChild(pre)
     const widget = node.addDOMWidget(
       'preview-scalar',
@@ -57,6 +71,9 @@ useExtensionService().registerExtension({
           node.comfyClass === 'preview.json'
         ) {
           node.setSize([300, 200])
+          if (pre.$jsonView) {
+            node.setSize([400, 300])
+          }
         }
         node.setDirtyCanvas(true)
       })
@@ -83,12 +100,43 @@ useExtensionService().registerExtension({
           if (mayPreview) {
             const output = pmt_fields?.outputs?.[link_info.origin_slot]
             if (output) {
-              const textContent =
-                output.value !== undefined ? `${output.value}` : ''
-              if (pre.textContent !== textContent) {
-                pre.textContent = textContent
+              if (pre.$jsonView) {
+                const jsonPath = output.path || output.value || ''
+                if (jsonPath && jsonPath !== pre.$jsonView.path) {
+                  fetch(
+                    `connect://localhost/file/${encodeURIComponent(jsonPath)}`
+                  )
+                    .then((res) => (res.ok ? res.json() : null))
+                    .then((data) => {
+                      if (data) {
+                        pre.$jsonView.path = jsonPath
+                        pre.$jsonView.value = data
+                        $(pre).jsonViewer(data, {
+                          collapsed: false,
+                          rootCollapsable: false,
+                          // withQuotes: true,
+                          withLinks: false
+                        })
+                      }
+                    })
+                    .catch(console.error)
+                }
+              } else {
+                const textContent =
+                  output.value !== undefined ? `${output.value}` : ''
+                if (pre.textContent !== textContent) {
+                  pre.textContent = textContent
+                }
               }
               handled = true
+            }
+          } else {
+            if (pre.$jsonView && (pre.$jsonView.path || pre.$jsonView.value)) {
+              pre.$jsonView.path = null
+              pre.$jsonView.value = null
+            }
+            if (pre.textContent) {
+              pre.textContent = ''
             }
           }
         }

@@ -796,10 +796,10 @@ onMounted(async () => {
   }, 500)
 
   const hideTypes = [
-    'preview.json',
     'input.load_json',
     'input.load_image',
     'input.load_nifti',
+    // 'preview.json',
     ...Object.keys(SYSTEM_NODE_DEFS).filter((type) => {
       // return !['PrimitiveNode', 'Reroute'].includes(type)
       return true
@@ -1415,15 +1415,16 @@ async function resetNodeById(nodeId) {
 }
 function resetNodeStatus(node) {
   if (node?.pmt_fields) {
-    if (node.pmt_fields?.status) {
+    if (node.pmt_fields.status) {
       node.pmt_fields.status = null
     }
-    if (node?.type === 'manual.segmentation' || node?.type === 'manual.qna') {
-      node.pmt_fields.outputs.forEach((output, o) => {
-        output.oid = null
-        output.path = null
-        output.value = null
-      })
+    node.pmt_fields.outputs.forEach((output, o) => {
+      output.oid = null
+      output.path = null
+      output.value = null
+    })
+    if (node.type === 'manual.qna') {
+      delete node.pmt_fields.qna
     }
     node.setDirtyCanvas(true)
   }

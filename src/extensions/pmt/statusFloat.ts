@@ -1,5 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
+// import { LiteGraph } from '@comfyorg/litegraph'
+import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
@@ -51,12 +53,22 @@ useExtensionService().registerExtension({
           'text-xs',
           'ml-auto'
         )
+        // checkpoint checkbox
         const checkbox = document.createElement('input')
         checkbox.type = 'checkbox'
+        checkbox.classList.add('my-0')
         checkbox.addEventListener('change', handleCheckpointChange)
         label.appendChild(checkbox)
+        // startpoint radio
+        const radio = document.createElement('input')
+        radio.type = 'radio'
+        radio.name = 'startpoint'
+        radio.classList.add('my-0')
+        radio.addEventListener('change', handleStartPointChange)
+        radio.addEventListener('click', (e) => e.stopPropagation())
+        // label.appendChild(checkbox)
         label.appendChild(document.createTextNode('checkpoint')) // 'cache'
-        label.addEventListener('click', (e) => e.stopPropagation())
+        label.addEventListener('click', handleLabelClick)
         div.appendChild(label)
 
         function handleCheckpointChange(e) {
@@ -67,6 +79,9 @@ useExtensionService().registerExtension({
               pmt_fields.checkpoint = true
             } else {
               delete pmt_fields.checkpoint
+              if (e.srcElement && pmt_fields.startpoint) {
+                handleStartPointChange({ target: { checked: false } })
+              }
             }
             const saveBtn = document.querySelector('.btn-sav')
             if (saveBtn) {
@@ -75,11 +90,41 @@ useExtensionService().registerExtension({
             }
           }
         }
+        function handleStartPointChange(e) {
+          // @ts-expect-error custom pmt_fields
+          const pmt_fields = node.pmt_fields as any
+          if (pmt_fields) {
+            if (e.target.checked) {
+              pmt_fields.startpoint = true
+            } else {
+              delete pmt_fields.startpoint
+            }
+            const saveBtn = document.querySelector('.btn-sav')
+            if (saveBtn) {
+              // @ts-expect-error injected saveStartPoints
+              saveBtn.saveStartPoints?.(node.id, !!pmt_fields.startpoint)
+            }
+          }
+        }
+        function handleLabelClick(e) {
+          e.stopPropagation()
+          if (this.firstChild === radio) {
+            if (radio.checked) {
+              requestAnimationFrame(() => {
+                radio.checked = false
+                handleStartPointChange({ target: { checked: false } })
+              })
+            }
+          }
+        }
 
         const _onDrawBackground = node.onDrawBackground
         node.onDrawBackground = function (...args) {
           // @ts-expect-error custom pmt_fields
           const pmt_fields = node.pmt_fields as any
+          const has_status =
+            !!pmt_fields?.status ||
+            app.graph.nodes.findIndex((node) => node.pmt_fields?.status) !== -1
           if (pmt_fields) {
             let linkedToExport = false
             node.outputs.forEach((o, idx) => {
@@ -92,9 +137,9 @@ useExtensionService().registerExtension({
               }
             })
             if (
+              linkedToExport ||
               node.comfyClass.startsWith('input.') ||
-              node.comfyClass.startsWith('manual.') ||
-              linkedToExport
+              node.comfyClass.startsWith('manual.')
             ) {
               if (pmt_fields.checkpoint) {
                 handleCheckpointChange({ target: { checked: false } })
@@ -105,6 +150,19 @@ useExtensionService().registerExtension({
               if (pmt_fields.checkpoint) {
                 checkbox.checked = true
               }
+            }
+            if (pmt_fields.startpoint) {
+              radio.checked = true
+            }
+          }
+          if (has_status) {
+            checkbox.disabled = true
+            if (checkbox.checked) {
+              label.innerHTML = ''
+              label.appendChild(radio)
+              label.appendChild(document.createTextNode('startpoint'))
+            } else {
+              label.innerHTML = ''
             }
           }
           return _onDrawBackground?.apply(this, args)

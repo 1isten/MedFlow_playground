@@ -219,7 +219,7 @@ useExtensionService().registerExtension({
           countEl.style.visibility = 'visible'
           continueEl.classList.add('hover:cursor-pointer')
           continueEl.disabled = false
-          if (outputCount === inputCount) {
+          if (outputCount > 0 || outputCount === inputCount) {
             continueEl.style.visibility = 'visible'
             continueEl.onclick = (e) => {
               // pmt_fields.status = 'current'

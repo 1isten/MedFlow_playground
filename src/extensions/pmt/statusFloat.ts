@@ -28,7 +28,8 @@ useExtensionService().registerExtension({
         'overflow-hidden',
         'flex',
         'items-center',
-        'justify-between'
+        'justify-between',
+        'select-none'
       )
 
       if (node.comfyClass !== 'manual.segmentation') {
@@ -90,7 +91,11 @@ useExtensionService().registerExtension({
                   ) !== -1
               }
             })
-            if (linkedToExport) {
+            if (
+              node.comfyClass.startsWith('input.') ||
+              node.comfyClass.startsWith('manual.') ||
+              linkedToExport
+            ) {
               if (pmt_fields.checkpoint) {
                 handleCheckpointChange({ target: { checked: false } })
               }

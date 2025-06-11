@@ -290,6 +290,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
 import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
 import { app as comfyApp } from '@/scripts/app'
+import { DOMWidgetImpl } from '@/scripts/domWidget'
 import { useKeybindingService } from '@/services/keybindingService'
 import { useWorkflowService } from '@/services/workflowService'
 import { useCommandStore } from '@/stores/commandStore'
@@ -1779,21 +1780,26 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
     const [type, subtype] = node.type.split('.')
     if (type === 'rag_llm') {
       const pmt_fields = {
-        args: (node.widgets || []).reduce(
-          (args, { type, name, value, element }) => {
-            if (type !== 'converted-widget') {
-              args[name] = value
-            }
-            if (type === 'prompt-template-vars') {
-              args[name] = {}
-              element?.querySelectorAll('li input').forEach((input) => {
-                args[name][input.name] = input.value
-              })
-            }
+        args: (node.widgets || []).reduce((args, w) => {
+          if (w instanceof DOMWidgetImpl) {
             return args
-          },
-          {}
-        ),
+          }
+          const { type, name, value, element } = w
+          if (type === 'converted-widget') {
+            return args
+          }
+          if (element?.querySelector) {
+            return args
+          }
+          args[name] = value
+          if (type === 'prompt-template-vars') {
+            args[name] = {}
+            element?.querySelectorAll('li input').forEach((input) => {
+              args[name][input.name] = input.value
+            })
+          }
+          return args
+        }, {}),
         status: ''
       }
       nodes[i].pmt_fields = pmt_fields
@@ -1821,10 +1827,18 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             optional
           }
         }),
-        args: (node.widgets || []).reduce((args, { type, name, value }) => {
-          if (type !== 'converted-widget') {
-            args[name] = value
+        args: (node.widgets || []).reduce((args, w) => {
+          if (w instanceof DOMWidgetImpl) {
+            return args
           }
+          const { type, name, value, element } = w
+          if (type === 'converted-widget') {
+            return args
+          }
+          if (element?.querySelector) {
+            return args
+          }
+          args[name] = value
           return args
         }, {}),
         outputs: (outputs || []).map((o) => {

@@ -1776,6 +1776,8 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             optional = true
           } else if (nodeDef.inputs.optional?.[i.name]?.type === i.type) {
             optional = true
+          } else if (i.widget) {
+            optional = true
           }
           return {
             optional

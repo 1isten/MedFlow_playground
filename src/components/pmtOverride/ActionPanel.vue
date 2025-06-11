@@ -1788,16 +1788,16 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           if (type === 'converted-widget') {
             return args
           }
-          if (element?.querySelector) {
-            return args
-          }
-          args[name] = value
           if (type === 'prompt-template-vars') {
             args[name] = {}
             element?.querySelectorAll('li input').forEach((input) => {
               args[name][input.name] = input.value
             })
+            return args
+          } else if (element?.querySelector) {
+            return args
           }
+          args[name] = value
           return args
         }, {}),
         status: ''

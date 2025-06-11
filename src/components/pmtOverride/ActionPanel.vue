@@ -1293,13 +1293,24 @@ const runMenuItems = computed(() => [
       run(null, 'complete')
     }
   },
+  /*
   {
     label: 'Run (one step)',
     icon: 'pi pi-step-forward',
     class: 'text-sm',
-    disabled: false,
+    disabled: true,
     command: () => {
       run(null, 'one-step')
+    }
+  },
+  */
+  {
+    label: 'Run (from node)',
+    icon: 'pi pi-forward',
+    class: 'text-sm',
+    disabled: nodesSelectedCount.value !== 1,
+    command: () => {
+      run(null, 'from-node')
     }
   },
   {
@@ -1426,6 +1437,8 @@ function resetNodeStatus(node) {
     if (node.type === 'manual.qna') {
       delete node.pmt_fields.qna
     }
+    delete node.pmt_fields.checkpoint
+    delete node.pmt_fields.startpoint
     node.setDirtyCanvas(true)
   }
 }
@@ -1619,10 +1632,34 @@ function saveCheckpoints(nodeId, checked) {
     }
   })
   if (updatedCount) {
-    updatePipeline({
-      ...pipeline.value,
-      workflow: JSON.stringify(pipelineWorkflow.value)
-    })
+    // updatePipeline({
+    //   ...pipeline.value,
+    //   workflow: JSON.stringify(pipelineWorkflow.value)
+    // })
+  }
+}
+function saveStartPoints(nodeId, checked) {
+  let updatedCount = 0
+  pipelineWorkflow.value?.nodes?.forEach((node) => {
+    if (node.id === nodeId) {
+      if (checked) {
+        node.pmt_fields.startpoint = checked
+      } else {
+        delete node.pmt_fields.startpoint
+      }
+    } else {
+      delete node.pmt_fields.startpoint
+      if (comfyApp.graph.getNodeById(node.id)?.pmt_fields) {
+        delete comfyApp.graph.getNodeById(node.id).pmt_fields.startpoint
+      }
+    }
+    updatedCount++
+  })
+  if (updatedCount) {
+    // updatePipeline({
+    //   ...pipeline.value,
+    //   workflow: JSON.stringify(pipelineWorkflow.value)
+    // })
   }
 }
 watch(
@@ -1634,6 +1671,7 @@ watch(
     const btnSav = document.querySelector('.btn-sav')
     if (btnSav) {
       btnSav.saveCheckpoints = saveCheckpoints
+      btnSav.saveStartPoints = saveStartPoints
     }
     const btnExp = document.querySelector('.btn-exp')
     if (btnExp) {
@@ -1982,7 +2020,20 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       } else {
         // pmt_fields.status = 'pending'
       }
-      if (runningMode.value === 'to-node') {
+      if (runningMode.value === 'from-node') {
+        if (nodesSelectedCount.value === 1) {
+          workflow.nodes.forEach((node) => {
+            if (node?.id === nodesSelected.value[0]?.id) {
+              pmt_fields.startpoint = true
+            } else {
+              delete pmt_fields.startpoint
+              if (comfyApp.graph.getNodeById(node.id)?.pmt_fields) {
+                delete comfyApp.graph.getNodeById(node.id).pmt_fields.startpoint
+              }
+            }
+          })
+        }
+      } else if (runningMode.value === 'to-node') {
         if (nodesSelectedCount.value === 1) {
           if (node === nodesSelected.value[0]) {
             pmt_fields.status = 'current'

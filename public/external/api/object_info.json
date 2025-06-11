@@ -1954,12 +1954,15 @@
         "pixel_data": ["2D"]
       },
       "optional": {
-        "other_tags": ["DICT"]
+        "other_tags": ["DICT"],
+        "compress_format": [
+          ["uncompressed", "RLE Lossless", "JPEG LossLess", "JPEG NearLossLess", "JPEG2000 LossLess", "JPEG2000", "Deflated Image Frame Compression"]
+        ]
       }
     },
     "input_order": {
       "required": ["pixel_data"],
-      "optional": ["other_tags"]
+      "optional": ["other_tags", "compress_format"]
     },
     "output": ["DICOM_FILE"],
     "output_name": ["DICOM_FILE"],

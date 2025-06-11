@@ -212,8 +212,10 @@ useExtensionService().registerExtension({
       const pmt_fields = inputNode.pmt_fields as any
       if (pmt_fields?.status === 'done') {
         const pmt_fields = node.pmt_fields as any
-        if (pmt_fields.status !== 'current' || pmt_fields.status !== 'done') {
-          pmt_fields.status = 'current'
+        if (pmt_fields) {
+          if (pmt_fields.status !== 'current' || pmt_fields.status !== 'done') {
+            pmt_fields.status = 'current'
+          }
         }
       }
       return _onConnectInput?.apply(this, args)

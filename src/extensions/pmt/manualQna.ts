@@ -219,11 +219,13 @@ useExtensionService().registerExtension({
           countEl.style.visibility = 'visible'
           continueEl.classList.add('hover:cursor-pointer')
           continueEl.disabled = false
-          if (outputCount > 0 || outputCount === inputCount) {
+          if (outputCount > 0) {
             continueEl.style.visibility = 'visible'
             continueEl.onclick = (e) => {
-              // pmt_fields.status = 'current'
-              pmt_fields.status = 'done'
+              if (outputCount === inputCount) {
+                // pmt_fields.status = 'current'
+                pmt_fields.status = 'done'
+              }
               let res // resume
               if (pmt_fields.outputs_batch) {
                 const btnExp = document.querySelector(

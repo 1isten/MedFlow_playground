@@ -66,7 +66,7 @@ useExtensionService().registerExtension({
         radio.classList.add('my-0')
         radio.addEventListener('change', handleStartPointChange)
         radio.addEventListener('click', (e) => e.stopPropagation())
-        // label.appendChild(checkbox)
+        // label.appendChild(radio)
         label.appendChild(document.createTextNode('checkpoint')) // 'cache'
         label.addEventListener('click', handleLabelClick)
         div.appendChild(label)
@@ -150,11 +150,13 @@ useExtensionService().registerExtension({
               if (pmt_fields.checkpoint) {
                 checkbox.checked = true
               }
+              checkbox.disabled = pmt_fields.status === 'done'
             }
             if (pmt_fields.startpoint) {
               radio.checked = true
             }
           }
+          /*
           if (has_status) {
             checkbox.disabled = true
             if (checkbox.checked) {
@@ -165,6 +167,7 @@ useExtensionService().registerExtension({
               label.innerHTML = ''
             }
           }
+          */
           return _onDrawBackground?.apply(this, args)
         }
       }

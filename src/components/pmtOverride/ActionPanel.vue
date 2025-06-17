@@ -1305,6 +1305,7 @@ const runMenuItems = computed(() => [
     }
   },
   */
+  /*
   {
     label: 'Run (from node)',
     icon: 'pi pi-forward',
@@ -1314,6 +1315,7 @@ const runMenuItems = computed(() => [
       run(null, 'from-node')
     }
   },
+  */
   {
     label: 'Run (to node)',
     icon: 'pi pi-fast-forward',
@@ -1633,13 +1635,14 @@ function saveCheckpoints(nodeId, checked) {
     }
   })
   if (updatedCount) {
-    // updatePipeline({
-    //   ...pipeline.value,
-    //   workflow: JSON.stringify(pipelineWorkflow.value)
-    // })
+    updatePipeline({
+      ...pipeline.value,
+      workflow: JSON.stringify(pipelineWorkflow.value)
+    })
   }
 }
 function saveStartPoints(nodeId, checked) {
+  /*
   let updatedCount = 0
   pipelineWorkflow.value?.nodes?.forEach((node) => {
     if (node.id === nodeId) {
@@ -1657,11 +1660,12 @@ function saveStartPoints(nodeId, checked) {
     updatedCount++
   })
   if (updatedCount) {
-    // updatePipeline({
-    //   ...pipeline.value,
-    //   workflow: JSON.stringify(pipelineWorkflow.value)
-    // })
+    updatePipeline({
+      ...pipeline.value,
+      workflow: JSON.stringify(pipelineWorkflow.value)
+    })
   }
+  */
 }
 watch(
   loading,
@@ -2036,6 +2040,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       }
       if (runningMode.value === 'from-node') {
         if (nodesSelectedCount.value === 1) {
+          /*
           workflow.nodes.forEach((node) => {
             if (node?.id === nodesSelected.value[0]?.id) {
               pmt_fields.startpoint = true
@@ -2046,6 +2051,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
               }
             }
           })
+          */
         }
       } else if (runningMode.value === 'to-node') {
         if (nodesSelectedCount.value === 1) {
@@ -2056,6 +2062,8 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       }
     } else {
       pmt_fields.status = null
+      delete pmt_fields.checkpoint
+      delete pmt_fields.startpoint
     }
     nodes[i].pmt_fields = pmt_fields
     node.pmt_fields = nodes[i].pmt_fields

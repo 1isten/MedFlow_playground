@@ -1595,7 +1595,7 @@ async function save() {
     severity: 'success',
     summary: 'Saved',
     detail: 'Changes have been saved',
-    life: 3000
+    life: 5000
   })
 }
 const confirmSave = (e) => {
@@ -2293,7 +2293,8 @@ function handlePythonMsg(msg) {
           toast.add({
             severity: 'warn',
             summary: msg1 && 'Warning',
-            detail: msg2
+            detail: msg2,
+            life: 10000
           })
           term?.write(`\x1B[0;93m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
           break
@@ -2301,7 +2302,8 @@ function handlePythonMsg(msg) {
           toast.add({
             severity: 'error',
             summary: msg1 && 'Error',
-            detail: msg2
+            detail: msg2,
+            life: 10000
           })
           term?.write(`\x1B[0;91m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
           break
@@ -2579,6 +2581,12 @@ function handleCreatePipeline(payload) {
     pipelineEnv.value = pipeline.value.env
   }
   saving.value = false
+  toast.add({
+    severity: 'success',
+    summary: 'Saved',
+    detail: 'Pipeline created!',
+    life: 5000
+  })
 }
 
 function updatePipeline(payload) {
@@ -2609,6 +2617,12 @@ function handleUpdatePipeline(payload) {
     pipelineEnv.value = pipeline.value.env
   }
   saving.value = false
+  toast.add({
+    severity: 'success',
+    summary: 'Saved',
+    detail: 'Pipeline updated!',
+    life: 5000
+  })
 }
 
 function deletePipeline(payload) {

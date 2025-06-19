@@ -2209,6 +2209,12 @@ onMounted(async () => {
               }
               break
             }
+            case 'remove-from-batch-tasks': {
+              if (payload && payload.pipelineId === pipelineId) {
+                handleRemovedBatchTasks(payload)
+              }
+              break
+            }
             // ...
             case 'llm-gen-py-code-handled': {
               llmGenPyCodeHandled(payload)
@@ -2393,7 +2399,7 @@ function handleBatchStreamChunk(chunk) {
       graphJson.forEach(({ id, pmt_fields }) => {
         const node = comfyApp.graph.getNodeById(id)
         if (node) {
-          const { outputs } = pmt_fields
+          const { status, outputs } = pmt_fields
           if (outputs && node.pmt_fields?.outputs?.length > 0) {
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs_batch) {
@@ -2434,78 +2440,105 @@ function handleBatchStreamChunk(chunk) {
               }
             })
           }
-          const numOfTotal = taskIds.length
-          let numOfError = 0
-          let numOfWaiting = 0
-          let numOfDone = 0
-          taskIds.forEach((t) => {
-            tasks[t]?.graphJson?.forEach((n) => {
-              if (n.id === id && n.pmt_fields?.status) {
-                switch (n.pmt_fields.status) {
-                  case 'error':
-                    numOfError++
-                    break
-                  case 'waiting':
-                    numOfWaiting++
-                    break
-                  case 'done':
-                    numOfDone++
-                    break
-                  default:
-                    break
-                }
-              }
-            })
-          })
-          let status = pmt_fields?.status
-          if (numOfError) {
-            status = 'error'
-            if (msg) {
-              // console.error({ task }, `Node ${node.id}:`)
-              // console.dir(msg)
-            }
-          } else if (numOfWaiting) {
-            status = 'waiting'
-            // TODO: handle waiting status for manual node
-            // ...
-            if (msg) {
-              // console.warn({ task }, `Node ${node.id}:`)
-              // console.dir(msg)
-            }
-          } else if (numOfTotal > 0) {
-            if (numOfDone > 0) {
-              status = 'pending'
-              if (numOfDone === numOfTotal) {
-                status = 'done'
+          if (status) {
+            if (!node.pmt_fields?.status_batch) {
+              node.pmt_fields = {
+                ...(node.pmt_fields || {}),
+                status_batch: {}
               }
             }
-            if (msg) {
-              // console.log({ task }, `Node ${node.id}:`)
-              // console.dir(msg)
-            }
-          }
-          if (status && !node.type.startsWith('preview.')) {
-            node.pmt_fields = {
-              ...(node.pmt_fields || {}),
-              status
-            }
-            const statusWidget = node.widgets.find((w) => {
-              return w.name === 'status-float'
-            })
-            const countEl = statusWidget?.element?.querySelector('span')
-            if (countEl) {
-              countEl.textContent = `${numOfDone}/${numOfTotal}`
-              if (countEl.textContent === '0/0') {
-                countEl.style.visibility = 'hidden'
-              } else {
-                countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
-                countEl.style.visibility = 'visible'
-              }
-            }
-            node.setDirtyCanvas(true)
+            node.pmt_fields.status_batch[task] = { status, msg }
           }
         }
       })
+    }
+  })
+  updateBatchStatus()
+}
+
+function handleRemovedBatchTasks({ taskIds }) {
+  comfyApp.graph.nodes.forEach((node) => {
+    taskIds.forEach((taskId) => {
+      if (node.pmt_fields?.outputs_batch) {
+        delete node.pmt_fields.outputs_batch[taskId]
+      }
+      if (node.pmt_fields?.status_batch) {
+        delete node.pmt_fields.status_batch[taskId]
+      }
+    })
+  })
+  updateBatchStatus()
+}
+
+function updateBatchStatus() {
+  comfyApp.graph.nodes.forEach((node) => {
+    if (node.pmt_fields?.status_batch) {
+      const taskIds = Object.keys(node.pmt_fields.status_batch)
+      const numOfTotal = taskIds.length
+      let numOfError = 0
+      let numOfWaiting = 0
+      let numOfDone = 0
+      taskIds.forEach((taskId) => {
+        const { status, msg } = node.pmt_fields.status_batch[taskId]
+        switch (status) {
+          case 'error':
+            numOfError++
+            if (msg) {
+              // console.error({ taskId }, `Node ${node.id}:`)
+              // console.dir(msg)
+            }
+            break
+          case 'waiting':
+            numOfWaiting++
+            if (msg) {
+              // console.warn({ taskId }, `Node ${node.id}:`)
+              // console.dir(msg)
+            }
+            break
+          case 'done':
+            numOfDone++
+            if (msg) {
+              // console.log({ taskId }, `Node ${node.id}:`)
+              // console.dir(msg)
+            }
+            break
+          default:
+            break
+        }
+      })
+      let status = node.pmt_fields.status
+      if (numOfError) {
+        status = 'error'
+      } else if (numOfWaiting) {
+        status = 'waiting'
+      } else if (numOfTotal > 0) {
+        if (numOfDone > 0) {
+          status = 'pending'
+          if (numOfDone === numOfTotal) {
+            status = 'done'
+          }
+        }
+      }
+      if (status && !node.type.startsWith('preview.')) {
+        node.pmt_fields = {
+          ...(node.pmt_fields || {}),
+          status
+        }
+        const statusWidget = node.widgets.find((w) => {
+          return w.name === 'status-float'
+        })
+        const countEl = statusWidget?.element?.querySelector('span')
+        if (countEl) {
+          countEl.textContent = `${numOfDone}/${numOfTotal}`
+          if (countEl.textContent === '0/0') {
+            countEl.style.visibility = 'hidden'
+          } else {
+            countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
+            countEl.style.visibility = 'visible'
+          }
+        }
+        node.setDirtyCanvas(true)
+      }
     }
   })
 }

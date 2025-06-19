@@ -1464,6 +1464,10 @@ async function run(e, mode = 'complete') {
     console.log(answers)
   } else {
     const { json } = exportJson(false)
+    json.nodes.forEach((node) => {
+      delete node.pmt_fields.checkpoint
+      delete node.pmt_fields.startpoint
+    })
     const validationResult = await validatePipelineGraphJson(json)
     if (validationResult) {
       // ...

@@ -21,7 +21,6 @@ import TemplateWorkflowsDialogHeader from '@/components/templates/TemplateWorkfl
 import { t } from '@/i18n'
 import type { ExecutionErrorWsMessage } from '@/schemas/apiSchema'
 import { type ShowDialogOptions, useDialogStore } from '@/stores/dialogStore'
-import { ManagerTab } from '@/types/comfyManagerTypes'
 
 export type ConfirmationDialogType =
   | 'default'
@@ -129,16 +128,14 @@ export const useDialogService = () => {
   }
 
   function showManagerDialog(
-    props: InstanceType<typeof ManagerDialogContent>['$props'] = {
-      initialTab: ManagerTab.All
-    }
+    props: InstanceType<typeof ManagerDialogContent>['$props'] = {}
   ) {
     dialogStore.showDialog({
       key: 'global-manager',
       component: ManagerDialogContent,
       headerComponent: ManagerHeader,
       dialogComponentProps: {
-        closable: false,
+        closable: true,
         pt: {
           header: { class: '!p-0 !m-0' },
           content: { class: '!px-0 h-[83vh] w-[90vw] overflow-y-hidden' }
@@ -397,6 +394,26 @@ export const useDialogService = () => {
     }
   }
 
+  function toggleManagerDialog(
+    props?: InstanceType<typeof ManagerDialogContent>['$props']
+  ) {
+    if (dialogStore.isDialogOpen('global-manager')) {
+      dialogStore.closeDialog({ key: 'global-manager' })
+    } else {
+      showManagerDialog(props)
+    }
+  }
+
+  function toggleManagerProgressDialog(
+    props?: InstanceType<typeof ManagerProgressDialogContent>['$props']
+  ) {
+    if (dialogStore.isDialogOpen('global-manager-progress-dialog')) {
+      dialogStore.closeDialog({ key: 'global-manager-progress-dialog' })
+    } else {
+      showManagerProgressDialog({ props })
+    }
+  }
+
   return {
     showLoadWorkflowWarning,
     showMissingModelsWarning,
@@ -414,6 +431,8 @@ export const useDialogService = () => {
     showUpdatePasswordDialog,
     showExtensionDialog,
     prompt,
-    confirm
+    confirm,
+    toggleManagerDialog,
+    toggleManagerProgressDialog
   }
 }

@@ -1,13 +1,13 @@
 <template>
   <Card
-    class="w-full h-full inline-flex flex-col justify-between items-start overflow-hidden rounded-2xl shadow-elevation-3 dark-theme:bg-dark-elevation-2 transition-all duration-200"
+    class="w-full h-full inline-flex flex-col justify-between items-start overflow-hidden rounded-lg shadow-elevation-3 dark-theme:bg-dark-elevation-2 transition-all duration-200"
     :class="{
-      'outline outline-[6px] outline-[var(--p-primary-color)]': isSelected,
+      'selected-card': isSelected,
       'opacity-60': isDisabled
     }"
     :pt="{
-      body: { class: 'p-0 flex flex-col w-full h-full rounded-2xl gap-0' },
-      content: { class: 'flex-1 flex flex-col rounded-2xl min-h-0' },
+      body: { class: 'p-0 flex flex-col w-full h-full rounded-lg gap-0' },
+      content: { class: 'flex-1 flex flex-col rounded-lg min-h-0' },
       title: { class: 'w-full h-full rounded-t-lg cursor-pointer' },
       footer: { class: 'p-0 m-0' }
     }"
@@ -70,7 +70,10 @@
                     >
                       <i class="pi pi-arrow-circle-up text-blue-600" />
                     </div>
-                    <PackVersionBadge :node-pack="nodePack" />
+                    <PackVersionBadge
+                      :node-pack="nodePack"
+                      :is-selected="isSelected"
+                    />
                   </div>
                   <div
                     v-if="formattedLatestVersionDate"
@@ -113,11 +116,15 @@ import PackBanner from '@/components/dialog/content/manager/packBanner/PackBanne
 import PackCardFooter from '@/components/dialog/content/manager/packCard/PackCardFooter.vue'
 import { usePackUpdateStatus } from '@/composables/nodePack/usePackUpdateStatus'
 import { useComfyManagerStore } from '@/stores/comfyManagerStore'
-import { IsInstallingKey } from '@/types/comfyManagerTypes'
-import type { components } from '@/types/comfyRegistryTypes'
+import {
+  IsInstallingKey,
+  type MergedNodePack,
+  type RegistryPack,
+  isMergedNodePack
+} from '@/types/comfyManagerTypes'
 
 const { nodePack, isSelected = false } = defineProps<{
-  nodePack: components['schemas']['Node']
+  nodePack: MergedNodePack | RegistryPack
   isSelected?: boolean
 }>()
 
@@ -136,9 +143,9 @@ const isDisabled = computed(
 
 whenever(isInstalled, () => (isInstalling.value = false))
 
-// TODO: remove type assertion once comfy_nodes is added to node (pack) info type in backend
-const nodesCount = computed(() => (nodePack as any).comfy_nodes?.length)
-
+const nodesCount = computed(() =>
+  isMergedNodePack(nodePack) ? nodePack.comfy_nodes?.length : undefined
+)
 const publisherName = computed(() => {
   if (!nodePack) return null
 
@@ -154,3 +161,22 @@ const formattedLatestVersionDate = computed(() => {
   })
 })
 </script>
+
+<style scoped>
+.selected-card {
+  position: relative;
+}
+
+.selected-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border: 3px solid var(--p-primary-color);
+  border-radius: 0.5rem;
+  pointer-events: none;
+  z-index: 100;
+}
+</style>

@@ -551,6 +551,11 @@
     "uploadBackgroundImage": "上传背景图片",
     "uploadTexture": "上传纹理"
   },
+  "loadWorkflowWarning": {
+    "coreNodesFromVersion": "需要 ComfyUI {version}：",
+    "outdatedVersion": "某些节点需要更高版本的 ComfyUI（当前版本：{version}）。请更新以使用所有节点。",
+    "outdatedVersionGeneric": "某些节点需要更高版本的 ComfyUI。请更新以使用所有节点。"
+  },
   "maintenance": {
     "None": "无",
     "OK": "确定",
@@ -1038,9 +1043,9 @@
     "Extension": "扩展",
     "General": "常规",
     "Graph": "画面",
-    "Group": "组节点",
+    "Group": "组",
     "Keybinding": "快捷键",
-    "Light": "浅色",
+    "Light": "光照",
     "Link": "连线",
     "LinkRelease": "释放链接",
     "LiteGraph": "画面",

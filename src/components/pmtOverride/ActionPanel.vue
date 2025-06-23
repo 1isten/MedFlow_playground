@@ -824,9 +824,20 @@ onMounted(async () => {
   LGraphCanvas.prototype.getCanvasMenuOptions = function () {
     const options = getCanvasMenuOptions.apply(this, arguments)
     if (options) {
-      const [add_node, ...rest] = options
-      const new_options = [add_node]
-      new_options.push(
+      const filtered_options = options.filter((o) => {
+        if (
+          o?.content.includes('Group') ||
+          [
+            // 'Add Group',
+            // 'Add Group For Selected Nodes'
+            // ...
+          ].includes(o?.content)
+        ) {
+          return false
+        }
+        return true
+      })
+      filtered_options.push(
         null, // inserts a divider
         {
           content: 'Reset All Nodes',
@@ -857,7 +868,7 @@ onMounted(async () => {
           }
         }
       )
-      return new_options
+      return filtered_options
     }
     return options
   }
@@ -877,6 +888,7 @@ onMounted(async () => {
           if (
             [
               'Convert to Group Node',
+              'Mode',
               'Bypass'
               // ...
             ].includes(o?.content)

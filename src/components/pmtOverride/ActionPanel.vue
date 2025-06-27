@@ -774,6 +774,9 @@ function llmGenPyCodeHandled(payload) {
 
 onMounted(async () => {
   setTimeout(async () => {
+    if (!pipelineId) {
+      return
+    }
     const unsetKeybindings = []
     for (const k of CORE_KEYBINDINGS) {
       if (

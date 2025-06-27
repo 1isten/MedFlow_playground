@@ -1827,7 +1827,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       node.setDirtyCanvas(true)
       return nodes[i]
     }
-    const [_, plugin_name, function_name] = nodeDef.python_module.split('.')
+    const [_, plugin_name, function_name] = nodeDef?.python_module
+      ? nodeDef.python_module.split('.')
+      : []
     const pmt_fields = merge(
       node?.pmt_fields ? JSON.parse(JSON.stringify(node.pmt_fields)) : {},
       {
@@ -1836,7 +1838,9 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         function_name: function_name || null,
         inputs: (inputs || []).map((i) => {
           let optional = false
-          if (nodeDef.inputs[i.name]?.isOptional) {
+          if (!nodeDef?.inputs) {
+            optional = false
+          } else if (nodeDef.inputs[i.name]?.isOptional) {
             optional = true
           } else if (nodeDef.inputs.optional?.[i.name]?.type === i.type) {
             optional = true

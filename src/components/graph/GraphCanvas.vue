@@ -363,6 +363,7 @@ onMounted(async () => {
     { immediate: true }
   )
 
+  comfyAppReady.value = true
   emit('ready')
 })
 </script>

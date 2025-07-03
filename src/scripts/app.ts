@@ -920,9 +920,9 @@ export class ComfyApp {
   /**
    * Registers nodes with the graph
    */
-  async registerNodes() {
+  async registerNodes(customNodeDefs?: Record<string, ComfyNodeDefV1>) {
     // Load node definitions from the backend
-    const defs = await this.#getNodeDefs()
+    const defs = customNodeDefs || (await this.#getNodeDefs())
     await this.registerNodesFromDefs(defs)
     await useExtensionService().invokeExtensionsAsync('registerCustomNodes')
     if (this.vueAppReady) {
@@ -1450,7 +1450,9 @@ export class ComfyApp {
       reader.onload = async () => {
         const readerResult = reader.result as string
         const jsonContent = JSON.parse(readerResult)
-        if (jsonContent?.templates) {
+        if (jsonContent?.plugin_name) {
+          // pmt plugin config
+        } else if (jsonContent?.templates) {
           this.loadTemplateData(jsonContent)
         } else if (this.isApiJson(jsonContent)) {
           this.loadApiJson(jsonContent, fileName)

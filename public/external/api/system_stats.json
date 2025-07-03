@@ -1,0 +1,13 @@
+{
+  "system": {
+    "os": "",
+    "python_version": "",
+    "embedded_python": true,
+    "comfyui_version": "",
+    "pytorch_version": "",
+    "argv": [],
+    "ram_total": 0,
+    "ram_free": 0
+  },
+  "devices": []
+}

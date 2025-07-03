@@ -266,6 +266,16 @@ export class ComfyApi extends EventTarget {
   }
 
   apiURL(route: string): string {
+    if (!route) {
+      return 'connect://localhost' + '/external' + '/api' + route
+    } else {
+      return (
+        'external' +
+        '/api' +
+        route.split('?')[0] +
+        (route.endsWith('.json') ? '' : '.json')
+      )
+    }
     return this.api_base + '/api' + route
   }
 
@@ -360,6 +370,9 @@ export class ComfyApi extends EventTarget {
    */
   #createSocket(isReconnect?: boolean) {
     if (this.socket) {
+      return
+    }
+    if (this.socket === null) {
       return
     }
 
@@ -537,7 +550,53 @@ export class ComfyApi extends EventTarget {
     Record<string, ComfyNodeDef>
   > {
     const resp = await this.fetchApi('/object_info', { cache: 'no-store' })
-    const objectInfoUnsafe = await resp.json()
+    let objectInfoUnsafe = await resp.json()
+    if (objectInfoUnsafe && '$electron' in window) {
+      const objectInfoPlugins = await fetch(
+        'connect://localhost/api/comfyui/object_info'
+      )
+        .then((res) => res.ok && res.json())
+        .catch(console.error)
+      if (objectInfoPlugins) {
+        for (const key in objectInfoUnsafe) {
+          if (
+            key.startsWith('plugin.') ||
+            // ...
+            key.startsWith('rag_llm.')
+          ) {
+            delete objectInfoUnsafe[key]
+          }
+        }
+        for (const key in objectInfoPlugins) {
+          if (
+            key.startsWith('plugin.') &&
+            objectInfoPlugins[key] &&
+            !objectInfoUnsafe[key]
+          ) {
+            objectInfoUnsafe[key] = objectInfoPlugins[key]
+          }
+        }
+        const order: Record<string, number> = {
+          basic: 0,
+          input: 1,
+          manual: 2,
+          plugin: 3,
+          converter: 4,
+          preview: 5,
+          output: 6
+        }
+        objectInfoUnsafe = Object.fromEntries(
+          Object.entries(objectInfoUnsafe).sort((a, b) => {
+            const aType = a[0].split('.')[0]
+            const bType = b[0].split('.')[0]
+            if (aType in order && bType in order) {
+              return order[aType] - order[bType]
+            }
+            return 0
+          })
+        )
+      }
+    }
     if (!validate) {
       return objectInfoUnsafe
     }

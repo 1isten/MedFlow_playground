@@ -12,6 +12,9 @@ export default [
   },
   {
     ignores: [
+      '.i18nrc.cjs',
+      'browser_tests/**/*',
+      'public/**/*.{js,css}',
       'src/scripts/*',
       'src/extensions/core/*',
       'src/types/vue-shim.d.ts'

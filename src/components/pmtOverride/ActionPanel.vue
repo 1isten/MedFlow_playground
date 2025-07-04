@@ -177,8 +177,11 @@
           :loading="false"
           :disabled="loading || deleting"
           @click="toggleTerminal()"
-          @contextmenu.prevent.stop
+          @contextmenu.prevent="
+            !!pipelineId && !running && !llmRunning && termMenu.show($event)
+          "
         />
+        <Menu id="btn-term-menu" ref="termMenu" :model="termMenuItems" popup />
         <Button
           v-if="!loading && !!pipelineId"
           class="btn-sav"
@@ -559,6 +562,9 @@ const toggleTerminal = (val) => {
     showTerminal.value = val
   } else {
     showTerminal.value = !showTerminal.value
+  }
+  if (termMenu.value) {
+    termMenu.value.hide()
   }
 }
 let term = null
@@ -1509,6 +1515,75 @@ const runMenuItems = computed(() => [
   }
 ])
 
+const termLogLevel = ref('info')
+const termMenu = ref()
+const termMenuItems = computed(() => [
+  {
+    label: 'Info',
+    icon: 'pi pi-check',
+    class: 'text-sm',
+    style: `
+      --p-menu-item-icon-color: #ffffff${termLogLevel.value === 'info' ? '80' : '00'};
+      --p-menu-item-icon-focus-color: #ffffff${termLogLevel.value === 'info' ? '80' : '00'};
+      --p-menu-item-color: #ffffff;
+      --p-menu-item-focus-color: #ffffff;
+    `,
+    command: () => {
+      termLogLevel.value = 'info'
+      clearTerm()
+    }
+  },
+  {
+    label: 'Debug',
+    icon: 'pi pi-check',
+    class: 'text-sm',
+    style: `
+      --p-menu-item-icon-color: #ffffff${termLogLevel.value === 'debug' ? '80' : '00'};
+      --p-menu-item-icon-focus-color: #ffffff${termLogLevel.value === 'debug' ? '80' : '00'};
+      --p-menu-item-color: #ffffff;
+      --p-menu-item-focus-color: #ffffff;
+    `,
+    command: () => {
+      termLogLevel.value = 'debug'
+      clearTerm()
+    }
+  }
+  /*
+  {
+    label: 'Warning',
+    icon: 'pi pi-check',
+    class: 'text-sm',
+    style: `
+      --p-menu-item-icon-color: #ea580c${termLogLevel.value === 'warning' ? '80' : '00'};
+      --p-menu-item-icon-focus-color: #ea580c${termLogLevel.value === 'warning' ? '80' : '00'};
+      --p-menu-item-color: #ea580c;
+      --p-menu-item-focus-color: #ea580c;
+    `,
+    command: () => {
+      termLogLevel.value = 'warning'
+      clearTerm()
+    }
+  },
+  */
+  /*
+  {
+    label: 'Error',
+    icon: 'pi pi-check',
+    class: 'text-sm',
+    style: `
+      --p-menu-item-icon-color: #dc2626${termLogLevel.value === 'error' ? '80' : '00'};
+      --p-menu-item-icon-focus-color: #dc2626${termLogLevel.value === 'error' ? '80' : '00'};
+      --p-menu-item-color: #dc2626;
+      --p-menu-item-focus-color: #dc2626;
+    `,
+    command: () => {
+      termLogLevel.value = 'error'
+      clearTerm()
+    }
+  }
+  */
+])
+
 const pipOver = ref()
 function togglePipOver(e) {
   pipelineName.value = pipeline.value.name
@@ -1669,7 +1744,8 @@ async function run(e, mode = 'complete') {
         id: pipeline.value.id,
         workflow: JSON.stringify(json),
         mode: runningMode.value,
-        env: pipelineEnv.value || pipeline.value.env
+        env: pipelineEnv.value || pipeline.value.env,
+        logLevel: termLogLevel.value
       }),
       signal: runPipelineOnceAbortController.signal
     })
@@ -2513,7 +2589,7 @@ function handlePythonMsg(msg) {
     pluginErrorTraceback = true
     tracebackErr = ''
   }
-  let logLevel = 'DEBUG'
+  let logLevel = termLogLevel.value
   let [msg1, msg2] = msg.split(' [PIPELINE] ')
   if (msg1) {
     if (msg1.endsWith(']')) {

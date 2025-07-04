@@ -2293,21 +2293,31 @@ function lineWrap(str = '') {
 }
 let pluginPrintListening = false
 let pluginErrorTraceback = false
+let tracebackErr = ''
 function handlePythonMsg(msg) {
   const stepOff =
     msg && msg.trim().startsWith('[STEP ') && msg.trim().endsWith(' OFF]')
-  if ((msg && msg.includes('[PLUGIN] [LISTEN OFF]')) || stepOff) {
-    pluginPrintListening = false
-    pluginErrorTraceback = false
-    if (!stepOff) term?.write('\r\n')
-  }
   if (
-    msg &&
-    msg.includes('[PIPELINE]') &&
-    (pluginPrintListening || pluginErrorTraceback)
+    (msg && msg.includes('[PLUGIN] [LISTEN OFF]')) ||
+    stepOff ||
+    (msg &&
+      msg.includes('[PIPELINE]') &&
+      (pluginPrintListening || pluginErrorTraceback))
   ) {
     pluginPrintListening = false
     pluginErrorTraceback = false
+    if (tracebackErr) {
+      toast.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: tracebackErr,
+        life: 10000
+      })
+      tracebackErr = ''
+    }
+    if (!stepOff) {
+      term?.write('\r\n')
+    }
   }
   if (stepOff) {
     term?.write(lineWrap(msg.trim()) + '\r\n')
@@ -2319,11 +2329,21 @@ function handlePythonMsg(msg) {
   }
   if (msg && pluginErrorTraceback) {
     term?.write(`\x1B[0;91m${lineWrap(msg)}\x1B[0m`)
+    tracebackErr += msg
     return
   }
   if (!msg || !msg.includes('[PIPELINE]')) {
     // term?.write(msg + (msg.endsWith('\r') ? '\n' : ''))
     return
+  }
+  if (msg.includes('[PLUGIN] [LISTEN ON]')) {
+    pluginPrintListening = true
+  } else if (
+    msg.includes('[ERROR] [PIPELINE]') &&
+    msg.trim().endsWith('error message:')
+  ) {
+    pluginErrorTraceback = true
+    tracebackErr = ''
   }
   let logLevel = 'DEBUG'
   let [msg1, msg2] = msg.split(' [PIPELINE] ')
@@ -2353,12 +2373,14 @@ function handlePythonMsg(msg) {
         term?.write(`\x1B[0;93m${msg2_}\x1B[0m`)
         break
       case 'ERROR':
-        toast.add({
-          severity: 'error',
-          summary: msg1 && 'Error',
-          detail: msg2,
-          life: 10000
-        })
+        if (!pluginErrorTraceback) {
+          toast.add({
+            severity: 'error',
+            summary: msg1 && 'Error',
+            detail: msg2,
+            life: 10000
+          })
+        }
         term?.write(`\x1B[0;91m${msg1_}\x1B[0m`)
         term?.write(`\x1B[0;91m${msg2_}\x1B[0m`)
         break
@@ -2367,11 +2389,6 @@ function handlePythonMsg(msg) {
         term?.write(msg2_)
         break
     }
-  }
-  if (msg.includes('[PLUGIN] [LISTEN ON]')) {
-    pluginPrintListening = true
-  } else if (msg.includes('[ERROR] [PIPELINE] [PLUGIN]')) {
-    pluginErrorTraceback = true
   }
   term?.write('\r\n')
 }

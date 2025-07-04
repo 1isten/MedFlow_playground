@@ -223,9 +223,87 @@
         @terminal-created="terminalCreated"
       />
       <div
-        v-if="showTerminal"
+        v-if="false"
         class="p-1 rounded-bl-lg border-0 border-t border-solid border-black bg-black"
       ></div>
+      <div
+        v-else-if="true"
+        v-show="showTerminal"
+        class="pointer-events-auto h-10 p-1 w-full flex-none flex overflow-hidden rounded-bl-lg border-0 border-t border-solid border-neutral-900 bg-black"
+      >
+        <span
+          class="inline-flex items-center px-2 text-sm font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-black text-neutral-500 cursor-default"
+        >
+          <i class="pi pi-search"></i>
+        </span>
+        <div class="relative flex items-center flex-1 h-5/6 my-auto pr-1">
+          <input
+            v-model="termSearch.keyword.value"
+            :placeholder="'Search...'"
+            class="block w-full h-full px-2 pr-20 border-0 border-b border-solid focus:outline-none text-sm font-mono border-b-neutral-700 focus:border-b-neutral-600 bg-black rounded-none"
+            type="text"
+            :readonly="running"
+            :disabled="running"
+            @input="termSearch.resetSearch"
+            @keyup.enter="
+              termSearch.matches.value.length > 0
+                ? termSearch.gotoMatch(term, 1)
+                : termSearch.searchTerminal(term, termSearch.keyword.value)
+            "
+            @keyup.esc="$event.target.blur()"
+          />
+          <div
+            v-if="termSearch.matches.value.length > 0"
+            class="absolute right-0 inset-y-1 pl-2 pr-1 flex items-center bg-black"
+          >
+            <code class="text-xs mr-1 opacity-60">
+              {{ termSearch.currentMatchIdx.value + 1 }} /
+              {{ termSearch.matches.value.length }}
+            </code>
+            <button
+              class="inline-flex items-center justify-center p-1 border-0 rounded mb-0.5 ml-1 transition"
+              :class="
+                termSearch.matches.value.length <= 1
+                  ? 'pointer-events-none bg-neutral-950 opacity-50'
+                  : 'bg-neutral-900 hover:bg-neutral-800 hover:cursor-pointer'
+              "
+              :disabled="termSearch.matches.value.length <= 1"
+              @click="termSearch.gotoMatch(term, -1)"
+            >
+              <i class="text-xs pi pi-angle-up"></i>
+            </button>
+            <button
+              class="inline-flex items-center justify-center p-1 border-0 rounded mb-0.5 ml-1 transition"
+              :class="
+                termSearch.matches.value.length <= 1
+                  ? 'pointer-events-none bg-neutral-950 opacity-50'
+                  : 'bg-neutral-900 hover:bg-neutral-800 hover:cursor-pointer'
+              "
+              :disabled="termSearch.matches.value.length <= 1"
+              @click="termSearch.gotoMatch(term, 1)"
+            >
+              <i class="text-xs pi pi-angle-down"></i>
+            </button>
+          </div>
+        </div>
+        <button
+          class="inline-flex items-center justify-center px-2 border-2 border-solid border-black rounded-lg transition"
+          :class="
+            running
+              ? 'pointer-events-none bg-neutral-950 opacity-50'
+              : 'bg-neutral-900 hover:bg-neutral-800 hover:cursor-pointer'
+          "
+          :disabled="running"
+          @click="clearTerm"
+        >
+          <template v-if="running">
+            <i class="pi pi-spin pi-spinner text-sm"></i>
+          </template>
+          <template v-else>
+            <i class="pi pi-eraser text-sm"></i>
+          </template>
+        </button>
+      </div>
       <div
         v-else
         v-show="showTerminal"
@@ -484,6 +562,89 @@ const toggleTerminal = (val) => {
   }
 }
 let term = null
+function useTermSearch() {
+  const searchKeyword = ref('')
+  const searchMatches = ref([])
+  const currentMatchIdx = ref(0)
+
+  function resetSearch() {
+    searchMatches.value = []
+    currentMatchIdx.value = 0
+  }
+
+  function gotoMatch(term, direction) {
+    if (searchMatches.value.length === 0) return
+    currentMatchIdx.value += direction
+    if (currentMatchIdx.value < 0)
+      currentMatchIdx.value = searchMatches.value.length - 1
+    if (currentMatchIdx.value >= searchMatches.value.length)
+      currentMatchIdx.value = 0
+    term.scrollToLine(searchMatches.value[currentMatchIdx.value])
+  }
+
+  function searchTerminal(term, keyword) {
+    resetSearch()
+    if (!keyword) return
+    const buffer = term.buffer.active
+    for (let i = 0; i < buffer.length; i++) {
+      const line = buffer.getLine(i)
+      if (
+        line &&
+        line.translateToString().toUpperCase().includes(keyword.toUpperCase())
+      ) {
+        searchMatches.value.push(i)
+      }
+    }
+    if (searchMatches.value.length > 0) {
+      term.scrollToLine(searchMatches.value[0])
+    }
+  }
+
+  function scrollToKeyword(term, keyword) {
+    const buffer = term.buffer.active
+    for (let i = 0; i < buffer.length; i++) {
+      const line = buffer.getLine(i)
+      if (
+        line &&
+        line.translateToString().toUpperCase().includes(keyword.toUpperCase())
+      ) {
+        term.scrollToLine(i)
+        break
+      }
+    }
+  }
+
+  function scrollToLastKeyword(term, keyword) {
+    const buffer = term.buffer.active
+    let lastMatch = -1
+    for (let i = 0; i < buffer.length; i++) {
+      const line = buffer.getLine(i)
+      if (
+        line &&
+        line.translateToString().toUpperCase().includes(keyword.toUpperCase())
+      ) {
+        lastMatch = i
+      }
+    }
+    if (lastMatch !== -1) {
+      term.scrollToLine(lastMatch)
+    }
+  }
+
+  return {
+    termSearch: {
+      keyword: searchKeyword,
+      matches: searchMatches,
+      currentMatchIdx,
+      searchTerminal,
+      scrollToKeyword,
+      scrollToLastKeyword,
+      gotoMatch,
+      resetSearch
+    }
+  }
+}
+const { termSearch } = useTermSearch()
 const terminalCreated = (terminal) => {
   if (terminal) {
     term = terminal
@@ -495,8 +656,13 @@ const terminalCreated = (terminal) => {
     // setTimeout(() => {
     //   term.clear()
     // })
-    window['$terminal'] = term
+    window['$terminal'] = { term, termSearch }
   }
+}
+function clearTerm() {
+  termSearch.resetSearch()
+  termSearch.keyword.value = ''
+  term?.clear()
 }
 
 const chatAPI = ref('http://localhost:5555/api/chat')
@@ -504,7 +670,7 @@ chatAPI.value = 'http://localhost:5555/api/auto_pipeline'
 let chatHistory = []
 const removeChatHistory = () => {
   chatHistory = []
-  term?.clear()
+  clearTerm()
 }
 
 const llmPrompt = ref('')
@@ -2307,12 +2473,14 @@ function handlePythonMsg(msg) {
     pluginPrintListening = false
     pluginErrorTraceback = false
     if (tracebackErr) {
-      toast.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: tracebackErr,
-        life: 10000
-      })
+      if (!showTerminal.value) {
+        toast.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: tracebackErr,
+          life: 10000
+        })
+      }
       tracebackErr = ''
     }
     if (!stepOff) {
@@ -2363,23 +2531,27 @@ function handlePythonMsg(msg) {
     const msg2_ = `[${logLevel}] [PIPELINE] ` + lineWrap(msg2)
     switch (logLevel) {
       case 'WARNING':
-        toast.add({
-          severity: 'warn',
-          summary: msg1 && 'Warning',
-          detail: msg2,
-          life: 10000
-        })
+        if (!showTerminal.value) {
+          toast.add({
+            severity: 'warn',
+            summary: msg1 && 'Warning',
+            detail: msg2,
+            life: 10000
+          })
+        }
         term?.write(`\x1B[0;93m${msg1_}\x1B[0m`)
         term?.write(`\x1B[0;93m${msg2_}\x1B[0m`)
         break
       case 'ERROR':
         if (!pluginErrorTraceback) {
-          toast.add({
-            severity: 'error',
-            summary: msg1 && 'Error',
-            detail: msg2,
-            life: 10000
-          })
+          if (!showTerminal.value) {
+            toast.add({
+              severity: 'error',
+              summary: msg1 && 'Error',
+              detail: msg2,
+              life: 10000
+            })
+          }
         }
         term?.write(`\x1B[0;91m${msg1_}\x1B[0m`)
         term?.write(`\x1B[0;91m${msg2_}\x1B[0m`)

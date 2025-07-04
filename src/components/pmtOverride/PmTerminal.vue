@@ -20,6 +20,7 @@ const terminalCreated = (
   root: Ref<HTMLElement | undefined>
 ) => {
   terminal.options.fontSize = 12
+  // terminal.options.allowProposedApi = true
 
   useAutoSize({
     root,

@@ -1024,7 +1024,7 @@ onMounted(async () => {
         0,
         ...[
           {
-            content: 'Log',
+            content: 'Logs',
             callback: () => {
               if (termSearchAddon) {
                 toggleTerminal(true)

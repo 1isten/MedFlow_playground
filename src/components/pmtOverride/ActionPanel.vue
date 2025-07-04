@@ -578,16 +578,6 @@ function useTermSearch() {
     currentMatchIdx.value = 0
   }
 
-  function gotoMatch(term, direction) {
-    if (searchMatches.value.length === 0) return
-    currentMatchIdx.value += direction
-    if (currentMatchIdx.value < 0)
-      currentMatchIdx.value = searchMatches.value.length - 1
-    if (currentMatchIdx.value >= searchMatches.value.length)
-      currentMatchIdx.value = 0
-    term.scrollToLine(searchMatches.value[currentMatchIdx.value])
-  }
-
   function searchTerminal(term, keyword) {
     resetSearch()
     if (!keyword) return
@@ -606,21 +596,32 @@ function useTermSearch() {
     }
   }
 
-  function scrollToKeyword(term, keyword) {
+  function gotoMatch(term, direction) {
+    if (searchMatches.value.length === 0) return
+    currentMatchIdx.value += direction
+    if (currentMatchIdx.value < 0)
+      currentMatchIdx.value = searchMatches.value.length - 1
+    if (currentMatchIdx.value >= searchMatches.value.length)
+      currentMatchIdx.value = 0
+    term.scrollToLine(searchMatches.value[currentMatchIdx.value])
+  }
+
+  function findFirstMatchLine(term, keyword) {
     const buffer = term.buffer.active
+    let firstMatch = -1
     for (let i = 0; i < buffer.length; i++) {
       const line = buffer.getLine(i)
       if (
         line &&
         line.translateToString().toUpperCase().includes(keyword.toUpperCase())
       ) {
-        term.scrollToLine(i)
+        firstMatch = i
         break
       }
     }
+    return firstMatch
   }
-
-  function scrollToLastKeyword(term, keyword) {
+  function findLastMatchLine(term, keyword) {
     const buffer = term.buffer.active
     let lastMatch = -1
     for (let i = 0; i < buffer.length; i++) {
@@ -632,9 +633,7 @@ function useTermSearch() {
         lastMatch = i
       }
     }
-    if (lastMatch !== -1) {
-      term.scrollToLine(lastMatch)
-    }
+    return lastMatch
   }
 
   return {
@@ -642,10 +641,10 @@ function useTermSearch() {
       keyword: searchKeyword,
       matches: searchMatches,
       currentMatchIdx,
-      searchTerminal,
-      scrollToKeyword,
-      scrollToLastKeyword,
+      findFirstMatchLine,
+      findLastMatchLine,
       gotoMatch,
+      searchTerminal,
       resetSearch
     }
   }
@@ -1055,10 +1054,32 @@ onMounted(async () => {
     if (options) {
       let resetOptionIndex = options.findIndex((o) => o?.content === 'Remove')
       if (resetOptionIndex === -1) resetOptionIndex = options.length
-      options.splice(resetOptionIndex, 0, {
-        content: 'Reset',
-        callback: () => resetNodeById(node.id)
-      })
+      options.splice(
+        resetOptionIndex,
+        0,
+        ...[
+          {
+            content: 'Log',
+            callback: () => {
+              if (term) {
+                toggleTerminal(true)
+                const line = termSearch.findLastMatchLine(
+                  term,
+                  ` ON: Node ${node.id}]`
+                )
+                if (line !== -1) {
+                  term.scrollToLine(line > 0 ? line - 1 : line)
+                }
+              }
+            },
+            disabled: node.type?.startsWith('input.') // || !node?.pmt_fields?.status
+          },
+          {
+            content: 'Reset',
+            callback: () => resetNodeById(node.id)
+          }
+        ]
+      )
       return options
         .filter((o) => {
           if (

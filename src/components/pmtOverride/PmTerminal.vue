@@ -5,14 +5,16 @@
 </template>
 
 <script setup lang="ts">
-import { Terminal } from '@xterm/xterm'
+import { type ITerminalAddon, Terminal } from '@xterm/xterm'
 import type { Raw, Ref } from 'vue'
 
 import BaseTerminal from '@/components/bottomPanel/tabs/terminal/BaseTerminal.vue'
 import type { useTerminal } from '@/composables/bottomPanelTabs/useTerminal'
 
 const emit = defineEmits<{
-  'terminal-created': [Raw<Terminal>]
+  'terminal-created': [
+    { terminal: Raw<Terminal>; searchAddon?: ITerminalAddon }
+  ]
 }>()
 
 const terminalCreated = (
@@ -20,7 +22,15 @@ const terminalCreated = (
   root: Ref<HTMLElement | undefined>
 ) => {
   terminal.options.fontSize = 12
-  // terminal.options.allowProposedApi = true
+  terminal.options.allowProposedApi = true
+
+  let searchAddon: ITerminalAddon | undefined
+  // @ts-expect-error static @xterm/addon-search
+  if (window['SearchAddon']) {
+    // @ts-expect-error static @xterm/addon-search
+    searchAddon = new window.SearchAddon.SearchAddon() as ITerminalAddon
+    terminal.loadAddon(searchAddon)
+  }
 
   useAutoSize({
     root,
@@ -35,7 +45,7 @@ const terminalCreated = (
     }
   })
 
-  emit('terminal-created', terminal)
+  emit('terminal-created', { terminal, searchAddon })
 }
 </script>
 

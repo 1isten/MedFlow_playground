@@ -241,49 +241,55 @@
         </span>
         <div class="relative flex items-center flex-1 h-5/6 my-auto pr-1">
           <input
-            v-model="termSearch.keyword.value"
+            v-model="termSearchKeyword"
             :placeholder="'Search...'"
             class="block w-full h-full px-2 pr-20 border-0 border-b border-solid focus:outline-none text-sm font-mono border-b-neutral-700 focus:border-b-neutral-600 bg-black rounded-none"
             type="text"
             :readonly="running"
             :disabled="running"
-            @input="termSearch.resetSearch"
             @keyup.enter="
-              termSearch.matches.value.length > 0
-                ? termSearch.gotoMatch(term, 1)
-                : termSearch.searchTerminal(term, termSearch.keyword.value)
+              termSearchAddon.findNext(termSearchKeyword, termSearchOptions)
             "
             @keyup.esc="$event.target.blur()"
+            @blur="termSearchUnselect"
+            @input="termSearchReset"
           />
           <div
-            v-if="termSearch.matches.value.length > 0"
+            v-if="termSearchResultCount > 0"
             class="absolute right-0 inset-y-1 pl-2 pr-1 flex items-center bg-black"
           >
             <code class="text-xs mr-1 opacity-60">
-              {{ termSearch.currentMatchIdx.value + 1 }} /
-              {{ termSearch.matches.value.length }}
+              {{ termSearchResultIndex + 1 }} /
+              {{ termSearchResultCount }}
             </code>
             <button
               class="inline-flex items-center justify-center p-1 border-0 rounded mb-0.5 ml-1 transition"
               :class="
-                termSearch.matches.value.length <= 1
+                termSearchResultCount <= 1
                   ? 'pointer-events-none bg-neutral-950 opacity-50'
                   : 'bg-neutral-900 hover:bg-neutral-800 hover:cursor-pointer'
               "
-              :disabled="termSearch.matches.value.length <= 1"
-              @click="termSearch.gotoMatch(term, -1)"
+              :disabled="termSearchResultCount <= 1"
+              @click="
+                termSearchAddon.findPrevious(
+                  termSearchKeyword,
+                  termSearchOptions
+                )
+              "
             >
               <i class="text-xs pi pi-angle-up"></i>
             </button>
             <button
               class="inline-flex items-center justify-center p-1 border-0 rounded mb-0.5 ml-1 transition"
               :class="
-                termSearch.matches.value.length <= 1
+                termSearchResultCount <= 1
                   ? 'pointer-events-none bg-neutral-950 opacity-50'
                   : 'bg-neutral-900 hover:bg-neutral-800 hover:cursor-pointer'
               "
-              :disabled="termSearch.matches.value.length <= 1"
-              @click="termSearch.gotoMatch(term, 1)"
+              :disabled="termSearchResultCount <= 1"
+              @click="
+                termSearchAddon.findNext(termSearchKeyword, termSearchOptions)
+              "
             >
               <i class="text-xs pi pi-angle-down"></i>
             </button>
@@ -568,89 +574,25 @@ const toggleTerminal = (val) => {
   }
 }
 let term = null
-function useTermSearch() {
-  const searchKeyword = ref('')
-  const searchMatches = ref([])
-  const currentMatchIdx = ref(0)
-
-  function resetSearch() {
-    searchMatches.value = []
-    currentMatchIdx.value = 0
-  }
-
-  function searchTerminal(term, keyword) {
-    resetSearch()
-    if (!keyword) return
-    const buffer = term.buffer.active
-    for (let i = 0; i < buffer.length; i++) {
-      const line = buffer.getLine(i)
-      if (
-        line &&
-        line.translateToString().toUpperCase().includes(keyword.toUpperCase())
-      ) {
-        searchMatches.value.push(i)
-      }
-    }
-    if (searchMatches.value.length > 0) {
-      term.scrollToLine(searchMatches.value[0])
-    }
-  }
-
-  function gotoMatch(term, direction) {
-    if (searchMatches.value.length === 0) return
-    currentMatchIdx.value += direction
-    if (currentMatchIdx.value < 0)
-      currentMatchIdx.value = searchMatches.value.length - 1
-    if (currentMatchIdx.value >= searchMatches.value.length)
-      currentMatchIdx.value = 0
-    term.scrollToLine(searchMatches.value[currentMatchIdx.value])
-  }
-
-  function findFirstMatchLine(term, keyword) {
-    const buffer = term.buffer.active
-    let firstMatch = -1
-    for (let i = 0; i < buffer.length; i++) {
-      const line = buffer.getLine(i)
-      if (
-        line &&
-        line.translateToString().toUpperCase().includes(keyword.toUpperCase())
-      ) {
-        firstMatch = i
-        break
-      }
-    }
-    return firstMatch
-  }
-  function findLastMatchLine(term, keyword) {
-    const buffer = term.buffer.active
-    let lastMatch = -1
-    for (let i = 0; i < buffer.length; i++) {
-      const line = buffer.getLine(i)
-      if (
-        line &&
-        line.translateToString().toUpperCase().includes(keyword.toUpperCase())
-      ) {
-        lastMatch = i
-      }
-    }
-    return lastMatch
-  }
-
-  return {
-    termSearch: {
-      keyword: searchKeyword,
-      matches: searchMatches,
-      currentMatchIdx,
-      findFirstMatchLine,
-      findLastMatchLine,
-      gotoMatch,
-      searchTerminal,
-      resetSearch
-    }
+let termSearchAddon = null
+const termSearchOptions = {
+  // regex: false,
+  // wholeWord: false,
+  // caseSensitive: false,
+  // incremental: true,
+  decorations: {
+    matchBackground: '#404040',
+    matchBorder: '#525252',
+    matchOverviewRuler: '#404040',
+    activeMatchBackground: '#525252',
+    activeMatchBorder: '#737373',
+    activeMatchColorOverviewRuler: '#525252'
   }
 }
-const { termSearch } = useTermSearch()
-const terminalCreated = (terminal) => {
+const termSearchKeyword = ref('')
+const termSearchResultIndex = ref(-1)
+const termSearchResultCount = ref(0)
+const terminalCreated = ({ terminal, searchAddon }) => {
   if (terminal) {
     term = terminal
     // term.write('Hello from \x1B[1;3;31mxterm.js\x1B[0m')
@@ -661,12 +603,35 @@ const terminalCreated = (terminal) => {
     // setTimeout(() => {
     //   term.clear()
     // })
-    window['$terminal'] = { term, termSearch }
+    if (searchAddon) {
+      searchAddon.onDidChangeResults(({ resultIndex, resultCount }) => {
+        termSearchResultIndex.value = resultIndex
+        termSearchResultCount.value = resultCount
+      })
+      termSearchAddon = searchAddon
+    }
+    window['$terminal'] = { term, termSearchAddon, termSearchOptions }
+  }
+}
+function termSearchUnselect() {
+  if (termSearchAddon) {
+    termSearchAddon.clearActiveDecoration()
+  }
+}
+function termSearchReset() {
+  termSearchResultIndex.value = -1
+  termSearchResultCount.value = 0
+  if (termSearchAddon) {
+    if (!termSearchKeyword.value) {
+      termSearchAddon.findNext('')
+    }
+    termSearchUnselect()
+    termSearchAddon.clearDecorations()
   }
 }
 function clearTerm() {
-  termSearch.resetSearch()
-  termSearch.keyword.value = ''
+  termSearchKeyword.value = ''
+  termSearchReset()
   term?.clear()
 }
 
@@ -1061,15 +1026,12 @@ onMounted(async () => {
           {
             content: 'Log',
             callback: () => {
-              if (term) {
+              if (termSearchAddon) {
                 toggleTerminal(true)
-                const line = termSearch.findLastMatchLine(
-                  term,
-                  ` ON: Node ${node.id}]`
+                termSearchAddon.findPrevious(
+                  ` ON: Node ${node.id}]`,
+                  termSearchOptions
                 )
-                if (line !== -1) {
-                  term.scrollToLine(line > 0 ? line - 1 : line)
-                }
               }
             },
             disabled: node.type?.startsWith('input.') // || !node?.pmt_fields?.status

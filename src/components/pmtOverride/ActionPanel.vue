@@ -1,4 +1,5 @@
 <template>
+  <!-- eslint-disable @intlify/vue-i18n/no-raw-text -->
   <teleport :to="'.comfyui-body-bottom'">
     <Panel v-show="!readonlyView" id="pmt-action-panel">
       <ButtonGroup>
@@ -2278,72 +2279,101 @@ function handleNodeInputConnectionChange(node, args) {
   }
 }
 
+function lineWrap(str = '') {
+  if (!str || str.endsWith('\r\n')) {
+    //
+  } else if (str.endsWith('\r')) {
+    str = str + '\n'
+  } else if (str.endsWith('\n')) {
+    str = str.slice(0, -1) + '\r\n'
+  } else {
+    str = str + '\r\n'
+  }
+  return str
+}
+let pluginPrintListening = false
+let pluginErrorTraceback = false
 function handlePythonMsg(msg) {
-  if (msg.includes(' [PIPELINE] ')) {
-    let logLevel
-    let [msg1, msg2] = msg.split(' [PIPELINE] ')
-    if (msg1) {
-      if (msg1.endsWith(']')) {
-        const [msg1_, level] = msg1.split(' [')
-        if (msg1_) {
-          msg1 = msg1_
-        }
-        if (level) {
-          logLevel = level.split(']')[0].toUpperCase()
-          if (msg1_) {
-            // msg1 = `[${logLevel}] ` + msg1_
-          }
-        }
-      }
-      switch (logLevel) {
-        case 'WARNING':
-          term?.write(`\r\n` + `\x1B[0;93m${msg1}\x1B[0m` + '\r\n')
-          break
-        case 'ERROR':
-          term?.write(`\r\n` + `\x1B[0;91m${msg1}\x1B[0m` + '\r\n')
-          break
-        default:
-          term?.write(`\r\n` + msg1 + '\r\n')
-          break
-      }
-    }
-    if (msg2) {
-      if (msg2.endsWith('\r\n')) {
-        //
-      } else if (msg2.endsWith('\r')) {
-        msg2 = msg2 + '\n'
-      } else if (msg2.endsWith('\n')) {
-        msg2 = msg2.slice(0, -1) + '\r\n'
-      } else {
-        msg2 = msg2 + '\r\n'
-      }
-      switch (logLevel) {
-        case 'WARNING':
-          toast.add({
-            severity: 'warn',
-            summary: msg1 && 'Warning',
-            detail: msg2,
-            life: 10000
-          })
-          term?.write(`\x1B[0;93m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
-          break
-        case 'ERROR':
-          toast.add({
-            severity: 'error',
-            summary: msg1 && 'Error',
-            detail: msg2,
-            life: 10000
-          })
-          term?.write(`\x1B[0;91m[${logLevel}] [PIPELINE] ${msg2}\x1B[0m`)
-          break
-        default:
-          term?.write(`[${logLevel}] [PIPELINE] ${msg2}`)
-          break
-      }
-    }
+  const stepOff =
+    msg && msg.trim().startsWith('[STEP ') && msg.trim().endsWith(' OFF]')
+  if ((msg && msg.includes('[PLUGIN] [LISTEN OFF]')) || stepOff) {
+    pluginPrintListening = false
+    pluginErrorTraceback = false
+    if (!stepOff) term?.write('\r\n')
+  }
+  if (
+    msg &&
+    msg.includes('[PIPELINE]') &&
+    (pluginPrintListening || pluginErrorTraceback)
+  ) {
+    pluginPrintListening = false
+    pluginErrorTraceback = false
+  }
+  if (stepOff) {
+    term?.write(lineWrap(msg.trim()) + '\r\n')
     return
   }
-  term?.write(msg + (msg.endsWith('\r') ? '\n' : ''))
+  if (msg && pluginPrintListening) {
+    term?.write(`\x1B[0;95m${lineWrap(msg)}\x1B[0m`)
+    return
+  }
+  if (msg && pluginErrorTraceback) {
+    term?.write(`\x1B[0;91m${lineWrap(msg)}\x1B[0m`)
+    return
+  }
+  if (!msg || !msg.includes('[PIPELINE]')) {
+    // term?.write(msg + (msg.endsWith('\r') ? '\n' : ''))
+    return
+  }
+  let logLevel = 'DEBUG'
+  let [msg1, msg2] = msg.split(' [PIPELINE] ')
+  if (msg1) {
+    if (msg1.endsWith(']')) {
+      const [time, level] = msg1.split(' [')
+      if (time) {
+        msg1 = time
+      }
+      if (level) {
+        logLevel = level.split(']')[0].toUpperCase()
+      }
+    }
+  }
+  if (msg2) {
+    const msg1_ = lineWrap(msg1)
+    const msg2_ = `[${logLevel}] [PIPELINE] ` + lineWrap(msg2)
+    switch (logLevel) {
+      case 'WARNING':
+        toast.add({
+          severity: 'warn',
+          summary: msg1 && 'Warning',
+          detail: msg2,
+          life: 10000
+        })
+        term?.write(`\x1B[0;93m${msg1_}\x1B[0m`)
+        term?.write(`\x1B[0;93m${msg2_}\x1B[0m`)
+        break
+      case 'ERROR':
+        toast.add({
+          severity: 'error',
+          summary: msg1 && 'Error',
+          detail: msg2,
+          life: 10000
+        })
+        term?.write(`\x1B[0;91m${msg1_}\x1B[0m`)
+        term?.write(`\x1B[0;91m${msg2_}\x1B[0m`)
+        break
+      default:
+        term?.write(msg1_)
+        term?.write(msg2_)
+        break
+    }
+  }
+  if (msg.includes('[PLUGIN] [LISTEN ON]')) {
+    pluginPrintListening = true
+  } else if (msg.includes('[ERROR] [PIPELINE] [PLUGIN]')) {
+    pluginErrorTraceback = true
+  }
+  term?.write('\r\n')
 }
 
 function handleStreamChunk(chunk) {
@@ -2358,7 +2388,6 @@ function handleStreamChunk(chunk) {
         if (node && node.pmt_fields) {
           const { outputs, status, type } = result.pmt_fields
           if (outputs && node.pmt_fields.outputs?.length > 0) {
-            console.log(result.pmt_fields)
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs[o]) {
                 return
@@ -2394,7 +2423,6 @@ function handleStreamChunk(chunk) {
             }
           }
           node.setDirtyCanvas(true)
-          return
         }
         results.push(result)
       }

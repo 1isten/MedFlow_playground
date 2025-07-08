@@ -1045,6 +1045,7 @@ onMounted(async () => {
       return options
         .filter((o) => {
           if (
+            o?.content.includes('Subgraph') ||
             [
               'Convert to Group Node',
               'Mode',

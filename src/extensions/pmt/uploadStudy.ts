@@ -170,12 +170,17 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              filterParams = {
-                oid: oidWidget.value,
-                datasetId: json.datasetId,
-                projectId: json.projectId,
-                level: json.level
+              const pmt_fields = node.pmt_fields as any
+              node.pmt_fields = {
+                ...(pmt_fields || {}),
+                filter_params: {
+                  oid: oidWidget.value,
+                  datasetId: json.datasetId,
+                  projectId: json.projectId,
+                  level: json.level
+                }
               }
+              filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchSeriesList(filterParams)
               }
@@ -201,12 +206,17 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              filterParams = {
-                oid: oidWidget.value,
-                datasetId: json.datasetId,
-                projectId: json.projectId,
-                level: json.level
+              const pmt_fields = node.pmt_fields as any
+              node.pmt_fields = {
+                ...(pmt_fields || {}),
+                filter_params: {
+                  oid: oidWidget.value,
+                  datasetId: json.datasetId,
+                  projectId: json.projectId,
+                  level: json.level
+                }
               }
+              filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchSeriesList(filterParams)
               }
@@ -261,6 +271,13 @@ useExtensionService().registerExtension({
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
               ...(pmt_fields || {}),
+              filter_params: {
+                oid: studyOid,
+                datasetId,
+                projectId,
+                level,
+                tags: formData.tags
+              },
               outputs: seriesList.map(
                 ({ id, oid, tagSeriesNumber, tagSeriesDescription }) => ({
                   output_name: `${tagSeriesDescription || 'NONAME'} #${tagSeriesNumber}`,
@@ -272,18 +289,13 @@ useExtensionService().registerExtension({
                   path: null,
                   value: null
                 })
-              ),
-              filter_params: {
-                oid: studyOid,
-                datasetId,
-                projectId,
-                level,
-                tags: formData.tags
-              }
+              )
             }
             filterParams = node.pmt_fields.filter_params
             node.pmt_fields.outputs.forEach(({ output_name }) => {
-              node.addOutput(output_name, 'SERIES_FILE_LIST')
+              if (output_name) {
+                node.addOutput(output_name, 'SERIES_FILE_LIST')
+              }
             })
           }
         })

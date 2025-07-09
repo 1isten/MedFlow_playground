@@ -321,12 +321,17 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              filterParams = {
-                oid: oidWidget.value,
-                datasetId: json.datasetId,
-                projectId: json.projectId,
-                level: json.level
+              const pmt_fields = node.pmt_fields as any
+              node.pmt_fields = {
+                ...(pmt_fields || {}),
+                filter_params: {
+                  oid: oidWidget.value,
+                  datasetId: json.datasetId,
+                  projectId: json.projectId,
+                  level: json.level
+                }
               }
+              filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchInstancesList(filterParams)
               }
@@ -352,12 +357,17 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
-              filterParams = {
-                oid: oidWidget.value,
-                datasetId: json.datasetId,
-                projectId: json.projectId,
-                level: json.level
+              const pmt_fields = node.pmt_fields as any
+              node.pmt_fields = {
+                ...(pmt_fields || {}),
+                filter_params: {
+                  oid: oidWidget.value,
+                  datasetId: json.datasetId,
+                  projectId: json.projectId,
+                  level: json.level
+                }
               }
+              filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchInstancesList(filterParams)
               }
@@ -426,6 +436,13 @@ useExtensionService().registerExtension({
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
               ...(pmt_fields || {}),
+              filter_params: {
+                oid: seriesOid,
+                datasetId,
+                projectId,
+                level,
+                tags: formData.tags
+              },
               outputs: instancesList.map(
                 ({
                   id,
@@ -442,18 +459,13 @@ useExtensionService().registerExtension({
                   path: null,
                   value: null
                 })
-              ),
-              filter_params: {
-                oid: seriesOid,
-                datasetId,
-                projectId,
-                level,
-                tags: formData.tags
-              }
+              )
             }
             filterParams = node.pmt_fields.filter_params
             node.pmt_fields.outputs.forEach(({ output_name }) => {
-              node.addOutput(output_name, 'DICOM_FILE')
+              if (output_name) {
+                node.addOutput(output_name, 'DICOM_FILE')
+              }
             })
           }
         })

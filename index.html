@@ -19,8 +19,35 @@
     <link rel="stylesheet" type="text/css" href="driver/driver.css" />
     <script src="driver/driver.js.iife.js"></script>
     <script src="jquery.slim.min.js"></script>
-    <script src="json-viewer/jquery.json-viewer.js"></script>
     <link href="json-viewer/jquery.json-viewer.css" type="text/css" rel="stylesheet" />
+    <script src="json-viewer/jquery.json-viewer.js"></script>
+    <link rel="stylesheet" href="virtual-select/virtual-select.min.css">
+    <style>
+      .vscomp-ele {
+        max-width: 100%;
+        filter: invert(0.9);
+        transform: scale(0.97);
+      }
+      .vscomp-wrapper.focused .vscomp-toggle-button,
+      .vscomp-wrapper:focus .vscomp-toggle-button,
+      .pop-comp-wrapper {
+        box-shadow: 0 2px 2px 0 rgba(255, 255, 255, 0.14),
+                    0 3px 1px -2px rgba(255, 255, 255, 0.12),
+                    0 1px 5px 0 rgba(255, 255, 255, 0.2);
+      }
+      .vscomp-toggle-button,
+      .pop-comp-wrapper {
+        border: 1.5px solid #aaa;
+        border-radius: 8px;
+      }
+      .pop-comp-wrapper {
+        overflow: hidden;
+        margin-top: -1rem;
+      }
+    </style>
+    <script src="virtual-select/virtual-select.min.js"></script>
+    <link rel="stylesheet" href="virtual-select/tooltip.min.css">
+    <script src="virtual-select/tooltip.min.js"></script>
     <script src="alpine.min.js" defer></script>
     <script src="msgpack.min.js" crossorigin></script>
     <script src="pluginConfig2ComfyNodeDefs.js"></script>

@@ -21,12 +21,14 @@ useExtensionService().registerExtension({
     })
   },
   nodeCreated(node) {
+    let [_w, _h] = node.size
     let filterEnabled = false
     let filterParams = null
+    let filterSelectEl = null
+    let filterSelectWidget = null
 
     if (node?.comfyClass !== 'input.load_nifti') {
       if (node?.comfyClass === 'input.load_series') {
-        let [_w, _h] = node.size
         const shrinkWidth = () => {
           if (node?.inputs?.find((i) => i.type === 'SERIES_FILE_LIST')) {
             // shrink node width
@@ -39,6 +41,17 @@ useExtensionService().registerExtension({
           }
         }
         const _outputs = node.outputs.slice()
+
+        filterSelectEl = document.createElement('div')
+        filterSelectEl.classList.toggle('invisible')
+        filterSelectEl.classList.toggle('pointer-events-none')
+        filterSelectEl.style.setProperty('width', '100%')
+        filterSelectWidget = node.addDOMWidget(
+          'filter-select',
+          'filter-select',
+          filterSelectEl,
+          {}
+        )
 
         const _onConfigure = node.onConfigure
         node.onConfigure = function (...args) {
@@ -74,6 +87,68 @@ useExtensionService().registerExtension({
         const _onAdded = node.onAdded
         node.onAdded = function (...args) {
           shrinkWidth()
+          requestAnimationFrame(() => {
+            if (filterSelectWidget && window['VirtualSelect']) {
+              const res = VirtualSelect.init({
+                ele: filterSelectEl,
+                multiple: true,
+                options:
+                  (filterEnabled &&
+                    node.pmt_fields?.filter_options?.map(({ output_name }) => {
+                      if (output_name) {
+                        return {
+                          label: output_name,
+                          value: output_name
+                        }
+                      }
+                    })) ||
+                  [],
+                selectedValue: filterEnabled
+                  ? node.outputs.map((o) => o.name)
+                  : undefined
+              })
+              if (filterEnabled) {
+                filterSelectEl.classList.remove('invisible')
+                filterSelectEl.classList.remove('pointer-events-none')
+              }
+              requestAnimationFrame(() => {
+                $(filterSelectEl).change(function () {
+                  if (!filterEnabled) {
+                    return
+                  }
+                  while (node.outputs.length > 0) {
+                    node.removeOutput(node.outputs.length - 1)
+                  }
+                  const pmt_fields = node.pmt_fields as any
+                  if (pmt_fields) {
+                    pmt_fields.filter_options?.forEach((o) => {
+                      const output_name = this.value.find(
+                        (output_name) => output_name === o.output_name
+                      )
+                      if (output_name) {
+                        node.addOutput(output_name, 'DICOM_FILE')
+                      }
+                    })
+                    pmt_fields.outputs = this.value.map((output_name) => {
+                      const o = pmt_fields.filter_options.find(
+                        (o) => o.output_name === output_name
+                      )
+                      return o || null
+                    })
+                  }
+                  node.setSize(
+                    pmt_fields?.outputs?.length
+                      ? [
+                          node.size[0],
+                          140 + ((pmt_fields?.outputs?.length || 1) - 1) * 20
+                        ]
+                      : [380, 140]
+                  )
+                  node.setDirtyCanvas(true)
+                })
+              })
+            }
+          })
           return _onAdded?.apply(this, args)
         }
 
@@ -187,7 +262,7 @@ useExtensionService().registerExtension({
               node.removeOutput(node.outputs.length - 1)
             }
             if (filterEnabled) {
-              node.setSize([_w, 82])
+              node.setSize([_w, _h])
               node.setDirtyCanvas(true)
               if (filterParams) {
                 void fetchInstancesList(filterParams)
@@ -197,6 +272,7 @@ useExtensionService().registerExtension({
               if (pmt_fields) {
                 // delete pmt_fields.filter_params
                 pmt_fields.outputs = []
+                pmt_fields.filter_options = []
               }
               _outputs.forEach(({ name, type }) => {
                 node.addOutput(name, type)
@@ -206,8 +282,17 @@ useExtensionService().registerExtension({
                   value: null
                 })
               })
-              node.setSize([_w, 82])
+              _w = 380
+              _h = 140
+              node.setSize([_w, _h])
               node.setDirtyCanvas(true)
+            }
+            if (filterSelectWidget) {
+              filterSelectEl.classList.toggle('invisible')
+              filterSelectEl.classList.toggle('pointer-events-none')
+              if (!filterEnabled) {
+                filterSelectEl.setOptions([])
+              }
             }
             return cb?.apply(this, args)
           }
@@ -225,9 +310,15 @@ useExtensionService().registerExtension({
           const pmt_fields = node.pmt_fields as any
           if (pmt_fields?.outputs?.[0]?.level) {
             pmt_fields.outputs = []
+            pmt_fields.filter_options = []
           }
           if (pmt_fields?.filter_params) {
             delete pmt_fields.filter_params
+          }
+          if (filterSelectWidget) {
+            filterSelectEl.classList.add('invisible')
+            filterSelectEl.classList.add('pointer-events-none')
+            filterSelectEl.setOptions([])
           }
           filterParams = null
           filterEnabled = false
@@ -243,7 +334,9 @@ useExtensionService().registerExtension({
               value: null
             })
           })
-          node.setSize([_w, 82])
+          _w = 315
+          _h = 136
+          node.setSize([_w, _h])
           node.setDirtyCanvas(true)
         }
         const oidWidget = node.widgets.find((w) => {
@@ -431,7 +524,7 @@ useExtensionService().registerExtension({
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }
-            node.setSize([node.size[0], 82])
+            node.setSize([node.size[0], _h])
             node.setDirtyCanvas(true)
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {
@@ -443,9 +536,9 @@ useExtensionService().registerExtension({
                 level,
                 tags: formData.tags
               },
-              outputs: instancesList.map(
+              filter_options: instancesList.map(
                 ({
-                  id,
+                  // id,
                   oid,
                   tagInstanceNumber,
                   tagImageType,
@@ -459,14 +552,28 @@ useExtensionService().registerExtension({
                   path: null,
                   value: null
                 })
-              )
+              ),
+              outputs: pmt_fields?.outputs || []
             }
             filterParams = node.pmt_fields.filter_params
-            node.pmt_fields.outputs.forEach(({ output_name }) => {
-              if (output_name) {
+            filterSelectEl?.setOptions?.(
+              node.pmt_fields.filter_options.map(({ output_name }) => {
+                if (output_name) {
+                  return {
+                    label: output_name,
+                    value: output_name
+                  }
+                }
+              })
+            )
+            /*
+            node.pmt_fields.filter_options.forEach(o => {
+              if (o.output_name) {
                 node.addOutput(output_name, 'DICOM_FILE')
+                node.pmt_fields.outputs.push(o)
               }
             })
+            */
           }
         })
         .catch((err) => {

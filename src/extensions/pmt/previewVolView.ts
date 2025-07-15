@@ -15,6 +15,25 @@ useExtensionService().registerExtension({
       return
     }
 
+    const _onAfterGraphConfigured = node.onAfterGraphConfigured
+    node.onAfterGraphConfigured = function (...args) {
+      if (node.inputs.length > 3) {
+        while (node.inputs.length > 3) {
+          node.removeInput(node.inputs.length - 1)
+        }
+      }
+      return _onAfterGraphConfigured?.apply(this, args)
+    }
+
+    const _onAdded = node.onAdded
+    node.onAdded = function (...args) {
+      requestAnimationFrame(() => {
+        node.setSize([node.size[0], 70])
+        node.setDirtyCanvas(true)
+      })
+      return _onAdded?.apply(this, args)
+    }
+
     const getVolViewUrl = () => {
       // eslint-disable-next-line prefer-const
       let { origin, port, pathname } = document.location

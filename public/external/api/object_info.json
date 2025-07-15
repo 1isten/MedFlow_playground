@@ -2196,16 +2196,14 @@
       "optional": {
         "IMAGE_FILE": ["IMAGE_FILE"],
         "DICOM_FILE": ["DICOM_FILE"],
-        "NIFTI_FILE": ["NIFTI_FILE"],
-        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+        "NIFTI_FILE": ["NIFTI_FILE"]
       }
     },
     "input_order": {
       "optional": [
         "IMAGE_FILE",
         "DICOM_FILE",
-        "NIFTI_FILE",
-        "SERIES_FILE_LIST"
+        "NIFTI_FILE"
       ]
     },
     "output": [],

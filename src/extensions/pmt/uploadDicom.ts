@@ -21,6 +21,24 @@ useExtensionService().registerExtension({
       return
     }
 
+    const oidWidget = node.widgets.find((w) => {
+      return w.name === 'oid'
+    })
+    if (oidWidget) {
+      const cb = oidWidget.callback
+      oidWidget.callback = function (...args) {
+        const [value, canvas, node, pos, e] = args
+        if (value) {
+          requestAnimationFrame(() => {
+            oidWidget.handleInputNodeInputChange?.(node, oidWidget)
+          })
+        } else {
+          oidWidget.handleInputNodeInputChange?.(node, oidWidget)
+        }
+        return cb?.apply(this, args)
+      }
+    }
+
     if (node.onDragOver) {
       const _onDragOver = node.onDragOver
       node.onDragOver = function (e, ...args) {
@@ -64,6 +82,7 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
+              oidWidget.handleInputNodeInputChange?.(node, oidWidget)
             }
             handled = true
           }
@@ -86,6 +105,7 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
+              oidWidget.handleInputNodeInputChange?.(node, oidWidget)
             }
             handled = true
           }

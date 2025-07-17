@@ -184,6 +184,8 @@ useExtensionService().registerExtension({
                           }
                           if (filterEnabled) {
                             void fetchInstancesList(filterParams)
+                          } else {
+                            oidWidget.handleInputNodeInputChange?.(node, oidWidget)
                           }
                         }
                       }
@@ -216,6 +218,11 @@ useExtensionService().registerExtension({
                                 }
                                 if (filterEnabled) {
                                   void fetchInstancesList(filterParams)
+                                } else {
+                                  oidWidget.handleInputNodeInputChange?.(
+                                    node,
+                                    oidWidget
+                                  )
                                 }
                               }
                             }
@@ -358,9 +365,16 @@ useExtensionService().registerExtension({
                 }
                 if (filterEnabled) {
                   void fetchInstancesList(filterParams)
+                } else {
+                  oidWidget.handleInputNodeInputChange?.(node, oidWidget)
                 }
               })
             } else {
+              if (filterEnabled) {
+                //
+              } else {
+                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
+              }
               oidRemovedHandler()
             }
             return cb?.apply(this, args)
@@ -427,6 +441,11 @@ useExtensionService().registerExtension({
               filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchInstancesList(filterParams)
+                if (node.pmt_fields.status) {
+                  node.pmt_fields.status = null
+                }
+              } else {
+                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
               }
             }
             handled = true
@@ -463,6 +482,11 @@ useExtensionService().registerExtension({
               filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchInstancesList(filterParams)
+                if (node.pmt_fields.status) {
+                  node.pmt_fields.status = null
+                }
+              } else {
+                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
               }
             }
             handled = true

@@ -1119,6 +1119,15 @@ onMounted(async () => {
         return _onConnectionsChange?.apply(this, args)
       }
 
+      if (node?.comfyClass.startsWith('input.')) {
+        const oidWidget = node.widgets.find((w) => {
+          return w.name === 'oid'
+        })
+        if (oidWidget) {
+          oidWidget.handleInputNodeInputChange = handleInputNodeInputChange
+        }
+      }
+
       /*
       if (
         node?.widgets?.findIndex((w) => {
@@ -1399,16 +1408,23 @@ onMounted(async () => {
     })
   }
 
-  if (window.MessagePack) {
-    decodeMultiStream = window.MessagePack.decodeMultiStream
-  }
-
+  window.__session_id__ = `${Date.now()}`
   window['driverObjs'] = []
   window['driverHighlight'] = (...args) => {
     window.driverObjs.push(highlight(...args))
     return window.driverObjs
   }
-  window.__session_id__ = `${Date.now()}`
+  if (window.MessagePack) {
+    decodeMultiStream = window.MessagePack.decodeMultiStream
+  }
+  window.addEventListener('beforeunload', (e) => {
+    abortList.forEach((ab) => {
+      if (ab?.signal?.aborted) {
+        return
+      }
+      ab.abort()
+    })
+  })
 })
 
 onUnmounted(() => {
@@ -1913,6 +1929,7 @@ function saveStartPoints(nodeId, checked) {
   }
   */
 }
+
 watch(
   loading,
   () => {
@@ -2492,14 +2509,26 @@ onMounted(async () => {
   }
 })
 
-function handleNodeInputConnectionChange(node, args) {
-  const [type, index, isConnected, link_info, inputOrOutput] = args
+function handleInputNodeInputChange(node, oidWidget) {
   if (!pipelineId) {
     return
   }
   if (loading.value || running.value || saving.value || deleting.value) {
     return
   }
+  if (node.pmt_fields?.status && !!oidWidget) {
+    resetNodeById(node.id)
+  }
+}
+
+function handleNodeInputConnectionChange(node, args) {
+  if (!pipelineId) {
+    return
+  }
+  if (loading.value || running.value || saving.value || deleting.value) {
+    return
+  }
+  const [type, index, isConnected, link_info, inputOrOutput] = args
   if (node.pmt_fields?.status && !node.type.startsWith('preview.')) {
     resetNodeById(node.id)
   }
@@ -3197,17 +3226,6 @@ async function langchainChat(langchain_json) {
   }
   return answers
 }
-
-onMounted(() => {
-  window.addEventListener('beforeunload', (e) => {
-    abortList.forEach((ab) => {
-      if (ab?.signal?.aborted) {
-        return
-      }
-      ab.abort()
-    })
-  })
-})
 </script>
 
 <style scoped>

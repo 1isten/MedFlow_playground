@@ -95,6 +95,8 @@ useExtensionService().registerExtension({
               }
               if (filterEnabled) {
                 void fetchSeriesList(filterParams)
+              } else {
+                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
               }
             })
           } else {
@@ -104,6 +106,11 @@ useExtensionService().registerExtension({
             }
             if (pmt_fields?.filter_params) {
               delete pmt_fields.filter_params
+            }
+            if (filterEnabled) {
+              //
+            } else {
+              oidWidget.handleInputNodeInputChange?.(node, oidWidget)
             }
             filterParams = null
             filterEnabled = false
@@ -183,6 +190,11 @@ useExtensionService().registerExtension({
               filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchSeriesList(filterParams)
+                if (node.pmt_fields.status) {
+                  node.pmt_fields.status = null
+                }
+              } else {
+                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
               }
             }
             handled = true
@@ -219,6 +231,11 @@ useExtensionService().registerExtension({
               filterParams = node.pmt_fields.filter_params
               if (filterEnabled) {
                 void fetchSeriesList(filterParams)
+                if (node.pmt_fields.status) {
+                  node.pmt_fields.status = null
+                }
+              } else {
+                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
               }
             }
             handled = true

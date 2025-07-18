@@ -548,12 +548,14 @@ function getPythonKernelList() {
         console.warn(err.message)
       } else {
         console.error(err)
-        if (window.$electron) {
-          window.$electron.toggleModal(true, {
-            type: 'error',
-            title: 'Error',
-            message: err.message || err
-          })
+        if ((err.message || err) && `${err.message || err}`.trim()) {
+          if (window.$electron) {
+            window.$electron.toggleModal(true, {
+              type: 'error',
+              title: 'Error',
+              message: err.message || err
+            })
+          }
         }
       }
     })
@@ -1674,12 +1676,14 @@ async function resetNodeById(nodeId) {
       console.warn(err.message)
     } else {
       console.error(err)
-      if (window.$electron) {
-        window.$electron.toggleModal(true, {
-          type: 'error',
-          title: 'Error',
-          message: err.message || err
-        })
+      if ((err.message || err) && `${err.message || err}`.trim()) {
+        if (window.$electron) {
+          window.$electron.toggleModal(true, {
+            type: 'error',
+            title: 'Error',
+            message: err.message || err
+          })
+        }
       }
     }
   }
@@ -2378,12 +2382,14 @@ async function validatePipelineGraphJson(json) {
       console.warn(err.message)
     } else {
       console.error(err)
-      if (window.$electron) {
-        window.$electron.toggleModal(true, {
-          type: 'error',
-          title: 'Error',
-          message: err.message || err
-        })
+      if ((err.message || err) && `${err.message || err}`.trim()) {
+        if (window.$electron) {
+          window.$electron.toggleModal(true, {
+            type: 'error',
+            title: 'Error',
+            message: err.message || err
+          })
+        }
       }
     }
   }

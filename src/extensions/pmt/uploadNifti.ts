@@ -298,7 +298,7 @@ useExtensionService().registerExtension({
               filterSelectEl.classList.toggle('invisible')
               filterSelectEl.classList.toggle('pointer-events-none')
               if (!filterEnabled) {
-                filterSelectEl.setOptions([])
+                filterSelectEl.setOptions?.([])
               }
             }
             return cb?.apply(this, args)
@@ -325,7 +325,7 @@ useExtensionService().registerExtension({
           if (filterSelectWidget) {
             filterSelectEl.classList.add('invisible')
             filterSelectEl.classList.add('pointer-events-none')
-            filterSelectEl.setOptions([])
+            filterSelectEl.setOptions?.([])
           }
           filterParams = null
           filterEnabled = false

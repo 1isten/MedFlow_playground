@@ -1081,6 +1081,7 @@ onMounted(async () => {
     name: 'PMT.CustomExtension',
 
     async nodeCreated(node) {
+      /*
       const _onMouseEnter = node.onMouseEnter
       node.onMouseEnter = function (...args) {
         // ...
@@ -1101,34 +1102,39 @@ onMounted(async () => {
         // ...
         return _onDblClick?.apply(this, args)
       }
-      const _onDrawBackground = node.onDrawBackground
-      node.onDrawBackground = function (...args) {
-        updateNodesSelected()
-        return _onDrawBackground?.apply(this, args)
-      }
-      const _onConnectionsChange = node.onConnectionsChange
-      node.onConnectionsChange = function (...args) {
-        const [type, index, isConnected, link_info, inputOrOutput] = args
-        switch (type) {
-          case LiteGraph.INPUT: {
-            handleNodeInputConnectionChange(node, args)
-            break
-          }
-          case LiteGraph.OUTPUT: {
-            break
-          }
-        }
-        return _onConnectionsChange?.apply(this, args)
-      }
+      */
 
-      if (node?.comfyClass.startsWith('input.')) {
-        const oidWidget = node.widgets.find((w) => {
-          return w.name === 'oid'
-        })
-        if (oidWidget) {
-          oidWidget.handleInputNodeInputChange = handleInputNodeInputChange
+      setTimeout(() => {
+        const _onDrawBackground = node.onDrawBackground
+        node.onDrawBackground = function (...args) {
+          updateNodesSelected()
+          return _onDrawBackground?.apply(this, args)
         }
-      }
+
+        const _onConnectionsChange = node.onConnectionsChange
+        node.onConnectionsChange = function (...args) {
+          const [type, index, isConnected, link_info, inputOrOutput] = args
+          switch (type) {
+            case LiteGraph.INPUT: {
+              handleNodeInputConnectionChange(node, args)
+              break
+            }
+            case LiteGraph.OUTPUT: {
+              break
+            }
+          }
+          return _onConnectionsChange?.apply(this, args)
+        }
+
+        if (node?.comfyClass.startsWith('input.')) {
+          const oidWidget = node.widgets.find((w) => {
+            return w.name === 'oid'
+          })
+          if (oidWidget) {
+            oidWidget.handleInputNodeInputChange = handleInputNodeInputChange
+          }
+        }
+      }, 500)
 
       /*
       if (

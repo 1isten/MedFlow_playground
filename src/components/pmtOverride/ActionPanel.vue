@@ -3091,7 +3091,10 @@ function handleCreateManualSegmentation(payload) {
                 manualNode.setDirtyCanvas(true)
               }
             } else if (input.path) {
-              if (input.path === oid || input.path === window.atob(oid)) {
+              if (
+                input.path === oid ||
+                input.path === decodeURIComponent(window.atob(oid))
+              ) {
                 output.path = labelmap
                 manualNode.setDirtyCanvas(true)
               }
@@ -3155,7 +3158,10 @@ function handleSaveQnAnswers(payload) {
                 manualNode.setDirtyCanvas(true)
               }
             } else if (input.path) {
-              if (input.path === oid || input.path === window.atob(oid)) {
+              if (
+                input.path === oid ||
+                input.path === decodeURIComponent(window.atob(oid))
+              ) {
                 output.value = answers
                 manualNode.setDirtyCanvas(true)
               }

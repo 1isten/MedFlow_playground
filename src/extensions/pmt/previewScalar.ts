@@ -103,9 +103,7 @@ useExtensionService().registerExtension({
               if (pre.$jsonView) {
                 const jsonPath = output.path || output.value || ''
                 if (jsonPath && jsonPath !== pre.$jsonView.path) {
-                  fetch(
-                    `connect://localhost/file/${encodeURIComponent(jsonPath)}`
-                  )
+                  fetch(`h3://localhost/file/${encodeURIComponent(jsonPath)}`)
                     .then((res) => (res.ok ? res.json() : null))
                     .then((data) => {
                       if (data) {

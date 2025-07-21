@@ -267,7 +267,7 @@ export class ComfyApi extends EventTarget {
 
   apiURL(route: string): string {
     if (!route) {
-      return 'connect://localhost' + '/external' + '/api' + route
+      return 'h3://localhost' + '/external' + '/api' + route
     } else {
       return (
         'external' +
@@ -553,7 +553,7 @@ export class ComfyApi extends EventTarget {
     let objectInfoUnsafe = await resp.json()
     if (objectInfoUnsafe && '$electron' in window) {
       const objectInfoPlugins = await fetch(
-        'connect://localhost/api/comfyui/object_info'
+        'h3://localhost/api/comfyui/object_info'
       )
         .then((res) => res.ok && res.json())
         .catch(console.error)

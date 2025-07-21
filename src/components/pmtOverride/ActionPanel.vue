@@ -504,7 +504,7 @@ function getPythonKernelList() {
   loadingPythonKernels.value = true
   const abortController = new AbortController()
   abortList.push(abortController)
-  return fetch('connect://localhost/api/get-python-kernel-list', {
+  return fetch('h3://localhost/api/get-python-kernel-list', {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json'
@@ -1613,16 +1613,13 @@ async function resetNodeById(nodeId) {
     ) {
       const abortController = new AbortController()
       abortList.push(abortController)
-      fetch(
-        `connect://localhost/api/volview/sessions/-1?pipelineId=${pipelineId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          signal: abortController.signal
-        }
-      )
+      fetch(`h3://localhost/api/volview/sessions/-1?pipelineId=${pipelineId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        signal: abortController.signal
+      })
         .then((res) => {
           if (res.ok) {
             return res.json()
@@ -1640,7 +1637,7 @@ async function resetNodeById(nodeId) {
     const abortController = new AbortController()
     abortList.push(abortController)
     const res = await fetch(
-      'connect://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',
+      'h3://localhost/api/pipelines/reset-pipeline-nodes-from-node-id',
       {
         method: 'POST',
         headers: {
@@ -1745,7 +1742,7 @@ async function run(e, mode = 'complete') {
     }
     runPipelineOnceAbortController = new AbortController()
     abortList.push(runPipelineOnceAbortController)
-    return fetch('connect://localhost/api/pipelines/run-once', {
+    return fetch('h3://localhost/api/pipelines/run-once', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -1795,7 +1792,7 @@ async function stop() {
     runPipelineOnceAbortController = null
   }
   pausing.value = true
-  return fetch('connect://localhost/api/pipelines/stop-run-once', {
+  return fetch('h3://localhost/api/pipelines/stop-run-once', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
@@ -2359,7 +2356,7 @@ async function validatePipelineGraphJson(json) {
     const abortController = new AbortController()
     abortList.push(abortController)
     const res = await fetch(
-      'connect://localhost/api/pipelines/validate-pipeline-graph-json',
+      'h3://localhost/api/pipelines/validate-pipeline-graph-json',
       {
         method: 'POST',
         headers: {

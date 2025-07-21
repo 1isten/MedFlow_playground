@@ -257,7 +257,7 @@ useExtensionService().registerExtension({
         level: ParsedLevel.SERIES,
         studyOid
       }
-      return fetch('connect://localhost/api/data-cleaning-search', {
+      return fetch('h3://localhost/api/data-cleaning-search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

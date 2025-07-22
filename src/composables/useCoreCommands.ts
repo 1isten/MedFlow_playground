@@ -106,9 +106,14 @@ export function useCoreCommands(): ComfyCommand[] {
       label: 'Save Workflow',
       menubarLabel: 'Save',
       function: async () => {
-        const sav = document.querySelector('#pmt-action-panel .btn-exp')
-        if (sav && sav instanceof HTMLButtonElement) {
-          return sav.click()
+        const btnSav = document.querySelector('#pmt-action-panel .btn-sav')
+        if (btnSav && btnSav instanceof HTMLButtonElement) {
+          // @ts-expect-error injected trigger
+          return btnSav.fireSave?.()
+        }
+        const btnExp = document.querySelector('#pmt-action-panel .btn-exp')
+        if (btnExp && btnExp instanceof HTMLButtonElement) {
+          return btnExp.click()
         }
 
         const workflow = useWorkflowStore().activeWorkflow as ComfyWorkflow

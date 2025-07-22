@@ -1943,16 +1943,19 @@ watch(
     if (loading.value) {
       return
     }
-    const btnSav = document.querySelector('.btn-sav')
+    const btnSav = document.querySelector('#pmt-action-panel .btn-sav')
     if (btnSav) {
       btnSav.saveCheckpoints = saveCheckpoints
       btnSav.saveStartPoints = saveStartPoints
+      if (pipelineId) {
+        btnSav.fireSave = () => save()
+      }
     }
-    const btnExp = document.querySelector('.btn-exp')
+    const btnExp = document.querySelector('#pmt-action-panel .btn-exp')
     if (btnExp) {
       btnExp.fireRightClick = () => exportJson(false)
     }
-    const btnRun = document.querySelector('.btn-run')
+    const btnRun = document.querySelector('#pmt-action-panel .btn-run')
     if (btnRun) {
       btnRun.continueRunBatch = (res) => {
         const port = ports['batch-tasks-' + datasetId]

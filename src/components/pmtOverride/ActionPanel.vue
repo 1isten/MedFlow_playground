@@ -203,8 +203,8 @@
           severity="secondary"
           :loading="false"
           :disabled="loading || deleting"
-          @click="exportJson"
-          @contextmenu.prevent="exportJson(false)"
+          @click="exportJson(true, -1)"
+          @contextmenu.prevent="exportJson(false, -1)"
         />
       </ButtonGroup>
       <ConfirmDialog
@@ -1953,7 +1953,7 @@ watch(
     }
     const btnExp = document.querySelector('#pmt-action-panel .btn-exp')
     if (btnExp) {
-      btnExp.fireRightClick = () => exportJson(false)
+      btnExp.fireRightClick = () => exportJson(false, -1)
     }
     const btnRun = document.querySelector('#pmt-action-panel .btn-run')
     if (btnRun) {
@@ -2004,8 +2004,34 @@ const confirmDelete = (e) => {
 }
 
 function exportJson(download = true, keepStatus = true) {
-  const json = getWorkflowJson(false, keepStatus)
-  console.log(json)
+  const json = getWorkflowJson(false, !!keepStatus)
+
+  // remove status while do not effect the graph rendering (used for export json)
+  if (keepStatus === -1) {
+    json.nodes.forEach((node) => {
+      const pmt_fields = node?.pmt_fields
+      if (!pmt_fields) {
+        return
+      }
+      if (pmt_fields.type === 'input') {
+        pmt_fields.outputs.forEach((output, o) => {
+          const { level, oid, path, value, to_export, ...out } = output
+          output.oid = null
+          output.path = null
+          output.value = null
+          if (Object.values(out).filter(Boolean).length === 0) {
+            delete output.level
+          }
+          if (!to_export) {
+            delete output.to_export
+          }
+        })
+      }
+      pmt_fields.status = null
+      delete pmt_fields.checkpoint
+      delete pmt_fields.startpoint
+    })
+  }
 
   if (download) {
     const blob = new Blob([JSON.stringify(json, 2, null)], {
@@ -2019,6 +2045,7 @@ function exportJson(download = true, keepStatus = true) {
     a.click()
     return URL.revokeObjectURL(url)
   }
+  console.log(json)
 
   if (pipelineId) {
     return { json }

@@ -2220,11 +2220,11 @@
     "python_module": "custom_nodes.output.export",
     "input": {
       "required": {
-        "out": ["*"]
+        "file": ["*"]
       }
     },
     "input_order": {
-      "required": ["out"]
+      "required": ["file"]
     },
     "output": [],
     "output_name": [],

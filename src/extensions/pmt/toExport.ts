@@ -10,7 +10,7 @@ useExtensionService().registerExtension({
   nodeCreated(node) {
     if (node?.comfyClass === 'output.export') {
       const _inputs = node.inputs.map((i) => {
-        // i.localized_name = `* ${i.name}`
+        i.localized_name = `* ${i.name}`
         return { name: i.name, type: i.type }
       })
       // node.setDirtyCanvas(true)
@@ -64,13 +64,21 @@ useExtensionService().registerExtension({
                 const outputNodeInput = node.getInputInfo(link_info.target_slot)
                 if (outputNodeInput?.type === '*') {
                   if (inputNodeOutput?.type) {
-                    const input = node.inputs[link_info.target_slot]
-                    input.localized_name = inputNodeOutput.name
-                    input.name = input.localized_name
-                    input.type = inputNodeOutput.type
-                  }
-                  while (node.inputs.find((i) => !i.link)) {
-                    node.removeInput(node.inputs.findIndex((i) => !i.link))
+                    if (inputNodeOutput.type.toUpperCase().includes('FILE')) {
+                      const input = node.inputs[link_info.target_slot]
+                      input.localized_name = inputNodeOutput.name
+                      input.name = input.localized_name
+                      input.type = inputNodeOutput.type
+                      while (node.inputs.find((i) => !i.link)) {
+                        node.removeInput(node.inputs.findIndex((i) => !i.link))
+                      }
+                    } else {
+                      while (node.inputs.find((i) => !!i.link)) {
+                        node.disconnectInput(
+                          node.inputs.findIndex((i) => !!i.link)
+                        )
+                      }
+                    }
                   }
                 } else {
                   while (node.inputs.find((i) => i.type !== link_info.type)) {
@@ -90,7 +98,7 @@ useExtensionService().registerExtension({
                 }
                 _inputs.forEach(({ name, type }) => {
                   const input = node.addInput(name, type)
-                  // input.localized_name = `* ${name}`
+                  input.localized_name = `* ${name}`
                 })
               } else {
                 break

@@ -15,6 +15,32 @@ useExtensionService().registerExtension({
       })
       // node.setDirtyCanvas(true)
 
+      const openFolderEl = document.createElement('button')
+      openFolderEl.textContent = 'Open Folder'
+      openFolderEl.style.visibility = 'hidden'
+      openFolderEl.classList.add(
+        'inline-block',
+        '!w-auto',
+        '!h-auto',
+        'float-right',
+        'text-xs',
+        'hover:cursor-pointer',
+        '!pointer-events-auto'
+      )
+      if (
+        document.location.href.includes('projectId=') ||
+        document.location.href.includes('pipelineEmbedded=embedded')
+      ) {
+        //
+      } else {
+        const widget = node.addDOMWidget(
+          'open-folder',
+          'open-folder',
+          openFolderEl,
+          {}
+        )
+      }
+
       const _onConfigure = node.onConfigure
       node.onConfigure = function (...args) {
         // shrink node height to remove empty space
@@ -44,7 +70,7 @@ useExtensionService().registerExtension({
           }
         }
         requestAnimationFrame(() => {
-          node.setSize([node.size[0], 26])
+          node.setSize([node.size[0] && 140, 76])
           node.setDirtyCanvas(true)
         })
         return _onAdded?.apply(this, args)
@@ -104,6 +130,7 @@ useExtensionService().registerExtension({
                 break
               }
             }
+            node.setSize([isConnected ? node.size[0] : 140, 76])
             node.setDirtyCanvas(true)
             break
           }
@@ -112,6 +139,79 @@ useExtensionService().registerExtension({
           }
         }
         return _onConnectionsChange?.apply(this, args)
+      }
+
+      const getInputs = () => {
+        const inputs = []
+        const inputNode = node.getInputNode(0)
+        if (inputNode) {
+          // @ts-expect-error custom pmt_fields
+          const pmt_fields = inputNode.pmt_fields as any
+          if (pmt_fields?.status === 'done') {
+            if (pmt_fields.outputs_batch) {
+              Object.entries(pmt_fields.outputs_batch).forEach(
+                ([taskId, outs]) => {
+                  outs.forEach((out) => {
+                    out.taskId = taskId
+                    inputs.push(out)
+                  })
+                }
+              )
+            } else if (pmt_fields.outputs?.length) {
+              inputs.push(...pmt_fields.outputs)
+            }
+          }
+        }
+        return inputs
+      }
+      node['getInputs_'] = getInputs
+
+      if (window.$electron) {
+        const _onDrawBackground = node.onDrawBackground
+        node.onDrawBackground = function (...args) {
+          // @ts-expect-error custom pmt_fields
+          const pmt_fields = node.pmt_fields as any
+
+          if (pmt_fields) {
+            const inputs = node['getInputs_']()
+
+            const inputCount = inputs.filter((input) => !!input.path).length
+
+            if (inputCount > 0) {
+              if (!openFolderEl['showItemInFolder']) {
+                openFolderEl['showItemInFolder'] = (e) => {
+                  const path = inputs[0].value || inputs[0].path
+                  return fetch(`h3://localhost/api/showItemInFolder`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ fullPath: path })
+                  })
+                    .then((res) => {
+                      if (res.ok) {
+                        return res.json()
+                      }
+                    })
+                    .then((res) => {
+                      console.log({ path: res?.path || '' })
+                    })
+                    .catch((err) => {
+                      console.error(err)
+                    })
+                }
+                openFolderEl.onclick = openFolderEl['showItemInFolder']
+              }
+              openFolderEl.style.visibility = 'visible'
+            } else {
+              openFolderEl.style.visibility = 'hidden'
+            }
+          } else {
+            openFolderEl.style.visibility = 'hidden'
+          }
+
+          return _onDrawBackground?.apply(this, args)
+        }
       }
     } else {
       return

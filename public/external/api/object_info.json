@@ -920,17 +920,15 @@
     "description": "Manual segmentation.",
     "python_module": "custom_nodes.manual.segmentation",
     "input": {
-      "required": {
+      "optional": {
         "DICOM_FILE": ["DICOM_FILE"],
-        "NIFTI_FILE": ["NIFTI_FILE"],
-        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+        "NIFTI_FILE": ["NIFTI_FILE"]
       }
     },
     "input_order": {
-      "required": [
+      "optional": [
         "DICOM_FILE",
-        "NIFTI_FILE",
-        "SERIES_FILE_LIST"
+        "NIFTI_FILE"
       ]
     },
     "output": [],
@@ -957,16 +955,14 @@
       },
       "optional": {
         "DICOM_FILE": ["DICOM_FILE"],
-        "NIFTI_FILE": ["NIFTI_FILE"],
-        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+        "NIFTI_FILE": ["NIFTI_FILE"]
       }
     },
     "input_order": {
       "required": ["questions.json"],
       "optional": [
         "DICOM_FILE",
-        "NIFTI_FILE",
-        "SERIES_FILE_LIST"
+        "NIFTI_FILE"
       ]
     },
     "output": ["DICT"],

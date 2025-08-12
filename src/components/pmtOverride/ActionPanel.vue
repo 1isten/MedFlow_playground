@@ -885,7 +885,7 @@ function llmGenPyCode(payload) {
   }
 }
 function llmGenPyCodeHandled(payload) {
-  if (payload.id === pipelineId) {
+  if (payload?.id === pipelineId) {
     console.log('llm-gen-py-code-handled')
   } else {
     return
@@ -2917,7 +2917,7 @@ function handleGetPipeline(payload) {
   if (!loading.value) {
     return
   }
-  if (payload.id === pipeline.value.id) {
+  if (payload?.id === pipeline.value.id) {
     console.log('current pipeline:', payload)
   } else {
     return
@@ -2964,7 +2964,11 @@ function createPipeline(payload) {
   }
 }
 function handleCreatePipeline(payload) {
-  if (payload.id === pipeline.value.id) {
+  if (!payload) {
+    saving.value = false
+    return
+  }
+  if (payload?.id === pipeline.value.id) {
     console.log('created pipeline:', payload)
   } else {
     return
@@ -3000,7 +3004,11 @@ function updatePipeline(payload) {
   }
 }
 function handleUpdatePipeline(payload) {
-  if (payload.id === pipeline.value.id) {
+  if (!payload) {
+    saving.value = false
+    return
+  }
+  if (payload?.id === pipeline.value.id) {
     console.log('updated pipeline:', payload)
   } else {
     return
@@ -3036,7 +3044,11 @@ function deletePipeline(payload) {
   }
 }
 function handleDeletePipeline(payload) {
-  if (payload.id === pipeline.value.id) {
+  // if (!payload) {
+  //   deleting.value = false
+  //   return
+  // }
+  if (payload?.id === pipeline.value.id) {
     console.log('deleted pipeline:', payload)
   } else {
     return

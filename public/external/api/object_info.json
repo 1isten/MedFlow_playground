@@ -1814,17 +1814,36 @@
     "name": "converter.file_to_data.dicom_volume_to_3d",
     "category": "coverters/file_to_data",
     "display_name": "DICOM Volume to 3D",
-    "description": "Convert DICOM volume file to 3D data.",
+    "description": "Convert DICOM file to 3-dimentional numpy.ndarray and its affine matrix. The DICOM file is expected to be a multi-slice DICOM without time dimension.",
     "python_module": "custom_nodes.file_to_data.dicom_volume_to_3d",
     "input": {
       "required": {
-        "DICOM_VOLUME_FILE": ["DICOM_VOLUME_FILE"]
+        "dicom_volume_file": ["DICOM_FILE"]
       }
     },
     "input_order": {
-      "required": ["DICOM_VOLUME_FILE"]
+      "required": ["dicom_volume_file"]
     },
     "output": ["3D", "2D"],
+    "output_name": ["data", "affine"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_data.dicom_volume_to_4d": {
+    "name": "converter.file_to_data.dicom_volume_to_4d",
+    "category": "coverters/file_to_data",
+    "display_name": "DICOM Volume to 4D",
+    "description": "Convert DICOM file to 4-dimentional numpy.ndarray and its affine matrix. The DICOM file is expected to be a multi-slice DICOM with time dimension.",
+    "python_module": "custom_nodes.file_to_data.dicom_volume_to_4d",
+    "input": {
+      "required": {
+        "dicom_volume_file": ["DICOM_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["dicom_volume_file"]
+    },
+    "output": ["4D", "2D"],
     "output_name": ["data", "affine"],
     "output_is_list": [false],
     "output_node": false
@@ -1865,6 +1884,25 @@
     "output": ["3D", "2D"],
     "output_name": ["data", "affine"],
     "output_is_list": [false, false],
+    "output_node": false
+  },
+  "converter.file_to_data.series_to_4d": {
+    "name": "converter.file_to_data.series_to_4d",
+    "category": "coverters/file_to_data",
+    "display_name": "Series to 4D",
+    "description": "Given a series of DICOM file usually a 3D-t series such as DTI, return it's 4-dimensional volume data as a 4-d numpy.ndarray and its affine matrix.",
+    "python_module": "custom_nodes.file_to_data.series_to_4d",
+    "input": {
+      "required": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["SERIES_FILE_LIST"]
+    },
+    "output": ["4D", "2D"],
+    "output_name": ["data", "affine"],
+    "output_is_list": [false],
     "output_node": false
   },
   "converter.data_to_file.dict_to_json": {
@@ -1969,19 +2007,22 @@
     "name": "converter.data_to_file.3d_to_dicom_volume",
     "category": "coverters/data_to_file",
     "display_name": "3D to DICOM Volume",
-    "description": "Convert 3D data to DICOM volume file.",
+    "description": "Given 3D data and mandatory affine matrix, convert it back to a series of DICOM files. Return the folder path where there are dicom files about a complete and valid series.",
     "python_module": "custom_nodes.data_to_file.3d_to_dicom_volume",
     "input": {
       "required": {
-        "data": ["3D"],
-        "affine": ["2D"]
+        "data": ["3D"]
+      },
+      "optional": {
+        "dicom_tag_list": ["DICT"]
       }
     },
     "input_order": {
-      "required": ["data", "affine"]
+      "required": ["data"],
+      "optional": ["dicom_tag_list"]
     },
-    "output": ["DICOM_VOLUME_FILE"],
-    "output_name": ["DICOM_VOLUME_FILE"],
+    "output": ["DICOM_FILE"],
+    "output_name": ["DICOM_FILE"],
     "output_is_list": [false],
     "output_node": false
   },
@@ -2012,19 +2053,83 @@
     "name": "converter.data_to_file.3d_to_series",
     "category": "coverters/data_to_file",
     "display_name": "3D to Series",
-    "description": "Convert 3D data to series files list.",
+    "description": "Given 3D data and mandatory affine matrix, convert it back to a series of DICOM files. Return the folder path where there are dicom files about a complete and valid series.",
     "python_module": "custom_nodes.data_to_file.3d_to_series",
     "input": {
       "required": {
-        "data": ["3D"],
+        "data": ["3D"]
+      },
+      "optional": {
         "affine": ["2D"]
       }
     },
     "input_order": {
-      "required": ["data", "affine"]
+      "required": ["data"],
+      "optional": ["affine"]
     },
     "output": ["SERIES_FILE_LIST"],
     "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.dicom_volume_to_nifti": {
+    "name": "converter.file_to_file.dicom_volume_to_nifti",
+    "category": "coverters/file_to_file",
+    "display_name": "DICOM Volume to NIFTI",
+    "description": "Given a dicom volume file, convert it to a nifti file that contains the volume data.",
+    "python_module": "custom_nodes.file_to_file.dicom_volume_to_nifti",
+    "input": {
+      "required": {
+        "dicom_volume_file": ["DICOM_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["dicom_volume_file"]
+    },
+    "output": ["NIFTI_FILE"],
+    "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.dicom_volume_to_series": {
+    "name": "converter.file_to_file.dicom_volume_to_series",
+    "category": "coverters/file_to_file",
+    "display_name": "DICOM Volume to Series",
+    "description": "Given a DICOM volume file, extract the series of DICOM files that belong to the same series as the given volume file.",
+    "python_module": "custom_nodes.file_to_file.dicom_volume_to_series",
+    "input": {
+      "required": {
+        "dicom_volume_file": ["DICOM_FILE"]
+      }
+    },
+    "input_order": {
+      "required": ["dicom_volume_file"]
+    },
+    "output": ["SERIES_FILE_LIST"],
+    "output_name": ["SERIES_FILE_LIST"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.nifti_to_dicom_volume": {
+    "name": "converter.file_to_file.nifti_to_dicom_volume",
+    "category": "coverters/file_to_file",
+    "display_name": "NIFTI to DICOM Volume",
+    "description": "Given a nifti file and an optional DICOM tag list, convert the nifti file to a DICOM files with a single volume of the data and dummay tag (or tags given).",
+    "python_module": "custom_nodes.file_to_file.nifti_to_dicom_volume",
+    "input": {
+      "required": {
+        "NIFTI_FILE": ["NIFTI_FILE"]
+      },
+      "optional": {
+        "dicom_tag_list": ["DICT"]
+      }
+    },
+    "input_order": {
+      "required": ["NIFTI_FILE"],
+      "optional": ["dicom_tag_list"]
+    },
+    "output": ["DICOM_FILE"],
+    "output_name": ["dicom_volume_file"],
     "output_is_list": [false],
     "output_node": false
   },
@@ -2032,15 +2137,19 @@
     "name": "converter.file_to_file.nifti_to_series",
     "category": "coverters/file_to_file",
     "display_name": "NIFTI to Series",
-    "description": "Convert NIFTI file to series files list.",
+    "description": "Given a nifti file and an optional DICOM tag list, convert the nifti file to a series of DICOM files with dummay tag (or tags given).",
     "python_module": "custom_nodes.file_to_file.nifti_to_series",
     "input": {
       "required": {
         "NIFTI_FILE": ["NIFTI_FILE"]
+      },
+      "optional": {
+        "dicom_tag_list": ["DICT"]
       }
     },
     "input_order": {
-      "required": ["NIFTI_FILE"]
+      "required": ["NIFTI_FILE"],
+      "optional": ["dicom_tag_list"]
     },
     "output": ["SERIES_FILE_LIST"],
     "output_name": ["SERIES_FILE_LIST"],
@@ -2051,7 +2160,7 @@
     "name": "converter.file_to_file.series_to_nifti",
     "category": "coverters/file_to_file",
     "display_name": "Series to NIFTI",
-    "description": "Convert series files list to NIFTI file.",
+    "description": "Convert a given series of DICOM file, Output its 3D or 4D nifti. Also support DWI format.",
     "python_module": "custom_nodes.file_to_file.series_to_nifti",
     "input": {
       "required": {
@@ -2063,6 +2172,44 @@
     },
     "output": ["NIFTI_FILE"],
     "output_name": ["NIFTI_FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.series_to_one_dicom_volume": {
+    "name": "converter.file_to_file.series_to_one_dicom_volume",
+    "category": "coverters/file_to_file",
+    "display_name": "Series to One DICOM Volume File",
+    "description": "Convert a series of DICOM files to a DICOM file contains a 3D or 4D DICOM volume.",
+    "python_module": "custom_nodes.file_to_file.series_to_one_dicom_volume",
+    "input": {
+      "required": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["SERIES_FILE_LIST"]
+    },
+    "output": ["DICOM_FILE"],
+    "output_name": ["dicom_volume_file"],
+    "output_is_list": [false],
+    "output_node": false
+  },
+  "converter.file_to_file.series_to_dicom_volume_list": {
+    "name": "converter.file_to_file.series_to_dicom_volume_list",
+    "category": "coverters/file_to_file",
+    "display_name": "4D Series to DICOM Volume File List",
+    "description": "This node converts a 4D series of non-volume DICOM files into a DICOM volume file list, in which there are many dicom volume files containing 3D volume each.",
+    "python_module": "custom_nodes.file_to_file.series_to_dicom_volume_list",
+    "input": {
+      "required": {
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      }
+    },
+    "input_order": {
+      "required": ["SERIES_FILE_LIST"]
+    },
+    "output": ["DICOM_FILE_LIST"],
+    "output_name": ["dicom_volume_files"],
     "output_is_list": [false],
     "output_node": false
   },

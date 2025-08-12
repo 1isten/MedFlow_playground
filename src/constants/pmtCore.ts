@@ -13,7 +13,7 @@ export const DATATYPE_COLOR = {
   DICOM_OBJ: '#2dd4bf', // teal
   DICOM_FILE: '#0f766e', // teal
 
-  DICOM_VOLUME_FILE: '#7d6e91', // teal+pink
+  // DICOM_VOLUME_FILE: '#7d6e91', // teal+pink
   DICOM_FILE_LIST: '#f472b6', // pink
   SERIES_FILE_LIST: '#ec4899', // pink
   STUDY_FILE_LIST: '#8b5cf6', // violet
@@ -22,6 +22,8 @@ export const DATATYPE_COLOR = {
   NIFTI_OBJ: '#db2777', // pink
   NIFTI_FILE: '#be185d', // pink
   // LABELMAP: '#86efac', // green
+
+  '4D': '#64748b', // slate
 
   IMAGE_FILE: '#2563eb', // blue
 

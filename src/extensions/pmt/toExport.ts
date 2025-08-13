@@ -153,12 +153,22 @@ useExtensionService().registerExtension({
                 ([taskId, outs]) => {
                   outs.forEach((out) => {
                     out.taskId = taskId
-                    inputs.push(out)
+                    if (Array.isArray(out)) {
+                      inputs.push(...out)
+                    } else {
+                      inputs.push(out)
+                    }
                   })
                 }
               )
             } else if (pmt_fields.outputs?.length) {
-              inputs.push(...pmt_fields.outputs)
+              pmt_fields.outputs.forEach((out) => {
+                if (Array.isArray(out)) {
+                  inputs.push(...out)
+                } else {
+                  inputs.push(out)
+                }
+              })
             }
           }
         }

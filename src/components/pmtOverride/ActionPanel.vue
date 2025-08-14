@@ -2098,8 +2098,15 @@ function exportJson(download = true, keepStatus = true) {
               delete output.to_export
             }
           })
-          // TODO: also unset oid widget value (if filter not enabled)
-          // ...
+          if (pmt_fields.args.oid && !pmt_fields.args.filter) {
+            ;(node.widgets_values || []).forEach((v, w) => {
+              if (v === pmt_fields.args.oid) {
+                node.widgets_values[w] = ''
+              }
+            })
+            pmt_fields.args.oid = ''
+            delete pmt_fields.filter_params
+          }
         }
       }
       pmt_fields.status = null

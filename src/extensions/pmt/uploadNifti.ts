@@ -641,6 +641,41 @@ useExtensionService().registerExtension({
           !node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')
         ) {
           node.addInput('SERIES_FILE_LIST', 'SERIES_FILE_LIST')
+        } else {
+          const nodeInputSlotIndex = node.inputs.findIndex(
+            (i) => i.type === 'SERIES_FILE_LIST'
+          )
+          if (nodeInputSlotIndex !== -1) {
+            const link_info = node.getInputLink(nodeInputSlotIndex)
+            const inputNode =
+              link_info && link_info.origin_id
+                ? app.graph.getNodeById(link_info.origin_id)
+                : null
+            if (inputNode) {
+              const oidWidget_ = inputNode.widgets.find((w) => {
+                return w.name === 'oid'
+              })
+              const _oidWidget = node.widgets.find((w) => {
+                return w.name === 'oid'
+              })
+              if (oidWidget_ && _oidWidget) {
+                if (oidWidget_.value !== _oidWidget.value) {
+                  _oidWidget.value = oidWidget_.value
+                  oidChangeHandler(_oidWidget.value)
+                  if (_oidWidget.value) {
+                    const filter_params = inputNode.pmt_fields?.filter_params
+                    filterParams = {
+                      ...(filterParams || {}),
+                      ...(filter_params || {}),
+                      oid: _oidWidget.value,
+                      level: ParsedLevel.SERIES
+                    }
+                    void fetchInstancesList(filterParams)
+                  }
+                }
+              }
+            }
+          }
         }
       } else {
         if (

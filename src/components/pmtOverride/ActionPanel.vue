@@ -1710,6 +1710,74 @@ function resetNodeStatus(node) {
   }
 }
 
+async function fillInLoadNodeScalarValueIfNeeded(json) {
+  if (!json?.nodes) {
+    return json
+  }
+  json = JSON.parse(JSON.stringify(json))
+  for (let i = 0; i < json.nodes.length; i++) {
+    const node = json.nodes[i]
+    const pmt_fields = node?.pmt_fields
+    if (pmt_fields) {
+      if (pmt_fields.type === 'input' && pmt_fields.plugin_name === 'scalar') {
+        for (let o = 0; o < pmt_fields.outputs.length; o++) {
+          const out = pmt_fields.outputs[o]
+          if (!out.oid) {
+            out.oid = pmt_fields.args.oid || null
+            switch (pmt_fields.function_name) {
+              case 'load_dicom': {
+                out.level = ParsedLevel.INSTANCE
+                break
+              }
+              case 'load_series': {
+                out.level = ParsedLevel.SERIES
+                break
+              }
+              case 'load_study': {
+                out.level = ParsedLevel.STUDY
+                break
+              }
+            }
+          }
+          if (out.oid && pipeline.value?.id) {
+            const data = await fetch(
+              `h3://localhost/api/get-path-value-by-oid?oid=${out.oid}&level=${out.level}`,
+              {
+                method: 'GET',
+                headers: {
+                  'Content-Type': 'application/json'
+                }
+              }
+            )
+              .then((res) => {
+                if (res.ok) {
+                  return res.json()
+                }
+              })
+              .then((res) => {
+                const { data, error, message } = res || {}
+                if (error) {
+                  throw new Error(message)
+                }
+                if (typeof data === 'string' && data.startsWith('{')) {
+                  return JSON.parse(data)
+                }
+                return data
+              })
+              .catch((err) => {
+                console.error(err)
+              })
+            if (data.value) {
+              out.value = data.value
+            }
+          }
+        }
+      }
+    }
+  }
+  return json
+}
+
 let runPipelineOnceAbortController = null
 const running = ref(false)
 const runningMode = ref('complete')
@@ -1727,7 +1795,8 @@ async function run(e, mode = 'complete') {
     const answers = await langchainChat(langchain_json)
     console.log(answers)
   } else {
-    const { json } = exportJson(false)
+    let { json } = exportJson(false)
+    json = await fillInLoadNodeScalarValueIfNeeded(json)
     json.nodes.forEach((node) => {
       delete node.pmt_fields.checkpoint
       delete node.pmt_fields.startpoint
@@ -1822,7 +1891,7 @@ async function save() {
   saving.value = true
   if (pipelineId) {
     let { json } = exportJson(false, false)
-    json = JSON.parse(JSON.stringify(json))
+    json = await fillInLoadNodeScalarValueIfNeeded(json)
     const validationResult = await validatePipelineGraphJson(json)
     if (validationResult) {
       // json.nodes = json.nodes.map(({ pmt_fields, ...node }) => node)
@@ -2014,18 +2083,24 @@ function exportJson(download = true, keepStatus = true) {
         return
       }
       if (pmt_fields.type === 'input') {
-        pmt_fields.outputs.forEach((output, o) => {
-          const { level, oid, path, value, to_export, ...out } = output
-          output.oid = null
-          output.path = null
-          output.value = null
-          if (Object.values(out).filter(Boolean).length === 0) {
-            delete output.level
-          }
-          if (!to_export) {
-            delete output.to_export
-          }
-        })
+        if (pmt_fields.plugin_name === 'scalar') {
+          //
+        } else {
+          pmt_fields.outputs.forEach((output, o) => {
+            const { level, oid, path, value, to_export, ...out } = output
+            output.oid = null
+            output.path = null
+            output.value = null
+            if (Object.values(out).filter(Boolean).length === 0) {
+              delete output.level
+            }
+            if (!to_export) {
+              delete output.to_export
+            }
+          })
+          // TODO: also unset oid widget value (if filter not enabled)
+          // ...
+        }
       }
       pmt_fields.status = null
       delete pmt_fields.checkpoint
@@ -2151,7 +2226,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         }, {}),
         outputs: (outputs || []).map((o) => {
           return {
-            oid: null,
+            // oid: null,
             path: null,
             value: null
           }
@@ -2180,14 +2255,19 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           'load_study'
         ].includes(subtype)
       ) {
-        pmt_fields.plugin_name = subtype
-        pmt_fields.function_name = null
+        if (pmt_fields.args.scalar) {
+          pmt_fields.plugin_name = 'scalar'
+          pmt_fields.function_name = subtype
+        } else {
+          pmt_fields.plugin_name = subtype
+          pmt_fields.function_name = null
+        }
       }
       if (keepStatus) {
         const oid = pmt_fields.args.oid || pmt_fields.args.source
         if (oid) {
-          if (!subtype) {
-            //
+          if (pmt_fields.plugin_name === 'scalar') {
+            // scalar load_<subtype>, frontend fill-in path/value later...
           } else if (subtype === 'load_dicom') {
             pmt_fields.outputs.forEach((output, o) => {
               output.level = ParsedLevel.INSTANCE
@@ -2299,7 +2379,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             delete output.to_export
           }
         })
-      } else {
+      } else if (pmt_fields.plugin_name !== 'scalar') {
         pmt_fields.outputs.forEach((output, o) => {
           const { level, oid, path, value, to_export, ...out } = output
           output.oid = null

@@ -702,10 +702,19 @@
             "dicom_upload": false
           }
         ]
+      },
+      "optional": {
+        "scalar": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ]
       }
     },
     "input_order": {
-      "required": ["oid"]
+      "required": ["oid"],
+      "optional": ["scalar"]
     },
     "output": ["DICOM_FILE"],
     "output_name": ["DICOM_FILE"],
@@ -757,6 +766,12 @@
       },
       "optional": {
         "SERIES_FILE_LIST": ["SERIES_FILE_LIST"],
+        "scalar": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ],
         "filter": [
           "BOOLEAN",
           {
@@ -767,7 +782,7 @@
     },
     "input_order": {
       "required": ["oid"],
-      "optional": ["filter"]
+      "optional": ["SERIES_FILE_LIST", "scalar", "filter"]
     },
     "output": ["SERIES_FILE_LIST"],
     "output_name": ["SERIES_FILE_LIST"],
@@ -785,6 +800,12 @@
         "oid": ["STRING"]
       },
       "optional": {
+        "scalar": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ],
         "filter": [
           "BOOLEAN",
           {
@@ -795,7 +816,7 @@
     },
     "input_order": {
       "required": ["oid"],
-      "optional": ["filter"]
+      "optional": ["scalar", "filter"]
     },
     "output": ["STUDY_FILE_LIST"],
     "output_name": ["STUDY_FILE_LIST"],
@@ -922,13 +943,15 @@
     "input": {
       "optional": {
         "DICOM_FILE": ["DICOM_FILE"],
-        "NIFTI_FILE": ["NIFTI_FILE"]
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
       }
     },
     "input_order": {
       "optional": [
         "DICOM_FILE",
-        "NIFTI_FILE"
+        "NIFTI_FILE",
+        "SERIES_FILE_LIST"
       ]
     },
     "output": [],
@@ -955,14 +978,16 @@
       },
       "optional": {
         "DICOM_FILE": ["DICOM_FILE"],
-        "NIFTI_FILE": ["NIFTI_FILE"]
+        "NIFTI_FILE": ["NIFTI_FILE"],
+        "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
       }
     },
     "input_order": {
       "required": ["questions.json"],
       "optional": [
         "DICOM_FILE",
-        "NIFTI_FILE"
+        "NIFTI_FILE",
+        "SERIES_FILE_LIST"
       ]
     },
     "output": ["DICT"],

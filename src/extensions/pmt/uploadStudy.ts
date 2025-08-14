@@ -15,6 +15,8 @@ useExtensionService().registerExtension({
       const [_w, _h] = node.size
       const _outputs = node.outputs.slice()
 
+      let scalarEnabled = false
+
       const _onConfigure = node.onConfigure
       node.onConfigure = function (...args) {
         const [serialisedNode] = args
@@ -30,6 +32,9 @@ useExtensionService().registerExtension({
               }
             })
           }
+          if (pmt_fields.args?.scalar) {
+            scalarEnabled = true
+          }
           if (pmt_fields.args?.filter) {
             filterEnabled = true
           }
@@ -38,6 +43,22 @@ useExtensionService().registerExtension({
           }
         }
         return _onConfigure?.apply(this, args)
+      }
+
+      const scalarWidget = node.widgets.find((w) => {
+        return w.name === 'scalar'
+      })
+      if (scalarWidget) {
+        const cb = scalarWidget.callback
+        scalarWidget.callback = function (...args) {
+          const [value, canvas, node, pos, e] = args
+          if (value) {
+            scalarEnabled = true
+          } else {
+            scalarEnabled = false
+          }
+          return cb?.apply(this, args)
+        }
       }
 
       const filterWidget = node.widgets.find((w) => {
@@ -52,7 +73,7 @@ useExtensionService().registerExtension({
             node.removeOutput(node.outputs.length - 1)
           }
           if (filterEnabled) {
-            node.setSize([_w, 60])
+            node.setSize([_w, 60 + 26])
             node.setDirtyCanvas(true)
             if (filterParams) {
               void fetchSeriesList(filterParams)
@@ -71,7 +92,7 @@ useExtensionService().registerExtension({
                 value: null
               })
             })
-            node.setSize([_w, 80])
+            node.setSize([_w, 80 + 26])
             node.setDirtyCanvas(true)
           }
           return cb?.apply(this, args)
@@ -126,7 +147,7 @@ useExtensionService().registerExtension({
                 value: null
               })
             })
-            node.setSize([_w, 80])
+            node.setSize([_w, 80 + 26])
             node.setDirtyCanvas(true)
           }
           return cb?.apply(this, args)
@@ -283,7 +304,7 @@ useExtensionService().registerExtension({
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }
-            node.setSize([node.size[0], 60])
+            node.setSize([node.size[0], 60 + 26])
             node.setDirtyCanvas(true)
             const pmt_fields = node.pmt_fields as any
             node.pmt_fields = {

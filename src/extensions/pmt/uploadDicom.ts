@@ -21,6 +21,36 @@ useExtensionService().registerExtension({
       return
     }
 
+    let scalarEnabled = false
+
+    const _onConfigure = node.onConfigure
+    node.onConfigure = function (...args) {
+      const [serialisedNode] = args
+      const pmt_fields = serialisedNode?.pmt_fields as any
+      if (pmt_fields) {
+        if (pmt_fields.args?.scalar) {
+          scalarEnabled = true
+        }
+      }
+      return _onConfigure?.apply(this, args)
+    }
+
+    const scalarWidget = node.widgets.find((w) => {
+      return w.name === 'scalar'
+    })
+    if (scalarWidget) {
+      const cb = scalarWidget.callback
+      scalarWidget.callback = function (...args) {
+        const [value, canvas, node, pos, e] = args
+        if (value) {
+          scalarEnabled = true
+        } else {
+          scalarEnabled = false
+        }
+        return cb?.apply(this, args)
+      }
+    }
+
     const oidWidget = node.widgets.find((w) => {
       return w.name === 'oid'
     })

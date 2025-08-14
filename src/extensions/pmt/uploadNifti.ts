@@ -22,10 +22,14 @@ useExtensionService().registerExtension({
   },
   nodeCreated(node) {
     let [_w, _h] = node.size
+    let scalarEnabled = false
     let filterEnabled = false
     let filterParams = null
     let filterSelectEl = null
     let filterSelectWidget = null
+
+    let disconnectInputSeries = () => {}
+    let oidChangeHandler = () => {}
 
     if (node?.comfyClass !== 'input.load_nifti') {
       if (node?.comfyClass === 'input.load_series') {
@@ -67,6 +71,9 @@ useExtensionService().registerExtension({
                   output.type = 'DICOM_FILE'
                 }
               })
+            }
+            if (pmt_fields.args?.scalar) {
+              scalarEnabled = true
             }
             if (pmt_fields.args?.filter) {
               filterEnabled = true
@@ -140,9 +147,9 @@ useExtensionService().registerExtension({
                     pmt_fields?.outputs?.length
                       ? [
                           node.size[0],
-                          140 + ((pmt_fields?.outputs?.length || 1) - 1) * 20
+                          160 + ((pmt_fields?.outputs?.length || 1) - 1) * 20
                         ]
-                      : [380, 140]
+                      : [380, 160]
                   )
                   node.setDirtyCanvas(true)
                 })
@@ -176,6 +183,7 @@ useExtensionService().registerExtension({
                         })
                         if (oidWidget) {
                           oidWidget.value = oid
+                          oidChangeHandler(oidWidget.value)
                           filterParams = {
                             oid: oidWidget.value,
                             datasetId: filterParams?.datasetId,
@@ -210,6 +218,7 @@ useExtensionService().registerExtension({
                               })
                               if (oidWidget) {
                                 oidWidget.value = oid
+                                oidChangeHandler(oidWidget.value)
                                 filterParams = {
                                   oid: oidWidget.value,
                                   datasetId: filter_params.datasetId,
@@ -241,7 +250,7 @@ useExtensionService().registerExtension({
                   })
                   if (oidWidget) {
                     oidWidget.value = ''
-                    oidRemovedHandler()
+                    oidChangeHandler(oidWidget.value)
                   }
                 } else {
                   break
@@ -255,6 +264,22 @@ useExtensionService().registerExtension({
             }
           }
           return _onConnectionsChange?.apply(this, args)
+        }
+
+        const scalarWidget = node.widgets.find((w) => {
+          return w.name === 'scalar'
+        })
+        if (scalarWidget) {
+          const cb = scalarWidget.callback
+          scalarWidget.callback = function (...args) {
+            const [value, canvas, node, pos, e] = args
+            if (value) {
+              scalarEnabled = true
+            } else {
+              scalarEnabled = false
+            }
+            return cb?.apply(this, args)
+          }
         }
 
         const filterWidget = node.widgets.find((w) => {
@@ -290,7 +315,7 @@ useExtensionService().registerExtension({
                 })
               })
               _w = 380
-              _h = 140
+              _h = 160 - 12
               node.setSize([_w, _h])
               node.setDirtyCanvas(true)
             }
@@ -305,46 +330,51 @@ useExtensionService().registerExtension({
           }
         }
 
-        function disconnectInputSeries() {
+        disconnectInputSeries = function disconnectInputSeries() {
           node.inputs.forEach((input, i) => {
             if (input.type === 'SERIES_FILE_LIST') {
               node.disconnectInput(i)
             }
           })
         }
-        function oidRemovedHandler() {
-          disconnectInputSeries()
-          const pmt_fields = node.pmt_fields as any
-          if (pmt_fields?.outputs?.[0]?.level) {
-            pmt_fields.outputs = []
-            pmt_fields.filter_options = []
-          }
-          if (pmt_fields?.filter_params) {
-            delete pmt_fields.filter_params
-          }
-          if (filterSelectWidget) {
-            filterSelectEl.classList.add('invisible')
-            filterSelectEl.classList.add('pointer-events-none')
-            filterSelectEl.setOptions?.([])
-          }
-          filterParams = null
-          filterEnabled = false
-          filterWidget.value = false
-          while (node.outputs.length > 0) {
-            node.removeOutput(node.outputs.length - 1)
-          }
-          _outputs.forEach(({ name, type }) => {
-            node.addOutput(name, type)
-            pmt_fields?.outputs?.push({
-              oid: null,
-              path: null,
-              value: null
+        oidChangeHandler = function oidChangeHandler(value?: string | null) {
+          if (value) {
+            //
+          } else {
+            disconnectInputSeries()
+            const pmt_fields = node.pmt_fields as any
+            if (pmt_fields?.outputs?.[0]?.level) {
+              pmt_fields.outputs = []
+              pmt_fields.filter_options = []
+            }
+            if (pmt_fields?.filter_params) {
+              delete pmt_fields.filter_params
+            }
+            if (filterSelectWidget) {
+              filterSelectEl.classList.add('invisible')
+              filterSelectEl.classList.add('pointer-events-none')
+              filterSelectEl.setOptions?.([])
+            }
+            filterParams = null
+            filterEnabled = false
+            filterWidget.value = false
+            oidWidget.handleInputNodeInputChange?.(node, oidWidget)
+            while (node.outputs.length > 0) {
+              node.removeOutput(node.outputs.length - 1)
+            }
+            _outputs.forEach(({ name, type }) => {
+              node.addOutput(name, type)
+              pmt_fields?.outputs?.push({
+                oid: null,
+                path: null,
+                value: null
+              })
             })
-          })
-          _w = 315
-          _h = 136
-          node.setSize([_w, _h])
-          node.setDirtyCanvas(true)
+            _w = 315
+            _h = 136 + 24
+            node.setSize([_w, _h])
+            node.setDirtyCanvas(true)
+          }
         }
         const oidWidget = node.widgets.find((w) => {
           return w.name === 'oid'
@@ -357,6 +387,7 @@ useExtensionService().registerExtension({
               disconnectInputSeries()
               requestAnimationFrame(() => {
                 oidWidget.value = value
+                oidChangeHandler(oidWidget.value)
                 filterParams = {
                   oid: oidWidget.value,
                   datasetId: filterParams?.datasetId,
@@ -370,12 +401,7 @@ useExtensionService().registerExtension({
                 }
               })
             } else {
-              if (filterEnabled) {
-                //
-              } else {
-                oidWidget.handleInputNodeInputChange?.(node, oidWidget)
-              }
-              oidRemovedHandler()
+              oidChangeHandler(value)
             }
             return cb?.apply(this, args)
           }
@@ -428,6 +454,7 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
+              oidChangeHandler(oidWidget.value)
               const pmt_fields = node.pmt_fields as any
               node.pmt_fields = {
                 ...(pmt_fields || {}),
@@ -469,6 +496,7 @@ useExtensionService().registerExtension({
             })
             if (oidWidget) {
               oidWidget.value = json.oid
+              oidChangeHandler(oidWidget.value)
               const pmt_fields = node.pmt_fields as any
               node.pmt_fields = {
                 ...(pmt_fields || {}),
@@ -608,11 +636,17 @@ useExtensionService().registerExtension({
     const _onDrawBackground = node.onDrawBackground
     node.onDrawBackground = function (...args) {
       if (filterEnabled) {
-        if (!node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')) {
+        if (
+          node.inputs.length !== 1 &&
+          !node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')
+        ) {
           node.addInput('SERIES_FILE_LIST', 'SERIES_FILE_LIST')
         }
       } else {
-        if (node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')) {
+        if (
+          node.inputs.length !== 0 &&
+          node.inputs.find((i) => i.type === 'SERIES_FILE_LIST')
+        ) {
           node.removeInput(
             node.inputs.findIndex((i) => i.type === 'SERIES_FILE_LIST')
           )

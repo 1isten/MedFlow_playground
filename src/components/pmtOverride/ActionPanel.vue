@@ -1513,6 +1513,7 @@ const runMenuItems = computed(() => [
     }
   },
   */
+  /*
   {
     label: 'Run (to node)',
     icon: 'pi pi-fast-forward',
@@ -1520,6 +1521,16 @@ const runMenuItems = computed(() => [
     disabled: nodesSelectedCount.value !== 1,
     command: () => {
       run(null, 'to-node')
+    }
+  },
+  */
+  {
+    label: 'Generate Report',
+    icon: 'pi pi-file-pdf',
+    class: 'text-sm',
+    disabled: running.value,
+    command: () => {
+      run(null, 'report')
     }
   }
 ])
@@ -2782,7 +2793,7 @@ function handlePythonMsg(msg) {
 }
 
 function handleStreamChunk(chunk) {
-  const { pythonMsg, graphJson } = chunk || {}
+  const { id: pipeline_id, pythonMsg, graphJson, reportOutput } = chunk || {}
   const msg = pythonMsg?.msg || ''
   const results = []
   if (graphJson) {
@@ -2832,6 +2843,9 @@ function handleStreamChunk(chunk) {
         results.push(result)
       }
     })
+  }
+  if (reportOutput) {
+    console.log('[report]:', reportOutput)
   }
   if (msg) {
     handlePythonMsg(msg)

@@ -432,6 +432,17 @@ export const useLitegraphService = () => {
             return { color: '#f0f', lineWidth: 2 }
           }
         }
+        this.strokeStyles['pmtStatus'] = function (this: LGraphNode) {
+          if ('pmt_fields' in this) {
+            const pmt_fields = this.pmt_fields as object
+            if ('status' in pmt_fields) {
+              const status = pmt_fields.status as keyof typeof NODE_STATUS_COLOR
+              if (status && NODE_STATUS_COLOR[status] !== undefined) {
+                return { color: NODE_STATUS_COLOR[status], lineWidth: 2 }
+              }
+            }
+          }
+        }
       }
 
       /**

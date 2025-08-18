@@ -304,6 +304,16 @@ export class ComfyApi extends EventTarget {
   }
 
   apiURL(route: string): string {
+    if (!route) {
+      return 'h3://localhost' + '/external' + '/api' + route
+    } else {
+      return (
+        'external' +
+        '/api' +
+        route.split('?')[0] +
+        (route.endsWith('.json') ? '' : '.json')
+      )
+    }
     return this.api_base + '/api' + route
   }
 
@@ -398,6 +408,9 @@ export class ComfyApi extends EventTarget {
    */
   #createSocket(isReconnect?: boolean) {
     if (this.socket) {
+      return
+    }
+    if (this.socket === null) {
       return
     }
 

@@ -33,7 +33,7 @@ export const getNodeSource = (python_module?: string): NodeSource => {
     return {
       type: NodeSourceType.Core,
       className: 'comfy-core',
-      displayText: 'Comfy Core',
+      displayText: 'Comfy Core'.replace(/^(Comfy )/, 'PMT '),
       badgeText: '🦊'
     }
   } else if (modules[0] === 'custom_nodes') {

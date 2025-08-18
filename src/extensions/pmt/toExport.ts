@@ -176,6 +176,28 @@ useExtensionService().registerExtension({
       }
       node['getInputs_'] = getInputs
 
+      const handleShowItemInFolder = (inputs) => {
+        const path = inputs[0].value || inputs[0].path
+        return fetch(`h3://localhost/api/showItemInFolder`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fullPath: path })
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.json()
+            }
+          })
+          .then((res) => {
+            console.log({ path: res?.path || '' })
+          })
+          .catch((err) => {
+            console.error(err)
+          })
+      }
+
       if (window.$electron) {
         const _onDrawBackground = node.onDrawBackground
         node.onDrawBackground = function (...args) {
@@ -188,30 +210,9 @@ useExtensionService().registerExtension({
             const inputCount = inputs.filter((input) => !!input.path).length
 
             if (inputCount > 0) {
-              if (!openFolderEl['showItemInFolder']) {
-                openFolderEl['showItemInFolder'] = (e) => {
-                  const path = inputs[0].value || inputs[0].path
-                  return fetch(`h3://localhost/api/showItemInFolder`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ fullPath: path })
-                  })
-                    .then((res) => {
-                      if (res.ok) {
-                        return res.json()
-                      }
-                    })
-                    .then((res) => {
-                      console.log({ path: res?.path || '' })
-                    })
-                    .catch((err) => {
-                      console.error(err)
-                    })
-                }
-                openFolderEl.onclick = openFolderEl['showItemInFolder']
-              }
+              openFolderEl['showItemInFolder'] = (e) =>
+                handleShowItemInFolder(inputs)
+              openFolderEl.onclick = openFolderEl['showItemInFolder']
               openFolderEl.style.visibility = 'visible'
             } else {
               openFolderEl.style.visibility = 'hidden'

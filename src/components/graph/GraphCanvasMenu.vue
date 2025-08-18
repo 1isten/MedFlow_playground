@@ -27,6 +27,7 @@
       @click="() => commandStore.execute('Comfy.Canvas.FitView')"
     />
     <Button
+      v-if="false"
       v-tooltip.left="
         t(
           'graphCanvasMenu.' +
@@ -50,6 +51,7 @@
       </template>
     </Button>
     <Button
+      v-if="false"
       v-tooltip.left="t('graphCanvasMenu.toggleLinkVisibility')"
       severity="secondary"
       :icon="linkHidden ? 'pi pi-eye-slash' : 'pi pi-eye'"
@@ -58,6 +60,7 @@
       @click="() => commandStore.execute('Comfy.Canvas.ToggleLinkVisibility')"
     />
     <Button
+      v-if="false"
       v-tooltip.left="minimapTooltip"
       severity="secondary"
       :icon="'pi pi-map'"

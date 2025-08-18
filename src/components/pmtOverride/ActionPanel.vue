@@ -356,7 +356,7 @@
 
 <script setup>
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { LGraphCanvas, LiteGraph } from '@comfyorg/litegraph'
+import { LGraphCanvas, LiteGraph } from '@/lib/litegraph/src/litegraph'
 import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
 import { merge } from 'lodash'
 import Button from 'primevue/button'
@@ -968,6 +968,7 @@ onMounted(async () => {
     if (options) {
       const filtered_options = options.filter((o) => {
         if (
+          o?.content.includes('Subgraph') ||
           o?.content.includes('Group') ||
           [
             // 'Add Group',
@@ -1048,8 +1049,8 @@ onMounted(async () => {
         .filter((o) => {
           if (
             o?.content.includes('Subgraph') ||
+            o?.content.includes('Group') ||
             [
-              'Convert to Group Node',
               'Mode',
               'Bypass'
               // ...

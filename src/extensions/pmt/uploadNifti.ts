@@ -1,6 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { LiteGraph } from '@comfyorg/litegraph'
+import { LiteGraph } from '@/lib/litegraph/src/litegraph'
 
 import { ParsedLevel } from '@/constants/pmtCore'
 import { app } from '@/scripts/app'

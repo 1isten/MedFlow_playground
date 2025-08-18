@@ -53,6 +53,8 @@ import {
 
 import { useExtensionService } from './extensionService'
 
+import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
+
 export const CONFIG = Symbol()
 export const GET_CONFIG = Symbol()
 

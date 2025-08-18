@@ -17,7 +17,10 @@ export default [
       'public/**/*.{js,css}',
       'src/scripts/*',
       'src/extensions/core/*',
-      'src/types/vue-shim.d.ts'
+      'src/types/vue-shim.d.ts',
+      // Generated files that don't need linting
+      'src/types/comfyRegistryTypes.ts',
+      'src/types/generatedManagerTypes.ts'
     ]
   },
   {

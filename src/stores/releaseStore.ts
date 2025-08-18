@@ -4,6 +4,7 @@ import { computed, ref } from 'vue'
 import { type ReleaseNote, useReleaseService } from '@/services/releaseService'
 import { useSettingStore } from '@/stores/settingStore'
 import { useSystemStatsStore } from '@/stores/systemStatsStore'
+import { isElectron } from '@/utils/envUtil'
 import { compareVersions, stringToLocale } from '@/utils/formatUtil'
 
 // Store for managing release notes
@@ -31,6 +32,9 @@ export const useReleaseStore = defineStore('release', () => {
   const releaseStatus = computed(() => settingStore.get('Comfy.Release.Status'))
   const releaseTimestamp = computed(() =>
     settingStore.get('Comfy.Release.Timestamp')
+  )
+  const showVersionUpdates = computed(() =>
+    settingStore.get('Comfy.Notification.ShowVersionUpdates')
   )
 
   // Most recent release
@@ -73,6 +77,16 @@ export const useReleaseStore = defineStore('release', () => {
 
   // Show toast if needed
   const shouldShowToast = computed(() => {
+    // Only show on desktop version
+    if (!isElectron()) {
+      return false
+    }
+
+    // Skip if notifications are disabled
+    if (!showVersionUpdates.value) {
+      return false
+    }
+
     if (!isNewVersionAvailable.value) {
       return false
     }
@@ -85,7 +99,7 @@ export const useReleaseStore = defineStore('release', () => {
     // Skip if user already skipped or changelog seen
     if (
       releaseVersion.value === recentRelease.value?.version &&
-      !['skipped', 'changelog seen'].includes(releaseStatus.value)
+      ['skipped', 'changelog seen'].includes(releaseStatus.value)
     ) {
       return false
     }
@@ -95,6 +109,16 @@ export const useReleaseStore = defineStore('release', () => {
 
   // Show red-dot indicator
   const shouldShowRedDot = computed(() => {
+    // Only show on desktop version
+    if (!isElectron()) {
+      return false
+    }
+
+    // Skip if notifications are disabled
+    if (!showVersionUpdates.value) {
+      return false
+    }
+
     // Already latest → no dot
     if (!isNewVersionAvailable.value) {
       return false
@@ -132,6 +156,16 @@ export const useReleaseStore = defineStore('release', () => {
 
   // Show "What's New" popup
   const shouldShowPopup = computed(() => {
+    // Only show on desktop version
+    if (!isElectron()) {
+      return false
+    }
+
+    // Skip if notifications are disabled
+    if (!showVersionUpdates.value) {
+      return false
+    }
+
     if (!isLatestVersion.value) {
       return false
     }
@@ -183,8 +217,23 @@ export const useReleaseStore = defineStore('release', () => {
 
   // Fetch releases from API
   async function fetchReleases(): Promise<void> {
-    if (isLoading.value) return
+    if (isLoading.value) {
+      return
+    }
 
+    // Skip fetching if notifications are disabled
+    if (!showVersionUpdates.value) {
+      return
+    }
+
+    // Skip fetching if API nodes are disabled via argv
+    if (
+      systemStatsStore.systemStats?.system?.argv?.includes(
+        '--disable-api-nodes'
+      )
+    ) {
+      return
+    }
     isLoading.value = true
     error.value = null
 

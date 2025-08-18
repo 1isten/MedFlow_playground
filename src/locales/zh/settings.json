@@ -29,6 +29,13 @@
     "name": "画布背景图像",
     "tooltip": "画布背景的图像 URL。你可以在输出面板中右键点击一张图片，并选择“设为背景”来使用它。"
   },
+  "Comfy_Canvas_NavigationMode": {
+    "name": "画布导航模式",
+    "options": {
+      "Left-Click Pan (Legacy)": "左键拖曳（旧版）",
+      "Standard (New)": "标准（新）"
+    }
+  },
   "Comfy_Canvas_SelectionToolbox": {
     "name": "显示选择工具箱"
   },
@@ -111,6 +118,10 @@
       "Spline": "曲线",
       "Straight": "直角线"
     }
+  },
+  "Comfy_Load3D_3DViewerEnable": {
+    "name": "启用3D查看器（测试版）",
+    "tooltip": "为选定节点启用3D查看器（测试版）。此功能允许你在全尺寸3D查看器中直接可视化和交互3D模型。"
   },
   "Comfy_Load3D_BackgroundColor": {
     "name": "初始背景颜色",
@@ -259,6 +270,10 @@
     "name": "吸附高亮节点",
     "tooltip": "在拖动连线经过具有可用输入接口的节点时，高亮显示该节点。"
   },
+  "Comfy_Notification_ShowVersionUpdates": {
+    "name": "显示版本更新",
+    "tooltip": "显示新模型和主要新功能的更新。"
+  },
   "Comfy_Pointer_ClickBufferTime": {
     "name": "指针点击漂移延迟",
     "tooltip": "按下指针按钮后，忽略指针移动的最大时间（毫秒）。\n\n有助于防止在点击时意外移动鼠标。"
@@ -322,11 +337,8 @@
       "Bottom": "底部",
       "Disabled": "禁用",
       "Top": "顶部"
-    }
-  },
-  "Comfy_Validation_NodeDefs": {
-    "name": "校验节点定义（慢）",
-    "tooltip": "推荐给节点开发者。开启后会在 ComfyUI 启动时校验全部节点定义。"
+    },
+    "tooltip": "选单列位置。在行动装置上，选单始终显示于顶端。"
   },
   "Comfy_Validation_Workflows": {
     "name": "校验工作流"
@@ -393,10 +405,6 @@
   },
   "LiteGraph_Node_TooltipDelay": {
     "name": "工具提示延迟"
-  },
-  "LiteGraph_Pointer_TrackpadGestures": {
-    "name": "启用触控板手势",
-    "tooltip": "此设置为画布启用触控板模式，允许使用双指捏合缩放和拖动。"
   },
   "LiteGraph_Reroute_SplineOffset": {
     "name": "重新路由样条偏移",

@@ -1,3 +1,10 @@
+import _ from 'es-toolkit/compat'
+
+import { useSelectedLiteGraphItems } from '@/composables/canvas/useSelectedLiteGraphItems'
+import { useNodeAnimatedImage } from '@/composables/node/useNodeAnimatedImage'
+import { useNodeCanvasImagePreview } from '@/composables/node/useNodeCanvasImagePreview'
+import { useNodeImage, useNodeVideo } from '@/composables/node/useNodeImage'
+import { st, t } from '@/i18n'
 import {
   type IContextMenuValue,
   LGraphBadge,
@@ -10,20 +17,13 @@ import {
   SubgraphNode,
   type Vector2,
   createBounds
-} from '@comfyorg/litegraph'
+} from '@/lib/litegraph/src/litegraph'
 import type {
   ExportedSubgraphInstance,
   ISerialisableNodeInput,
   ISerialisableNodeOutput,
   ISerialisedNode
-} from '@comfyorg/litegraph/dist/types/serialisation'
-import _ from 'lodash'
-
-import { useNodeAnimatedImage } from '@/composables/node/useNodeAnimatedImage'
-import { useNodeCanvasImagePreview } from '@/composables/node/useNodeCanvasImagePreview'
-import { useNodeImage, useNodeVideo } from '@/composables/node/useNodeImage'
-import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
-import { st, t } from '@/i18n'
+} from '@/lib/litegraph/src/types/serialisation'
 import type { NodeId } from '@/schemas/comfyWorkflowSchema'
 import { transformInputSpecV2ToV1 } from '@/schemas/nodeDef/migration'
 import type {
@@ -33,7 +33,10 @@ import type {
 } from '@/schemas/nodeDef/nodeDefSchemaV2'
 import type { ComfyNodeDef as ComfyNodeDefV1 } from '@/schemas/nodeDefSchema'
 import { ComfyApp, app } from '@/scripts/app'
+import { isComponentWidget, isDOMWidget } from '@/scripts/domWidget'
 import { $el } from '@/scripts/ui'
+import { useDomWidgetStore } from '@/stores/domWidgetStore'
+import { useExecutionStore } from '@/stores/executionStore'
 import { useCanvasStore } from '@/stores/graphStore'
 import { useNodeOutputStore } from '@/stores/imagePreviewStore'
 import { ComfyNodeDefImpl } from '@/stores/nodeDefStore'
@@ -61,6 +64,7 @@ export const useLitegraphService = () => {
   const toastStore = useToastStore()
   const widgetStore = useWidgetStore()
   const canvasStore = useCanvasStore()
+  const { toggleSelectedNodesMode } = useSelectedLiteGraphItems()
 
   // TODO: Dedupe `registerNodeDef`; this should remain synchronous.
   function registerSubgraphNodeDef(
@@ -88,6 +92,37 @@ export const useLitegraphService = () => {
       constructor() {
         super(app.graph, subgraph, instanceData)
 
+        // Set up event listener for promoted widget registration
+        subgraph.events.addEventListener('widget-promoted', (event) => {
+          const { widget } = event.detail
+          // Only handle DOM widgets
+          if (!isDOMWidget(widget) && !isComponentWidget(widget)) return
+
+          const domWidgetStore = useDomWidgetStore()
+          if (!domWidgetStore.widgetStates.has(widget.id)) {
+            domWidgetStore.registerWidget(widget)
+            // Set initial visibility based on whether the widget's node is in the current graph
+            const widgetState = domWidgetStore.widgetStates.get(widget.id)
+            if (widgetState) {
+              const currentGraph = canvasStore.getCanvas().graph
+              widgetState.visible =
+                currentGraph?.nodes.includes(widget.node) ?? false
+            }
+          }
+        })
+
+        // Set up event listener for promoted widget removal
+        subgraph.events.addEventListener('widget-demoted', (event) => {
+          const { widget } = event.detail
+          // Only handle DOM widgets
+          if (!isDOMWidget(widget) && !isComponentWidget(widget)) return
+
+          const domWidgetStore = useDomWidgetStore()
+          if (domWidgetStore.widgetStates.has(widget.id)) {
+            domWidgetStore.unregisterWidget(widget.id)
+          }
+        })
+
         this.#setupStrokeStyles()
         this.#addInputs(ComfyNode.nodeData.inputs)
         this.#addOutputs(ComfyNode.nodeData.outputs)
@@ -96,9 +131,15 @@ export const useLitegraphService = () => {
         void extensionService.invokeExtensionsAsync('nodeCreated', this)
         this.badges.push(
           new LGraphBadge({
-            text: '⇌',
-            fgColor: '#dad0de',
-            bgColor: '#b3b'
+            text: '',
+            iconOptions: {
+              unicode: '\ue96e',
+              fontFamily: 'PrimeIcons',
+              color: '#ffffff',
+              fontSize: 12
+            },
+            fgColor: '#ffffff',
+            bgColor: '#3b82f6'
           })
         )
       }
@@ -108,7 +149,11 @@ export const useLitegraphService = () => {
        */
       #setupStrokeStyles() {
         this.strokeStyles['running'] = function (this: LGraphNode) {
-          if (this.id == app.runningNodeId) {
+          const nodeId = String(this.id)
+          const nodeLocatorId = useWorkflowStore().nodeIdToNodeLocatorId(nodeId)
+          const state =
+            useExecutionStore().nodeLocationProgressStates[nodeLocatorId]?.state
+          if (state === 'running') {
             return { color: '#0f0' }
           }
         }
@@ -320,6 +365,7 @@ export const useLitegraphService = () => {
     // Note: Do not following assignments before `LiteGraph.registerNodeType`
     // because `registerNodeType` will overwrite the assignments.
     node.category = nodeDef.category
+    node.skip_list = true
     node.title = nodeDef.display_name || nodeDef.name
   }
 
@@ -363,7 +409,11 @@ export const useLitegraphService = () => {
        */
       #setupStrokeStyles() {
         this.strokeStyles['running'] = function (this: LGraphNode) {
-          if (this.id == app.runningNodeId) {
+          const nodeId = String(this.id)
+          const nodeLocatorId = useWorkflowStore().nodeIdToNodeLocatorId(nodeId)
+          const state =
+            useExecutionStore().nodeLocationProgressStates[nodeLocatorId]?.state
+          if (state === 'running') {
             return { color: '#0f0' }
           }
         }
@@ -725,15 +775,8 @@ export const useLitegraphService = () => {
       options.push({
         content: 'Bypass',
         callback: () => {
-          const mode =
-            this.mode === LGraphEventMode.BYPASS
-              ? LGraphEventMode.ALWAYS
-              : LGraphEventMode.BYPASS
-          for (const item of app.canvas.selectedItems) {
-            if (item instanceof LGraphNode) item.mode = mode
-          }
-          // @ts-expect-error fixme ts strict error
-          this.graph.change()
+          toggleSelectedNodesMode(LGraphEventMode.BYPASS)
+          app.canvas.setDirty(true, true)
         }
       })
 
@@ -757,7 +800,7 @@ export const useLitegraphService = () => {
 
         if (isImageNode(this)) {
           options.push({
-            content: 'Open in MaskEditor',
+            content: 'Open in MaskEditor | Image Canvas',
             callback: () => {
               ComfyApp.copyToClipspace(this)
               // @ts-expect-error fixme ts strict error
@@ -767,6 +810,15 @@ export const useLitegraphService = () => {
             }
           })
         }
+      }
+      if (this instanceof SubgraphNode) {
+        options.unshift({
+          content: 'Unpack Subgraph',
+          callback: () => {
+            useNodeOutputStore().revokeSubgraphPreviews(this)
+            this.graph.unpackSubgraph(this)
+          }
+        })
       }
 
       return []
@@ -811,10 +863,13 @@ export const useLitegraphService = () => {
 
         const isAnimatedWebp =
           this.animatedImages &&
-          // @ts-expect-error fixme ts strict error
-          output.images.some((img) => img.filename?.includes('webp'))
+          output?.images?.some((img) => img.filename?.includes('webp'))
+        const isAnimatedPng =
+          this.animatedImages &&
+          output?.images?.some((img) => img.filename?.includes('png'))
         const isVideo =
-          (this.animatedImages && !isAnimatedWebp) || isVideoNode(this)
+          (this.animatedImages && !isAnimatedWebp && !isAnimatedPng) ||
+          isVideoNode(this)
         if (isVideo) {
           useNodeVideo(this).showPreview()
         } else {

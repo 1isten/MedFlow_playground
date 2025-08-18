@@ -1,5 +1,9 @@
 import { createI18n } from 'vue-i18n'
 
+import arCommands from './locales/ar/commands.json'
+import ar from './locales/ar/main.json'
+import arNodes from './locales/ar/nodeDefs.json'
+import arSettings from './locales/ar/settings.json'
 import enCommands from './locales/en/commands.json'
 import en from './locales/en/main.json'
 import enNodes from './locales/en/nodeDefs.json'
@@ -24,6 +28,10 @@ import ruCommands from './locales/ru/commands.json'
 import ru from './locales/ru/main.json'
 import ruNodes from './locales/ru/nodeDefs.json'
 import ruSettings from './locales/ru/settings.json'
+import zhTWCommands from './locales/zh-TW/commands.json'
+import zhTW from './locales/zh-TW/main.json'
+import zhTWNodes from './locales/zh-TW/nodeDefs.json'
+import zhTWSettings from './locales/zh-TW/settings.json'
 import zhCommands from './locales/zh/commands.json'
 import zh from './locales/zh/main.json'
 import zhNodes from './locales/zh/nodeDefs.json'
@@ -41,11 +49,13 @@ function buildLocale<M, N, C, S>(main: M, nodes: N, commands: C, settings: S) {
 const messages = {
   en: buildLocale(en, enNodes, enCommands, enSettings),
   zh: buildLocale(zh, zhNodes, zhCommands, zhSettings),
+  'zh-TW': buildLocale(zhTW, zhTWNodes, zhTWCommands, zhTWSettings),
   ru: buildLocale(ru, ruNodes, ruCommands, ruSettings),
   ja: buildLocale(ja, jaNodes, jaCommands, jaSettings),
   ko: buildLocale(ko, koNodes, koCommands, koSettings),
   fr: buildLocale(fr, frNodes, frCommands, frSettings),
-  es: buildLocale(es, esNodes, esCommands, esSettings)
+  es: buildLocale(es, esNodes, esCommands, esSettings),
+  ar: buildLocale(ar, arNodes, arCommands, arSettings)
 }
 
 export const i18n = createI18n({

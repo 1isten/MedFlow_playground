@@ -54,7 +54,7 @@
     </Teleport>
 
     <!-- What's New Section -->
-    <section class="whats-new-section">
+    <section v-if="showVersionUpdates" class="whats-new-section">
       <h3 class="section-description">{{ $t('helpCenter.whatsNew') }}</h3>
 
       <!-- Release Items -->
@@ -126,6 +126,7 @@ import { useI18n } from 'vue-i18n'
 import { type ReleaseNote } from '@/services/releaseService'
 import { useCommandStore } from '@/stores/commandStore'
 import { useReleaseStore } from '@/stores/releaseStore'
+import { useSettingStore } from '@/stores/settingStore'
 import { electronAPI, isElectron } from '@/utils/envUtil'
 import { formatVersionAnchor } from '@/utils/formatUtil'
 
@@ -161,13 +162,14 @@ const TIME_UNITS = {
 const SUBMENU_CONFIG = {
   DELAY_MS: 100,
   OFFSET_PX: 8,
-  Z_INDEX: 1002
+  Z_INDEX: 10001
 } as const
 
 // Composables
 const { t, locale } = useI18n()
 const releaseStore = useReleaseStore()
 const commandStore = useCommandStore()
+const settingStore = useSettingStore()
 
 // Emits
 const emit = defineEmits<{
@@ -182,17 +184,17 @@ let hoverTimeout: number | null = null
 
 // Computed
 const hasReleases = computed(() => releaseStore.releases.length > 0)
-
-const moreMenuItem = computed(() =>
-  menuItems.value.find((item) => item.key === 'more')
+const showVersionUpdates = computed(() =>
+  settingStore.get('Comfy.Notification.ShowVersionUpdates')
 )
 
-const menuItems = computed<MenuItem[]>(() => {
-  const moreItems: MenuItem[] = [
+const moreItems = computed<MenuItem[]>(() => {
+  const allMoreItems: MenuItem[] = [
     {
       key: 'desktop-guide',
       type: 'item',
       label: t('helpCenter.desktopUserGuide'),
+      visible: isElectron(),
       action: () => {
         openExternalLink(EXTERNAL_LINKS.DESKTOP_GUIDE)
         emit('close')
@@ -225,6 +227,19 @@ const menuItems = computed<MenuItem[]>(() => {
     }
   ]
 
+  // Filter for visible items only
+  return allMoreItems.filter((item) => item.visible !== false)
+})
+
+const hasVisibleMoreItems = computed(() => {
+  return !!moreItems.value.length
+})
+
+const moreMenuItem = computed(() =>
+  menuItems.value.find((item) => item.key === 'more')
+)
+
+const menuItems = computed<MenuItem[]>(() => {
   return [
     {
       key: 'docs',
@@ -271,8 +286,9 @@ const menuItems = computed<MenuItem[]>(() => {
       type: 'item',
       icon: '',
       label: t('helpCenter.more'),
+      visible: hasVisibleMoreItems.value,
       action: () => {}, // No action for more item
-      items: moreItems
+      items: moreItems.value
     }
   ]
 })

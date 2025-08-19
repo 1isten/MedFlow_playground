@@ -1022,28 +1022,41 @@ onMounted(async () => {
     if (options) {
       let resetOptionIndex = options.findIndex((o) => o?.content === 'Remove')
       if (resetOptionIndex === -1) resetOptionIndex = options.length
+      const newOptions = [
+        {
+          content: 'Logs',
+          callback: () => {
+            if (termSearchAddon) {
+              toggleTerminal(true)
+              termSearchAddon.findPrevious(
+                ` ON: Node ${node.id}]`,
+                termSearchOptions
+              )
+            }
+          },
+          disabled: node.type?.startsWith('input.') // || !node?.pmt_fields?.status
+        },
+        {
+          content: 'Reset',
+          callback: () => resetNodeById(node.id)
+        }
+      ]
+      if (pipelineId && node.type?.startsWith('plugin.')) {
+        newOptions.unshift(...[
+          {
+            content: 'Open main.py',
+            callback: () => {
+              const [_, pluginName, functionName] = node.type.split('.')
+              openMainPy(pluginName, functionName)
+            },
+          },
+          null, // inserts a divider
+        ])
+      }
       options.splice(
         resetOptionIndex,
         0,
-        ...[
-          {
-            content: 'Logs',
-            callback: () => {
-              if (termSearchAddon) {
-                toggleTerminal(true)
-                termSearchAddon.findPrevious(
-                  ` ON: Node ${node.id}]`,
-                  termSearchOptions
-                )
-              }
-            },
-            disabled: node.type?.startsWith('input.') // || !node?.pmt_fields?.status
-          },
-          {
-            content: 'Reset',
-            callback: () => resetNodeById(node.id)
-          }
-        ]
+        ...newOptions
       )
       return options
         .filter((o) => {
@@ -2646,6 +2659,16 @@ onMounted(async () => {
     }
   }
 })
+
+function openMainPy(pluginName, functionName) {
+  const port = ports['mod-pipelines']
+  if (port) {
+    port.postMessage({
+      type: 'open-main-py',
+      payload: { pluginName, functionName, ts: Date.now() }
+    })
+  }
+}
 
 function handleInputNodeInputChange(node, oidWidget) {
   if (!pipelineId) {

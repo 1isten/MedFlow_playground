@@ -2873,7 +2873,13 @@ function handleStreamChunk(chunk) {
     })
   }
   if (reportOutput) {
-    console.log('[report]:', reportOutput)
+    const port = ports['mod-pipelines']
+    if (port) {
+      port.postMessage({
+        type: 'show-report-pdf',
+        payload: { reportOutput, ts: Date.now() }
+      })
+    }
   }
   if (msg) {
     handlePythonMsg(msg)

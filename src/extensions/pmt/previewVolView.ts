@@ -95,11 +95,8 @@ useExtensionService().registerExtension({
         const pmt_fields = imageInputNode.pmt_fields as any
         if (pmt_fields?.status === 'done') {
           const imageInputs = pmt_fields.outputs || []
-          if (Array.isArray(imageInputs[0]?.path)) {
-            imagePath = imageInputs[0]?.path?.[0]
-          } else {
-            imagePath = imageInputs[0]?.path
-          }
+          const path = imageInputs[0]?.path || imageInputs[0]?.value
+          imagePath = Array.isArray(path) ? path[0] : path
         }
       }
       let dicomPath, dicomOid
@@ -108,16 +105,10 @@ useExtensionService().registerExtension({
         const pmt_fields = dicomInputNode.pmt_fields as any
         if (pmt_fields?.status === 'done') {
           const dicomInputs = pmt_fields.outputs || []
-          if (Array.isArray(dicomInputs[0]?.path)) {
-            dicomPath = dicomInputs[0]?.path?.[0]
-          } else {
-            dicomPath = dicomInputs[0]?.path
-          }
-          if (Array.isArray(dicomInputs[0]?.oid)) {
-            dicomOid = dicomInputs[0]?.oid?.[0]
-          } else {
-            dicomOid = dicomInputs[0]?.oid
-          }
+          const path = dicomInputs[0]?.path || dicomInputs[0]?.value
+          dicomPath = Array.isArray(path) ? path[0] : path
+          const oid = dicomInputs[0]?.oid
+          dicomOid = Array.isArray(oid) ? oid[0] : oid
         }
       }
       let niftiPath
@@ -126,11 +117,8 @@ useExtensionService().registerExtension({
         const pmt_fields = niftiInputNode.pmt_fields as any
         if (pmt_fields?.status === 'done') {
           const niftiInputs = pmt_fields.outputs || []
-          if (Array.isArray(niftiInputs[0]?.path)) {
-            niftiPath = niftiInputs[0]?.path?.[0]
-          } else {
-            niftiPath = niftiInputs[0]?.path
-          }
+          const path = niftiInputs[0]?.path || niftiInputs[0]?.value
+          niftiPath = Array.isArray(path) ? path[0] : path
         }
       }
 

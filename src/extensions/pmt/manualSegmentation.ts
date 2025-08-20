@@ -242,8 +242,8 @@ useExtensionService().registerExtension({
         const inputs = node['getInputs_']()
         const outputs = node['getOutputs_']()
 
-        const inputCount = inputs.filter((input) => !!input.path).length
-        const outputCount = outputs.filter((output) => !!output.path).length
+        const inputCount = inputs.filter((input) => !!input.value).length
+        const outputCount = outputs.filter((output) => !!output.value).length
 
         if (inputCount > 0) {
           countEl.textContent = `${outputCount}/${inputCount}`

@@ -1735,7 +1735,7 @@ function resetNodeStatus(node) {
   }
 }
 
-async function fillInLoadNodeScalarValueIfNeeded(json) {
+async function fillInLoadNodeScalarValueIfNeeded(json, always = false) {
   if (!json?.nodes) {
     return json
   }
@@ -1743,8 +1743,8 @@ async function fillInLoadNodeScalarValueIfNeeded(json) {
   for (let i = 0; i < json.nodes.length; i++) {
     const node = json.nodes[i]
     const pmt_fields = node?.pmt_fields
-    if (pmt_fields) {
-      if (pmt_fields.type === 'input' && pmt_fields.plugin_name === 'scalar') {
+    if (pmt_fields && pmt_fields.type === 'input') {
+      if (always || pmt_fields.plugin_name === 'scalar') {
         for (let o = 0; o < pmt_fields.outputs.length; o++) {
           const out = pmt_fields.outputs[o]
           if (!out.oid) {
@@ -1794,6 +1794,7 @@ async function fillInLoadNodeScalarValueIfNeeded(json) {
               })
             if (data.value) {
               out.value = data.value
+              // if (always) out.path = out.value
             }
           }
         }
@@ -1821,7 +1822,7 @@ async function run(e, mode = 'complete') {
     console.log(answers)
   } else {
     let { json } = exportJson(false)
-    json = await fillInLoadNodeScalarValueIfNeeded(json)
+    json = await fillInLoadNodeScalarValueIfNeeded(json, true)
     json.nodes.forEach((node) => {
       delete node.pmt_fields.checkpoint
       delete node.pmt_fields.startpoint
@@ -2834,18 +2835,22 @@ function handleStreamChunk(chunk) {
               const out = node.pmt_fields.outputs[o]
               const { name, type, oid, path, value } = output
               if (oid) {
+                /*
                 out.oid = Array.isArray(out.oid)
                   ? Array.isArray(oid)
                     ? oid
                     : [oid]
                   : oid
+                */
               }
               if (path && path !== 'None') {
+                /*
                 out.path = Array.isArray(out.path)
                   ? Array.isArray(path)
                     ? path
                     : [path]
                   : path
+                */
               }
               if (value) {
                 out.value = Array.isArray(out.value)
@@ -2907,18 +2912,22 @@ function handleBatchStreamChunk(chunk) {
               const out = node.pmt_fields.outputs_batch[task][o]
               const { name, type, oid, path, value } = output
               if (oid) {
+                /*
                 out.oid = Array.isArray(out.oid)
                   ? Array.isArray(oid)
                     ? oid
                     : [oid]
                   : oid
+                */
               }
               if (path && path !== 'None') {
+                /*
                 out.path = Array.isArray(out.path)
                   ? Array.isArray(path)
                     ? path
                     : [path]
                   : path
+                */
               }
               if (value) {
                 out.value = Array.isArray(out.value)
@@ -3206,9 +3215,9 @@ function handleGetManualList(payload) {
             taskId: input.taskId || undefined,
             level: input.level || undefined,
             oid: input.oid || null,
-            path: input.path || null,
-            value: output?.value || undefined,
-            labelmap: output?.path || undefined
+            path: input.value || input.path || null,
+            value: output?.value ?? undefined,
+            labelmap: output?.value ?? output?.path ?? undefined
           })
         )
         manualList.push(item)
@@ -3251,7 +3260,7 @@ function handleCreateManualSegmentation(payload) {
           if (labelmap) {
             if (input.oid) {
               if (input.oid === oid) {
-                output.path = labelmap
+                output.value = labelmap
                 manualNode.setDirtyCanvas(true)
               }
             } else if (input.path) {
@@ -3259,7 +3268,7 @@ function handleCreateManualSegmentation(payload) {
                 input.path === oid ||
                 input.path === decodeURIComponent(window.atob(oid))
               ) {
-                output.path = labelmap
+                output.value = labelmap
                 manualNode.setDirtyCanvas(true)
               }
             }

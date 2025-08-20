@@ -207,7 +207,7 @@ useExtensionService().registerExtension({
           if (pmt_fields) {
             const inputs = node['getInputs_']()
 
-            const inputCount = inputs.filter((input) => !!input.path).length
+            const inputCount = inputs.filter((input) => !!input.value || !!input.path).length
 
             if (inputCount > 0) {
               openFolderEl['showItemInFolder'] = (e) =>

@@ -939,6 +939,7 @@ onMounted(async () => {
   }, 500)
 
   const hideTypes = [
+    // 'input.file',
     'input.load_json',
     'input.load_image',
     'input.load_nifti',
@@ -2273,7 +2274,8 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           'boolean',
           'number',
           'random',
-          'text'
+          'text',
+          'file'
           // ...
         ].includes(subtype)
       ) {
@@ -2399,6 +2401,14 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             pmt_fields.outputs[0].value ??
             pmt_fields.args.text ??
             pmt_fields.args.textarea
+        }
+        if (subtype === 'file') {
+          pmt_fields.outputs[0].path =
+            pmt_fields.args.file
+          pmt_fields.outputs[0].value =
+            pmt_fields.outputs[0].value ??
+            pmt_fields.outputs[0].path ??
+            pmt_fields.args.file
         }
         if (subtype === 'load_json') {
           if (node?.pmt_fields?.outputs) {

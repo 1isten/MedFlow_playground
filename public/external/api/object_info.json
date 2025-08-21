@@ -634,6 +634,31 @@
     "output_is_list": [false],
     "output_node": false
   },
+  "input.file": {
+    "name": "input.file",
+    "category": "input/Scalar",
+    "display_name": "File",
+    "description": "FILE",
+    "python_module": "nodes",
+    "input": {
+      "optional": {
+        "file": [
+          "FILE",
+          {
+            "file_upload": true,
+            "extensions": ["image/*", ".pdf", ".json"]
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "optional": ["file"]
+    },
+    "output": ["FILE"],
+    "output_name": ["FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "input.load_json": {
     "name": "input.load_json",
     "category": "input",

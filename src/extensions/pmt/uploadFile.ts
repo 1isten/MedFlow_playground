@@ -98,7 +98,7 @@ useExtensionService().registerExtension({
             uploadWidget.label = 'CHOOSE FILE'
           }
         }
-
+        /*
         node.onDragOver = function (e) {
           window['__drag_over_node'] = true
           if (e.dataTransfer && e.dataTransfer.items) {
@@ -130,7 +130,7 @@ useExtensionService().registerExtension({
           // delete window['__drag_over_node']
           return handled
         }
-
+        */
         return { widget: uploadWidget }
       }
     }

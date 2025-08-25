@@ -4,7 +4,7 @@
     @wheel="canvasInteractions.handleWheel"
   >
     <Button
-      v-tooltip.left="t('graphCanvasMenu.zoomIn')"
+      v-tooltip.left="t('graphCanvasMenu.zoomIn') && ''"
       severity="secondary"
       icon="pi pi-plus"
       :aria-label="$t('graphCanvasMenu.zoomIn')"
@@ -12,7 +12,7 @@
       @mouseup="stopRepeat"
     />
     <Button
-      v-tooltip.left="t('graphCanvasMenu.zoomOut')"
+      v-tooltip.left="t('graphCanvasMenu.zoomOut') && ''"
       severity="secondary"
       icon="pi pi-minus"
       :aria-label="$t('graphCanvasMenu.zoomOut')"
@@ -20,21 +20,21 @@
       @mouseup="stopRepeat"
     />
     <Button
-      v-tooltip.left="t('graphCanvasMenu.fitView')"
+      v-tooltip.left="t('graphCanvasMenu.fitView') && ''"
       severity="secondary"
       icon="pi pi-expand"
       :aria-label="$t('graphCanvasMenu.fitView')"
       @click="() => commandStore.execute('Comfy.Canvas.FitView')"
     />
     <Button
-      v-if="false"
       v-tooltip.left="
-        t(
+        (t(
           'graphCanvasMenu.' +
             (canvasStore.canvas?.read_only ? 'panMode' : 'selectMode')
-        ) + ' (Space)'
+        ) + ' (Space)') && ''
       "
       severity="secondary"
+      :icon="canvasStore.canvas?.read_only ? 'pi pi-lock' : 'pi pi-lock-open'"
       :aria-label="
         t(
           'graphCanvasMenu.' +
@@ -43,12 +43,14 @@
       "
       @click="() => commandStore.execute('Comfy.Canvas.ToggleLock')"
     >
+      <!--
       <template #icon>
         <i-material-symbols:pan-tool-outline
           v-if="canvasStore.canvas?.read_only"
         />
         <i-simple-line-icons:cursor v-else />
       </template>
+      -->
     </Button>
     <Button
       v-if="false"

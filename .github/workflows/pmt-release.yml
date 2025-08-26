@@ -17,18 +17,15 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install dependencies
-        run: npm ci
-
       - name: Build project
-        run: npm run build
-
-      - name: Zip dist folder
-        run: zip -r medflow-dist.zip dist
+        run: |
+          npm ci
+          npm run build
+          npm run zipdist
 
       - name: Upload dist.zip to release
         uses: softprops/action-gh-release@v2
         with:
-          files: medflow-dist.zip
+          files: dist.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2131,7 +2131,16 @@ function exportJson(download = true, keepStatus = true) {
         } else {
           pmt_fields.outputs.forEach((output, o) => {
             const { level, oid, path, value, to_export, ...out } = output
-            output.oid = null
+            if (oid) {
+              if (
+                // pmt_fields.args?.scalar ||
+                pmt_fields.args?.filter
+              ) {
+                //
+              } else {
+                output.oid = null
+              }
+            }
             output.path = null
             output.value = null
             if (Object.values(out).filter(Boolean).length === 0) {
@@ -2455,7 +2464,16 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
       } else if (pmt_fields.plugin_name !== 'scalar') {
         pmt_fields.outputs.forEach((output, o) => {
           const { level, oid, path, value, to_export, ...out } = output
-          output.oid = null
+          if (oid) {
+            if (
+              // pmt_fields.args?.scalar ||
+              pmt_fields.args?.filter
+            ) {
+              //
+            } else {
+              output.oid = null
+            }
+          }
           output.path = null
           output.value = null
           if (Object.values(out).filter(Boolean).length === 0) {

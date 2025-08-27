@@ -356,7 +356,6 @@
 
 <script setup>
 /* eslint-disable @typescript-eslint/no-floating-promises */
-import { LGraphCanvas, LiteGraph } from '@/lib/litegraph/src/litegraph'
 import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
 import { merge } from 'lodash'
 import Button from 'primevue/button'
@@ -377,6 +376,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
 import { NODE_STATUS_COLOR, ParsedLevel } from '@/constants/pmtCore'
+import { LGraphCanvas, LiteGraph } from '@/lib/litegraph/src/litegraph'
 import { app as comfyApp } from '@/scripts/app'
 import { DOMWidgetImpl } from '@/scripts/domWidget'
 import { useKeybindingService } from '@/services/keybindingService'
@@ -1043,22 +1043,20 @@ onMounted(async () => {
         }
       ]
       if (pipelineId && node.type?.startsWith('plugin.')) {
-        newOptions.unshift(...[
-          {
-            content: 'Open main.py',
-            callback: () => {
-              const [_, pluginName, functionName] = node.type.split('.')
-              openMainPy(pluginName, functionName)
+        newOptions.unshift(
+          ...[
+            {
+              content: 'Open main.py',
+              callback: () => {
+                const [_, pluginName, functionName] = node.type.split('.')
+                openMainPy(pluginName, functionName)
+              }
             },
-          },
-          null, // inserts a divider
-        ])
+            null // inserts a divider
+          ]
+        )
       }
-      options.splice(
-        resetOptionIndex,
-        0,
-        ...newOptions
-      )
+      options.splice(resetOptionIndex, 0, ...newOptions)
       return options
         .filter((o) => {
           if (
@@ -1723,9 +1721,24 @@ function resetNodeStatus(node) {
       node.pmt_fields.status = null
     }
     node.pmt_fields.outputs.forEach((output, o) => {
-      output.oid = null
-      output.path = null
-      output.value = null
+      if (output.path) {
+        output.path = null
+      }
+      if (output.value) {
+        output.value = null
+      }
+      if (node.pmt_fields.type === 'input') {
+        if (output.oid) {
+          if (
+            // node.pmt_fields.args?.scalar ||
+            node.pmt_fields.args?.filter
+          ) {
+            //
+          } else {
+            output.oid = null
+          }
+        }
+      }
     })
     if (node.type === 'manual.qna') {
       delete node.pmt_fields.qna
@@ -1765,7 +1778,10 @@ async function fillInLoadNodeScalarValueIfNeeded(json, always = false) {
               }
             }
           }
-          if (out.oid && pipeline.value?.id) {
+          if (out.linked === false) {
+            // only fill connected source
+            continue
+          } else if (out.oid && pipeline.value?.id) {
             const data = await fetch(
               `h3://localhost/api/get-path-value-by-oid?oid=${out.oid}&level=${out.level}`,
               {
@@ -2302,6 +2318,21 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
         const oid = pmt_fields.args.oid || pmt_fields.args.source
         if (oid) {
           if (pmt_fields.plugin_name === 'scalar') {
+            if (
+              pmt_fields.function_name === 'load_dicom' ||
+              pmt_fields.function_name === 'load_series' ||
+              pmt_fields.function_name === 'load_study'
+            ) {
+              if (pmt_fields.args?.filter) {
+                pmt_fields.outputs.forEach((output, o) => {
+                  const out = node.outputs[o]
+                  output.linked = !!out?.links?.length
+                  if (output.linked) {
+                    delete output.linked
+                  }
+                })
+              }
+            }
             // scalar load_<subtype>, frontend fill-in path/value later...
           } else if (subtype === 'load_dicom') {
             pmt_fields.outputs.forEach((output, o) => {
@@ -2403,8 +2434,7 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
             pmt_fields.args.textarea
         }
         if (subtype === 'file') {
-          pmt_fields.outputs[0].path =
-            pmt_fields.args.file
+          pmt_fields.outputs[0].path = pmt_fields.args.file
           pmt_fields.outputs[0].value =
             pmt_fields.outputs[0].value ??
             pmt_fields.outputs[0].path ??

@@ -1799,6 +1799,8 @@ async function fillInLoadNodeScalarValueIfNeeded(json, always = false) {
               .then((res) => {
                 if (res.ok) {
                   return res.json()
+                } else {
+                  throw new Error('Failed to get path value from oid', out.oid)
                 }
               })
               .then((res) => {
@@ -1813,8 +1815,17 @@ async function fillInLoadNodeScalarValueIfNeeded(json, always = false) {
               })
               .catch((err) => {
                 console.error(err)
+                if (err.message) {
+                  toast.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: err.message,
+                    life: 10000
+                  })
+                }
+                pmt_fields.status = 'error'
               })
-            if (data.value) {
+            if (data?.value) {
               out.value = data.value
               // if (always) out.path = out.value
             }
@@ -1889,6 +1900,15 @@ async function run(e, mode = 'complete') {
           console.warn(err.message)
         } else {
           console.error(err)
+          if ((err.message || err) && `${err.message || err}`.trim()) {
+            if (window.$electron) {
+              window.$electron.toggleModal(true, {
+                type: 'error',
+                title: 'Error',
+                message: err.message || err
+              })
+            }
+          }
         }
       })
       .finally(() => {

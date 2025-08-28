@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-
 import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
@@ -201,22 +200,16 @@ useExtensionService().registerExtension({
       if (window.$electron) {
         const _onDrawBackground = node.onDrawBackground
         node.onDrawBackground = function (...args) {
-          // @ts-expect-error custom pmt_fields
-          const pmt_fields = node.pmt_fields as any
+          const inputs = node['getInputs_']()
+          const inputCount = inputs.filter(
+            (input) => !!input.value || !!input.path
+          ).length
 
-          if (pmt_fields) {
-            const inputs = node['getInputs_']()
-
-            const inputCount = inputs.filter((input) => !!input.value || !!input.path).length
-
-            if (inputCount > 0) {
-              openFolderEl['showItemInFolder'] = (e) =>
-                handleShowItemInFolder(inputs)
-              openFolderEl.onclick = openFolderEl['showItemInFolder']
-              openFolderEl.style.visibility = 'visible'
-            } else {
-              openFolderEl.style.visibility = 'hidden'
-            }
+          if (inputCount > 0) {
+            openFolderEl['showItemInFolder'] = (e) =>
+              handleShowItemInFolder(inputs)
+            openFolderEl.onclick = openFolderEl['showItemInFolder']
+            openFolderEl.style.visibility = 'visible'
           } else {
             openFolderEl.style.visibility = 'hidden'
           }

@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-
 import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
@@ -85,18 +84,8 @@ useExtensionService().registerExtension({
     }
 
     const getVolViewUrl = (labelmapFormat = 'nii.gz') => {
-      // eslint-disable-next-line prefer-const
-      let { origin, port, pathname } = document.location
-      if (origin === 'file://') {
-        pathname = pathname.replace('comfyui/', '') + '#volview/'
-      } else {
-        if (port) {
-          origin = origin.replace(port, `${+port - 1 - 2}`)
-        }
-        pathname += '#/volview/'
-      }
       const query = new URLSearchParams(
-        origin === 'file://'
+        document.location.origin === 'file://'
           ? document.location.hash.split('?')[1] || ''
           : document.location.search
       )
@@ -111,7 +100,7 @@ useExtensionService().registerExtension({
         search += `&pipelineEmbedded=embedded`
       }
       // search += `&manualNodeId=${node.id}`
-      return new URL(origin + pathname + search).href
+      return new URL(window['MAIN_INDEX'] + '#/volview/' + search).href
     }
 
     const getInputs = () => {

@@ -36,21 +36,11 @@ useExtensionService().registerExtension({
 
     const getVolViewUrl = () => {
       // eslint-disable-next-line prefer-const
-      let { origin, port, pathname } = document.location
-      if (origin === 'file://') {
-        pathname = pathname.replace('comfyui/', 'volview/')
-      } else {
-        if (port) {
-          origin = origin.replace(port, `${+port - 1}`)
-        }
-        // pathname = pathname.replace('comfyui/', '') + 'volview/'
-      }
-      // eslint-disable-next-line prefer-const
       let search = `?uiMode=lite`
       // serach += `&names=[data.png]&urls=[h3://localhost/file/C:\\sample test data\\data.png]`
       // search += `&names=[file.dcm]&urls=[h3://localhost/file/C:\\sample test data\\test2\\IM_0036.dcm]&uid=test2`
       // search += `&names=[test.zip]&urls=[h3://localhost/file/C:\\sample test data\\test2\\MRI-PROSTATEx-0004.zip]&uid=test&s=0`
-      return new URL(origin + pathname + search).href
+      return new URL(window['VOLVIEW_URL'] + search).href
     }
     const VOLVIEW_URL = getVolViewUrl()
 

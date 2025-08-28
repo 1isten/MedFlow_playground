@@ -1429,6 +1429,11 @@ onMounted(async () => {
     })
   }
 
+  // window.VOLVIEW_URL = document.location.origin.replace(':8044', ':8043')
+  if (window.$electron) {
+    window.VOLVIEW_URL = await window.$electron.getVolViewUrl()
+    window.MAIN_INDEX = await window.$electron.getMainUrl()
+  }
   window.__session_id__ = `${Date.now()}`
   window['driverObjs'] = []
   window['driverHighlight'] = (...args) => {

@@ -2927,13 +2927,11 @@ function handleStreamChunk(chunk) {
                 */
               }
               if (path && path !== 'None') {
-                /*
                 out.path = Array.isArray(out.path)
                   ? Array.isArray(path)
                     ? path
                     : [path]
                   : path
-                */
               }
               if (value) {
                 out.value = Array.isArray(out.value)
@@ -3010,13 +3008,11 @@ function handleBatchStreamChunk(chunk) {
                 */
               }
               if (path && path !== 'None') {
-                /*
                 out.path = Array.isArray(out.path)
                   ? Array.isArray(path)
                     ? path
                     : [path]
                   : path
-                */
               }
               if (value) {
                 out.value = Array.isArray(out.value)

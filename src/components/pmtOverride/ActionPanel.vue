@@ -3348,10 +3348,11 @@ function handleCreateManualSegmentation(payload) {
                 output.value = labelmap
                 manualNode.setDirtyCanvas(true)
               }
-            } else if (input.path) {
+            } else if (input.value || input.path) {
               if (
-                input.path === oid ||
-                input.path === decodeURIComponent(window.atob(oid))
+                (input.value || input.path) === oid ||
+                (input.value || input.path) ===
+                  decodeURIComponent(window.atob(oid))
               ) {
                 output.value = labelmap
                 manualNode.setDirtyCanvas(true)
@@ -3415,10 +3416,11 @@ function handleSaveQnAnswers(payload) {
                 output.value = answers
                 manualNode.setDirtyCanvas(true)
               }
-            } else if (input.path) {
+            } else if (input.value || input.path) {
               if (
-                input.path === oid ||
-                input.path === decodeURIComponent(window.atob(oid))
+                (input.value || input.path) === oid ||
+                (input.value || input.path) ===
+                  decodeURIComponent(window.atob(oid))
               ) {
                 output.value = answers
                 manualNode.setDirtyCanvas(true)

@@ -1,10 +1,11 @@
 {
-  "Comfy.TutorialCompleted": true,
-  "Comfy.Window.UnloadConfirmation": false,
+  "Comfy.Locale": "en",
+  "Comfy.LinkRenderMode": 2,
+  "Comfy.ColorPalette": "dark",
+  "Comfy.UseNewMenu": "Disabled",
+  "Comfy.NodeSearchBoxImpl": "simple",
   "Comfy.Workflow.WorkflowTabsPosition": "None",
   "Comfy.Workflow.ShowMissingNodesWarning": false,
-  "Comfy.UseNewMenu": "Disabled",
-  "Comfy.ColorPalette": "dark",
-  "Comfy.LinkRenderMode": 2,
-  "Comfy.Locale": "en"
+  "Comfy.Window.UnloadConfirmation": false,
+  "Comfy.TutorialCompleted": true
 }

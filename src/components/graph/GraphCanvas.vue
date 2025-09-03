@@ -41,7 +41,7 @@
   />
 
   <NodeTooltip v-if="tooltipEnabled" />
-  <NodeSearchboxPopover v-if="false" />
+  <NodeSearchboxPopover />
 
   <!-- Initialize components after comfyApp is ready. useAbsolutePosition requires
   canvasStore.canvas to be initialized. -->

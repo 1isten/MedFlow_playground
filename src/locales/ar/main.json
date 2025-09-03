@@ -27,6 +27,15 @@
       "title": "مفتاح API",
       "whitelistInfo": "حول المواقع غير المدرجة في القائمة البيضاء"
     },
+    "deleteAccount": {
+      "cancel": "إلغاء",
+      "confirm": "حذف الحساب",
+      "confirmMessage": "هل أنت متأكد أنك تريد حذف حسابك؟ لا يمكن التراجع عن هذا الإجراء وسيتم حذف جميع بياناتك نهائيًا.",
+      "confirmTitle": "حذف الحساب",
+      "deleteAccount": "حذف الحساب",
+      "success": "تم حذف الحساب",
+      "successDetail": "تم حذف حسابك بنجاح."
+    },
     "login": {
       "andText": "و",
       "confirmPasswordLabel": "تأكيد كلمة المرور",
@@ -272,6 +281,7 @@
     "category": "الفئة",
     "choose_file_to_upload": "اختر ملفاً للرفع",
     "clear": "مسح",
+    "clearAll": "مسح الكل",
     "clearFilters": "مسح الفلاتر",
     "close": "إغلاق",
     "color": "اللون",
@@ -312,7 +322,6 @@
     "feedback": "ملاحظات",
     "filter": "تصفية",
     "findIssues": "العثور على مشاكل",
-    "firstTimeUIMessage": "هذه هي المرة الأولى التي تستخدم فيها واجهة المستخدم الجديدة. اختر \"القائمة > استخدام القائمة الجديدة > تعطيل\" لاستعادة الواجهة القديمة.",
     "frontendNewer": "إصدار الواجهة الأمامية {frontendVersion} قد لا يكون متوافقاً مع الإصدار الخلفي {backendVersion}.",
     "frontendOutdated": "إصدار الواجهة الأمامية {frontendVersion} قديم. يتطلب الإصدار الخلفي {requiredVersion} أو أحدث.",
     "goToNode": "الانتقال إلى العقدة",
@@ -327,6 +336,8 @@
     "installed": "مثبت",
     "installing": "جارٍ التثبيت",
     "interrupted": "تمت المقاطعة",
+    "itemSelected": "تم تحديد عنصر واحد",
+    "itemsSelected": "تم تحديد {selectedCount} عناصر",
     "keybinding": "اختصار لوحة المفاتيح",
     "keybindingAlreadyExists": "الاختصار موجود بالفعل في",
     "learnMore": "اعرف المزيد",
@@ -339,6 +350,7 @@
     "micPermissionDenied": "تم رفض إذن الميكروفون",
     "migrate": "ترحيل",
     "missing": "مفقود",
+    "moreWorkflows": "المزيد من سير العمل",
     "name": "الاسم",
     "newFolder": "مجلد جديد",
     "next": "التالي",
@@ -407,12 +419,17 @@
   },
   "graphCanvasMenu": {
     "fitView": "ملائمة العرض",
+    "focusMode": "وضع التركيز",
+    "hand": "يد",
+    "hideLinks": "إخفاء الروابط",
     "panMode": "وضع التحريك",
     "resetView": "إعادة تعيين العرض",
+    "select": "تحديد",
     "selectMode": "وضع التحديد",
-    "toggleLinkVisibility": "تبديل ظهور الروابط",
+    "showLinks": "إظهار الروابط",
     "toggleMinimap": "تبديل الخريطة المصغرة",
     "zoomIn": "تكبير",
+    "zoomOptions": "خيارات التكبير",
     "zoomOut": "تصغير"
   },
   "groupNode": {
@@ -534,37 +551,7 @@
     "updateConsent": "لقد وافقت سابقًا على الإبلاغ عن الأعطال. نحن الآن نتتبع إحصائيات مبنية على الأحداث للمساعدة في تحديد الأخطاء وتحسين التطبيق. لا يتم جمع معلومات شخصية قابلة للتعريف."
   },
   "issueReport": {
-    "contactFollowUp": "اتصل بي للمتابعة",
-    "contactSupportDescription": "يرجى ملء النموذج أدناه مع تقريرك",
-    "contactSupportTitle": "الاتصال بالدعم",
-    "describeTheProblem": "صف المشكلة",
-    "email": "البريد الإلكتروني",
-    "feedbackTitle": "ساعدنا في تحسين ComfyUI من خلال تقديم الملاحظات",
-    "helpFix": "المساعدة في الإصلاح",
-    "helpTypes": {
-      "billingPayments": "الفوترة / المدفوعات",
-      "bugReport": "تقرير خطأ",
-      "giveFeedback": "إرسال ملاحظات",
-      "loginAccessIssues": "مشكلة في تسجيل الدخول / الوصول",
-      "somethingElse": "أمر آخر"
-    },
-    "notifyResolve": "أعلمني عند الحل",
-    "provideAdditionalDetails": "أضف تفاصيل إضافية",
-    "provideEmail": "زودنا ببريدك الإلكتروني (اختياري)",
-    "rating": "التقييم",
-    "selectIssue": "اختر المشكلة",
-    "stackTrace": "أثر التكديس",
-    "submitErrorReport": "إرسال تقرير الخطأ (اختياري)",
-    "systemStats": "إحصائيات النظام",
-    "validation": {
-      "descriptionRequired": "الوصف مطلوب",
-      "helpTypeRequired": "نوع المساعدة مطلوب",
-      "invalidEmail": "يرجى إدخال بريد إلكتروني صالح",
-      "maxLength": "الرسالة طويلة جداً",
-      "selectIssueType": "يرجى اختيار نوع المشكلة"
-    },
-    "whatCanWeInclude": "حدد ما يجب تضمينه في التقرير",
-    "whatDoYouNeedHelpWith": "بماذا تحتاج المساعدة؟"
+    "helpFix": "المساعدة في الإصلاح"
   },
   "load3d": {
     "applyingTexture": "جارٍ تطبيق الخامة...",
@@ -762,7 +749,6 @@
   },
   "menuLabels": {
     "About ComfyUI": "حول ComfyUI",
-    "Add Edit Model Step": "إضافة خطوة تعديل النموذج",
     "Bottom Panel": "لوحة سفلية",
     "Browse Templates": "تصفح القوالب",
     "Bypass/Unbypass Selected Nodes": "تجاوز/إلغاء تجاوز العقد المحددة",
@@ -799,6 +785,7 @@
     "Increase Brush Size in MaskEditor": "زيادة حجم الفرشاة في محرر القناع",
     "Interrupt": "إيقاف مؤقت",
     "Load Default Workflow": "تحميل سير العمل الافتراضي",
+    "Lock Canvas": "قفل اللوحة",
     "Manage group nodes": "إدارة عقد المجموعة",
     "Manager": "المدير",
     "Minimap": "خريطة مصغرة",
@@ -843,16 +830,17 @@
     "Show Model Selector (Dev)": "إظهار منتقي النماذج (للمطورين)",
     "Show Settings Dialog": "عرض نافذة الإعدادات",
     "Sign Out": "تسجيل خروج",
-    "Toggle Essential Bottom Panel": "تبديل اللوحة السفلية الأساسية",
+    "Toggle Essential Bottom Panel": "تبديل لوحة العناصر الأساسية السفلية",
     "Toggle Logs Bottom Panel": "تبديل لوحة السجلات السفلية",
     "Toggle Search Box": "تبديل مربع البحث",
     "Toggle Terminal Bottom Panel": "تبديل لوحة الطرفية السفلية",
     "Toggle Theme (Dark/Light)": "تبديل السمة (داكن/فاتح)",
-    "Toggle View Controls Bottom Panel": "تبديل لوحة التحكم في العرض السفلية",
+    "Toggle View Controls Bottom Panel": "تبديل لوحة عناصر التحكم في العرض السفلية",
     "Toggle the Custom Nodes Manager": "تبديل مدير العقد المخصصة",
     "Toggle the Custom Nodes Manager Progress Bar": "تبديل شريط تقدم مدير العقد المخصصة",
     "Undo": "تراجع",
     "Ungroup selected group nodes": "فك تجميع عقد المجموعة المحددة",
+    "Unlock Canvas": "فتح قفل اللوحة",
     "Unpack the selected Subgraph": "فك تجميع الرسم البياني الفرعي المحدد",
     "Workflows": "سير العمل",
     "Zoom In": "تكبير",
@@ -1692,5 +1680,11 @@
     "enterFilename": "أدخل اسم الملف",
     "exportWorkflow": "تصدير سير العمل",
     "saveWorkflow": "حفظ سير العمل"
+  },
+  "zoomControls": {
+    "hideMinimap": "إخفاء الخريطة المصغرة",
+    "label": "عناصر التحكم في التكبير",
+    "showMinimap": "إظهار الخريطة المصغرة",
+    "zoomToFit": "تكبير لتناسب الشاشة"
   }
 }

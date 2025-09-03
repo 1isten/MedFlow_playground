@@ -357,7 +357,7 @@
 <script setup>
 /* eslint-disable @typescript-eslint/no-floating-promises */
 import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
-import { merge } from 'lodash'
+import { merge } from 'es-toolkit/compat'
 import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'
 import ConfirmDialog from 'primevue/confirmdialog'

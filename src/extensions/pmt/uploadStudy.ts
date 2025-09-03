@@ -300,7 +300,7 @@ useExtensionService().registerExtension({
             ({ $typeName, ...series }) => series
           )
           if (seriesList.length > 0) {
-            seriesList.sort((a, b) => +a.tagSeriesNumber - +b.tagSeriesNumber)
+            // seriesList.sort((a, b) => +a.tagSeriesNumber - +b.tagSeriesNumber)
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }

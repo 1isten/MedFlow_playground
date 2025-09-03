@@ -1,8 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-
 import { ParsedLevel } from '@/constants/pmtCore'
+import { LiteGraph } from '@/lib/litegraph/src/litegraph'
 import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
@@ -570,9 +569,7 @@ useExtensionService().registerExtension({
             ({ $typeName, ...instance }) => instance
           )
           if (instancesList.length > 0) {
-            instancesList.sort(
-              (a, b) => +a.tagInstanceNumber - +b.tagInstanceNumber
-            )
+            // instancesList.sort((a, b) => +a.tagInstanceNumber - +b.tagInstanceNumber)
             while (node.outputs.length > 0) {
               node.removeOutput(node.outputs.length - 1)
             }

@@ -54,6 +54,8 @@ import { getOrderedInputSpecs } from '@/utils/nodeDefOrderingUtil'
 
 import { useExtensionService } from './extensionService'
 
+import { NODE_STATUS_COLOR } from '@/constants/pmtCore'
+
 export const CONFIG = Symbol()
 export const GET_CONFIG = Symbol()
 
@@ -436,6 +438,17 @@ export const useLitegraphService = () => {
         this.strokeStyles['executionError'] = function (this: LGraphNode) {
           if (app.lastExecutionError?.node_id == this.id) {
             return { color: '#f0f', lineWidth: 2 }
+          }
+        }
+        this.strokeStyles['pmtStatus'] = function (this: LGraphNode) {
+          if ('pmt_fields' in this) {
+            const pmt_fields = this.pmt_fields as object
+            if ('status' in pmt_fields) {
+              const status = pmt_fields.status as keyof typeof NODE_STATUS_COLOR
+              if (status && NODE_STATUS_COLOR[status] !== undefined) {
+                return { color: NODE_STATUS_COLOR[status], lineWidth: 2 }
+              }
+            }
           }
         }
       }

@@ -1,8 +1,4 @@
 /** @type {import('tailwindcss').Config} */
-import { addDynamicIconSelectors } from '@iconify/tailwind'
-
-import { iconCollection } from './build/customIconCollection.ts'
-
 export default {
   content: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}'],
 
@@ -12,7 +8,6 @@ export default {
 
   theme: {
     fontSize: {
-      xxs: '0.625rem',
       xs: '0.75rem',
       sm: '0.875rem',
       base: '1rem',
@@ -87,7 +82,7 @@ export default {
           100: '#8282821a',
           200: '#e4e4e7',
           300: '#d4d4d8',
-          400: '#A1A3AE',
+          400: '#a1a1aa',
           500: '#71717a',
           600: '#52525b',
           700: '#38393b',
@@ -178,20 +173,6 @@ export default {
           800: '#9c4221',
           900: '#7b341e',
           950: '#431407'
-        },
-
-        yellow: {
-          50: '#fffef5',
-          100: '#fffce8',
-          200: '#fff8c5',
-          300: '#fff197',
-          400: '#ffcc00',
-          500: '#ffc000',
-          600: '#e6a800',
-          700: '#cc9600',
-          800: '#b38400',
-          900: '#997200',
-          950: '#664d00'
         }
       },
 
@@ -237,11 +218,6 @@ export default {
   },
 
   plugins: [
-    addDynamicIconSelectors({
-      iconSets: {
-        comfy: iconCollection
-      }
-    }),
     function ({ addVariant }) {
       addVariant('dark-theme', '.dark-theme &')
     },

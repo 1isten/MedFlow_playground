@@ -107,12 +107,9 @@ import SubgraphBreadcrumb from '@/components/breadcrumb/SubgraphBreadcrumb.vue'
 import SettingDialogContent from '@/components/dialog/content/SettingDialogContent.vue'
 import SettingDialogHeader from '@/components/dialog/header/SettingDialogHeader.vue'
 import { useDialogService } from '@/services/dialogService'
+import { useAboutPanelStore } from '@/stores/aboutPanelStore'
 import { useCommandStore } from '@/stores/commandStore'
 import { useDialogStore } from '@/stores/dialogStore'
-import {
-  ManagerUIState,
-  useManagerStateStore
-} from '@/stores/managerStateStore'
 import { useMenuItemStore } from '@/stores/menuItemStore'
 import { useSettingStore } from '@/stores/settingStore'
 import { useColorPaletteStore } from '@/stores/workspace/colorPaletteStore'
@@ -124,6 +121,7 @@ const colorPaletteStore = useColorPaletteStore()
 const menuItemsStore = useMenuItemStore()
 const commandStore = useCommandStore()
 const dialogStore = useDialogStore()
+const aboutPanelStore = useAboutPanelStore()
 const settingStore = useSettingStore()
 const { t } = useI18n()
 
@@ -159,32 +157,27 @@ const showSettings = (defaultPanel?: string) => {
   })
 }
 
-const managerStateStore = useManagerStateStore()
+// Temporary duplicated from LoadWorkflowWarning.vue
+// Determines if ComfyUI-Manager is installed by checking for its badge in the about panel
+// This allows us to conditionally show the Manager button only when the extension is available
+// TODO: Remove this check when Manager functionality is fully migrated into core
+const isManagerInstalled = computed(() => {
+  return aboutPanelStore.badges.some(
+    (badge) =>
+      badge.label.includes('ComfyUI-Manager') ||
+      badge.url.includes('ComfyUI-Manager')
+  )
+})
 
-const showManageExtensions = async () => {
-  const state = managerStateStore.managerUIState
-
-  switch (state) {
-    case ManagerUIState.DISABLED:
-      showSettings('extension')
-      break
-
-    case ManagerUIState.LEGACY_UI:
-      try {
-        await commandStore.execute('Comfy.Manager.Menu.ToggleVisibility')
-      } catch {
-        // If legacy command doesn't exist, fall back to extensions panel
-        showSettings('extension')
-      }
-      break
-
-    case ManagerUIState.NEW_UI:
-      useDialogService().showManagerDialog()
-      break
+const showManageExtensions = () => {
+  if (isManagerInstalled.value) {
+    useDialogService().showManagerDialog()
+  } else {
+    showSettings('extension')
   }
 }
 
-const extraMenuItems = computed<MenuItem[]>(() => [
+const extraMenuItems: MenuItem[] = [
   { separator: true },
   {
     key: 'theme',
@@ -194,7 +187,7 @@ const extraMenuItems = computed<MenuItem[]>(() => [
   {
     key: 'browse-templates',
     label: t('menuLabels.Browse Templates'),
-    icon: 'icon-[comfy--template]',
+    icon: 'pi pi-folder-open',
     command: () => commandStore.execute('Comfy.BrowseTemplates')
   },
   {
@@ -209,15 +202,15 @@ const extraMenuItems = computed<MenuItem[]>(() => [
     icon: 'mdi mdi-puzzle-outline',
     command: showManageExtensions
   }
-])
+]
 
-const lightLabel = computed(() => t('menu.light'))
-const darkLabel = computed(() => t('menu.dark'))
+const lightLabel = t('menu.light')
+const darkLabel = t('menu.dark')
 
 const activeTheme = computed(() => {
   return colorPaletteStore.completedActivePalette.light_theme
-    ? lightLabel.value
-    : darkLabel.value
+    ? lightLabel
+    : darkLabel
 })
 
 const onThemeChange = async () => {
@@ -250,7 +243,7 @@ const translatedItems = computed(() => {
   items.splice(
     helpIndex,
     0,
-    ...extraMenuItems.value,
+    ...extraMenuItems,
     ...(helpItem
       ? [
           {

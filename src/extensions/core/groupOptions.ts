@@ -42,8 +42,6 @@ app.registerExtension({
               this.graph.add(group)
               // @ts-expect-error fixme ts strict error
               this.graph.change()
-
-              group.recomputeInsideNodes()
             }
           })
         }

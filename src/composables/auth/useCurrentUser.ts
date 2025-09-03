@@ -1,8 +1,5 @@
 import { computed } from 'vue'
 
-import { useFirebaseAuthActions } from '@/composables/auth/useFirebaseAuthActions'
-import { t } from '@/i18n'
-import { useDialogService } from '@/services/dialogService'
 import { useApiKeyAuthStore } from '@/stores/apiKeyAuthStore'
 import { useCommandStore } from '@/stores/commandStore'
 import { useFirebaseAuthStore } from '@/stores/firebaseAuthStore'
@@ -11,8 +8,6 @@ export const useCurrentUser = () => {
   const authStore = useFirebaseAuthStore()
   const commandStore = useCommandStore()
   const apiKeyStore = useApiKeyAuthStore()
-  const dialogService = useDialogService()
-  const { deleteAccount } = useFirebaseAuthActions()
 
   const firebaseUser = computed(() => authStore.currentUser)
   const isApiKeyLogin = computed(() => apiKeyStore.isAuthenticated)
@@ -90,18 +85,6 @@ export const useCurrentUser = () => {
     await commandStore.execute('Comfy.User.OpenSignInDialog')
   }
 
-  const handleDeleteAccount = async () => {
-    const confirmed = await dialogService.confirm({
-      title: t('auth.deleteAccount.confirmTitle'),
-      message: t('auth.deleteAccount.confirmMessage'),
-      type: 'delete'
-    })
-
-    if (confirmed) {
-      await deleteAccount()
-    }
-  }
-
   return {
     loading: authStore.loading,
     isLoggedIn,
@@ -113,7 +96,6 @@ export const useCurrentUser = () => {
     providerName,
     providerIcon,
     handleSignOut,
-    handleSignIn,
-    handleDeleteAccount
+    handleSignIn
   }
 }

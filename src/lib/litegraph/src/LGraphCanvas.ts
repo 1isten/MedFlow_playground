@@ -1,6 +1,5 @@
 import { toString } from 'es-toolkit/compat'
 
-import { PREFIX, SEPARATOR } from '@/constants/groupNodeConstants'
 import { LinkConnector } from '@/lib/litegraph/src/canvas/LinkConnector'
 
 import { CanvasPointer } from './CanvasPointer'
@@ -36,7 +35,6 @@ import type {
   INodeSlot,
   INodeSlotContextItem,
   ISlotType,
-  LinkNetwork,
   LinkSegment,
   NullableProperties,
   Point,
@@ -135,7 +133,7 @@ interface ICreateDefaultNodeOptions extends ICreateNodeOptions {
 interface HasShowSearchCallback {
   /** See {@link LGraphCanvas.showSearchBox} */
   showSearchBox: (
-    event: MouseEvent | null,
+    event: MouseEvent,
     options?: IShowSearchOptions
   ) => HTMLDivElement | void
 }
@@ -2576,27 +2574,16 @@ export class LGraphCanvas
     } else if (!node.flags.collapsed) {
       const { inputs, outputs } = node
 
-      function hasRelevantOutputLinks(
-        output: INodeOutputSlot,
-        network: LinkNetwork
-      ): boolean {
-        const outputLinks = [
-          ...(output.links ?? []),
-          ...[...(output._floatingLinks ?? new Set())]
-        ]
-        return outputLinks.some(
-          (linkId) =>
-            typeof linkId === 'number' && network.getLink(linkId) !== undefined
-        )
-      }
-
       // Outputs
       if (outputs) {
         for (const [i, output] of outputs.entries()) {
           const link_pos = node.getOutputPos(i)
           if (isInRectangle(x, y, link_pos[0] - 15, link_pos[1] - 10, 30, 20)) {
             // Drag multiple output links
-            if (e.shiftKey && hasRelevantOutputLinks(output, graph)) {
+            if (
+              e.shiftKey &&
+              (output.links?.length || output._floatingLinks?.size)
+            ) {
               linkConnector.moveOutputLink(graph, output)
               this.#linkConnectorDrop()
               return
@@ -2694,26 +2681,6 @@ export class LGraphCanvas
           node
         })
         this.processNodeDblClicked(node)
-      }
-
-      // Check for title button clicks before calling onMouseDown
-      if (node.title_buttons?.length && !node.flags.collapsed) {
-        // pos contains the offset from the node's position, so we need to use node-relative coordinates
-        const nodeRelativeX = pos[0]
-        const nodeRelativeY = pos[1]
-
-        for (let i = 0; i < node.title_buttons.length; i++) {
-          const button = node.title_buttons[i]
-          if (
-            button.visible &&
-            button.isPointInside(nodeRelativeX, nodeRelativeY)
-          ) {
-            node.onTitleButtonClick(button, this)
-            // Set a no-op click handler to prevent fallback canvas dragging
-            pointer.onClick = () => {}
-            return
-          }
-        }
       }
 
       // Mousedown callback - can block drag
@@ -3498,11 +3465,8 @@ export class LGraphCanvas
 
     // Detect if this is a trackpad gesture or mouse wheel
     const isTrackpad = this.pointer.isTrackpadGesture(e)
-    const isCtrlOrMacMeta =
-      e.ctrlKey || (e.metaKey && navigator.platform.includes('Mac'))
-    const isZoomModifier = isCtrlOrMacMeta && !e.altKey && !e.shiftKey
 
-    if (isZoomModifier || LiteGraph.canvasNavigationMode === 'legacy') {
+    if (e.ctrlKey || LiteGraph.canvasNavigationMode === 'legacy') {
       // Legacy mode or standard mode with ctrl - use wheel for zoom
       if (isTrackpad) {
         // Trackpad gesture - use smooth scaling
@@ -6870,7 +6834,7 @@ export class LGraphCanvas
   }
 
   showSearchBox(
-    event: MouseEvent | null,
+    event: MouseEvent,
     searchOptions?: IShowSearchOptions
   ): HTMLDivElement {
     // proposed defaults
@@ -7105,25 +7069,14 @@ export class LGraphCanvas
     // compute best position
     const rect = canvas.getBoundingClientRect()
 
-    // Handles cases where the searchbox is initiated by
-    // non-click events. e.g. Keyboard shortcuts
-    const safeEvent =
-      event ??
-      new MouseEvent('click', {
-        clientX: rect.left + rect.width * 0.5,
-        clientY: rect.top + rect.height * 0.5,
-        // @ts-expect-error layerY is a nonstandard property
-        layerY: rect.top + rect.height * 0.5
-      })
-
-    const left = safeEvent.clientX - 80
-    const top = safeEvent.clientY - 20
+    const left = (event ? event.clientX : rect.left + rect.width * 0.5) - 80
+    const top = (event ? event.clientY : rect.top + rect.height * 0.5) - 20
     dialog.style.left = `${left}px`
     dialog.style.top = `${top}px`
 
     // To avoid out of screen problems
-    if (safeEvent.layerY > rect.height - 200) {
-      helper.style.maxHeight = `${rect.height - safeEvent.layerY - 20}px`
+    if (event.layerY > rect.height - 200) {
+      helper.style.maxHeight = `${rect.height - event.layerY - 20}px`
     }
     requestAnimationFrame(function () {
       input.focus()
@@ -7133,14 +7086,14 @@ export class LGraphCanvas
     function select(name: string) {
       if (name) {
         if (that.onSearchBoxSelection) {
-          that.onSearchBoxSelection(name, safeEvent, graphcanvas)
+          that.onSearchBoxSelection(name, event, graphcanvas)
         } else {
           if (!graphcanvas.graph) throw new NullGraphError()
 
           graphcanvas.graph.beforeChange()
           const node = LiteGraph.createNode(name)
           if (node) {
-            node.pos = graphcanvas.convertEventToCanvasOffset(safeEvent)
+            node.pos = graphcanvas.convertEventToCanvasOffset(event)
             graphcanvas.graph.add(node, false)
           }
 
@@ -8129,6 +8082,7 @@ export class LGraphCanvas
       | IContextMenuValue<(typeof LiteGraph.VALID_SHAPES)[number]>
       | null
     )[]
+
     if (node.getMenuOptions) {
       options = node.getMenuOptions(this)
     } else {
@@ -8136,38 +8090,9 @@ export class LGraphCanvas
         {
           content: 'Convert to Subgraph 🆕',
           callback: () => {
-            // find groupnodes, degroup and select children
-            if (this.selectedItems.size) {
-              let hasGroups = false
-              for (const item of this.selectedItems) {
-                const node = item as LGraphNode
-                const isGroup =
-                  typeof node.type === 'string' &&
-                  node.type.startsWith(`${PREFIX}${SEPARATOR}`)
-                if (isGroup && node.convertToNodes) {
-                  hasGroups = true
-                  const nodes = node.convertToNodes()
-
-                  requestAnimationFrame(() => {
-                    this.selectItems(nodes, true)
-
-                    if (!this.selectedItems.size)
-                      throw new Error('Convert to Subgraph: Nothing selected.')
-                    this._graph.convertToSubgraph(this.selectedItems)
-                  })
-                  return
-                }
-              }
-
-              // If no groups were found, continue normally
-              if (!hasGroups) {
-                if (!this.selectedItems.size)
-                  throw new Error('Convert to Subgraph: Nothing selected.')
-                this._graph.convertToSubgraph(this.selectedItems)
-              }
-            } else {
+            if (!this.selectedItems.size)
               throw new Error('Convert to Subgraph: Nothing selected.')
-            }
+            this._graph.convertToSubgraph(this.selectedItems)
           }
         },
         {

@@ -80,7 +80,7 @@ For each commit:
    - **CONFIRMATION REQUIRED**: Conflicts resolved correctly?
 3. After successful cherry-pick:
    - Show the changes: `git show HEAD`
-   - Run validation: `pnpm typecheck && pnpm lint`
+   - Run validation: `npm run typecheck && npm run lint`
 4. **CONFIRMATION REQUIRED**: Cherry-pick successful and valid?
 
 ### Step 6: Create PR to Core Branch
@@ -197,7 +197,7 @@ For each commit:
 5. Track progress:
    - GitHub release draft/publication
    - PyPI upload
-   - pnpm types publication
+   - npm types publication
 
 ### Step 12: Post-Release Verification
 
@@ -211,7 +211,7 @@ For each commit:
    ```
 3. Verify npm package:
    ```bash
-   pnpm view @comfyorg/comfyui-frontend-types@1.23.5
+   npm view @comfyorg/comfyui-frontend-types@1.23.5
    ```
 4. Generate release summary with:
    - Version released

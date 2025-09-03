@@ -33,7 +33,7 @@
     "name": "Canvas Navigation Mode",
     "options": {
       "Standard (New)": "Standard (New)",
-      "Drag Navigation": "Drag Navigation"
+      "Left-Click Pan (Legacy)": "Left-Click Pan (Legacy)"
     }
   },
   "Comfy_Canvas_SelectionToolbox": {

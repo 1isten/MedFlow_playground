@@ -27,9 +27,6 @@ export default defineConfig({
   server: {
     host: VITE_REMOTE_DEV ? '0.0.0.0' : undefined,
     port: 8044,
-    watch: {
-      ignored: ['**/coverage/**', '**/playwright-report/**']
-    },
     proxy: {
       '/internal': {
         target: DEV_SERVER_COMFYUI_URL
@@ -140,8 +137,7 @@ export default defineConfig({
       ],
       dirs: ['src/components', 'src/layout', 'src/views'],
       deep: true,
-      extensions: ['vue'],
-      directoryAsNamespace: true
+      extensions: ['vue']
     })
   ],
 

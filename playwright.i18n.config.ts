@@ -1,6 +1,6 @@
-import { defineConfig } from '@playwright/test'
+import { PlaywrightTestConfig } from '@playwright/test'
 
-export default defineConfig({
+const config: PlaywrightTestConfig = {
   testDir: './scripts',
   use: {
     baseURL: 'http://localhost:5173',
@@ -9,4 +9,6 @@ export default defineConfig({
   reporter: 'list',
   timeout: 60000,
   testMatch: /collect-i18n-.*\.ts/
-})
+}
+
+export default config

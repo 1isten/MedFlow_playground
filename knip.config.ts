@@ -12,7 +12,6 @@ const config: KnipConfig = {
     'playwright.config.ts',
     'playwright.i18n.config.ts',
     'vitest.config.ts',
-    'vitest.litegraph.config.ts',
     'scripts/**/*.{js,ts}'
   ],
   project: [
@@ -33,8 +32,6 @@ const config: KnipConfig = {
     'coverage/**',
     // i18n config
     '.i18nrc.cjs',
-    // Vitest litegraph config
-    'vitest.litegraph.config.ts',
     // Test setup files
     'browser_tests/globalSetup.ts',
     'browser_tests/globalTeardown.ts',
@@ -45,14 +42,7 @@ const config: KnipConfig = {
     'vite.electron.config.mts',
     'vite.types.config.mts',
     // Auto generated manager types
-    'src/types/generatedManagerTypes.ts',
-    // Design system components (may not be used immediately)
-    'src/components/button/IconGroup.vue',
-    'src/components/button/MoreButton.vue',
-    'src/components/button/TextButton.vue',
-    'src/components/card/CardTitle.vue',
-    'src/components/card/CardDescription.vue',
-    'src/components/input/SingleSelect.vue'
+    'src/types/generatedManagerTypes.ts'
   ],
   ignoreExportsUsedInFile: true,
   // Vue-specific configuration
@@ -77,7 +67,7 @@ const config: KnipConfig = {
   // Workspace configuration for monorepo-like structure
   workspaces: {
     '.': {
-      entry: ['src/main.ts', 'playwright.i18n.config.ts']
+      entry: ['src/main.ts']
     }
   }
 }

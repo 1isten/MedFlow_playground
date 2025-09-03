@@ -361,8 +361,7 @@ export class SubgraphNode extends LGraphNode implements BaseLGraph {
       }
     })
 
-    const widgetCount = this.inputs.filter((i) => i.widget).length
-    this.widgets.splice(widgetCount, 0, promotedWidget)
+    this.widgets.push(promotedWidget)
 
     // Dispatch widget-promoted event
     this.subgraph.events.dispatch('widget-promoted', {

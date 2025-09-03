@@ -109,7 +109,7 @@ const computedTooltip = computed(() => t(tooltip) + tooltipSuffix)
 }
 
 .side-bar-button-label {
-  @apply text-[10px] text-center;
+  @apply text-[10px] text-center whitespace-nowrap;
   line-height: 1;
 }
 

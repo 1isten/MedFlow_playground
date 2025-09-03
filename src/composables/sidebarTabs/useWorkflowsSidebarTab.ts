@@ -1,16 +1,20 @@
-import { markRaw } from 'vue'
+import { defineAsyncComponent, markRaw } from 'vue'
 
 import WorkflowsSidebarTab from '@/components/sidebar/tabs/WorkflowsSidebarTab.vue'
 import { useSettingStore } from '@/stores/settingStore'
 import { useWorkflowStore } from '@/stores/workflowStore'
 import type { SidebarTabExtension } from '@/types/extensionTypes'
 
+const WorkflowIcon = markRaw(
+  defineAsyncComponent(() => import('virtual:icons/comfy/workflow'))
+)
+
 export const useWorkflowsSidebarTab = (): SidebarTabExtension => {
   const settingStore = useSettingStore()
   const workflowStore = useWorkflowStore()
   return {
     id: 'workflows',
-    icon: 'icon-[comfy--workflow]',
+    icon: WorkflowIcon,
     iconBadge: () => {
       if (
         settingStore.get('Comfy.Workflow.WorkflowTabsPosition') !== 'Sidebar'

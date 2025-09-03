@@ -1,5 +1,6 @@
 name: Bug Report
 description: 'Report something that is not working correctly'
+title: '[Bug]: '
 labels: ['Potential Bug']
 type: Bug
 

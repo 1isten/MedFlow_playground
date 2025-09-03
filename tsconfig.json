@@ -12,12 +12,16 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "resolveJsonModule": true,
+
+    /* Linting */
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "downlevelIteration": true,
     "noImplicitOverride": true,
+
+    /* AllowJs during migration phase */
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
@@ -25,7 +29,7 @@
     },
     "typeRoots": ["src/types", "node_modules/@types"],
     "outDir": "./dist",
-    "rootDir": "./"
+    "rootDir": "./",
   },
   "include": [
     "src/**/*",
@@ -33,7 +37,6 @@
     "src/types/**/*.d.ts",
     "tests-ui/**/*",
     "global.d.ts",
-    "vite.config.mts",
-    ".storybook/**/*"
+    "vite.config.mts"
   ]
 }

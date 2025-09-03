@@ -94,16 +94,18 @@ describe('HoverDissolveThumbnail', () => {
 
     // Check base image
     const baseImageClass = lazyImages[0].props('imageClass')
-    const baseClassList = Array.isArray(baseImageClass)
-      ? baseImageClass
-      : baseImageClass.split(' ')
-    expect(baseClassList).toContain('size-full')
+    const baseClassString = Array.isArray(baseImageClass)
+      ? baseImageClass.join(' ')
+      : baseImageClass
+    expect(baseClassString).toContain('absolute')
+    expect(baseClassString).toContain('inset-0')
 
     // Check overlay image
     const overlayImageClass = lazyImages[1].props('imageClass')
-    const overlayClassList = Array.isArray(overlayImageClass)
-      ? overlayImageClass
-      : overlayImageClass.split(' ')
-    expect(overlayClassList).toContain('size-full')
+    const overlayClassString = Array.isArray(overlayImageClass)
+      ? overlayImageClass.join(' ')
+      : overlayImageClass
+    expect(overlayClassString).toContain('absolute')
+    expect(overlayClassString).toContain('inset-0')
   })
 })

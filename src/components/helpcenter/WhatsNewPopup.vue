@@ -75,11 +75,6 @@ import { formatVersionAnchor } from '@/utils/formatUtil'
 const { locale, t } = useI18n()
 const releaseStore = useReleaseStore()
 
-// Define emits
-const emit = defineEmits<{
-  'whats-new-dismissed': []
-}>()
-
 // Local state for dismissed status
 const isDismissed = ref(false)
 
@@ -131,7 +126,6 @@ const show = () => {
 
 const hide = () => {
   isDismissed.value = true
-  emit('whats-new-dismissed')
 }
 
 const closePopup = async () => {
@@ -141,6 +135,8 @@ const closePopup = async () => {
   }
   hide()
 }
+
+// Learn more handled by anchor href
 
 // const handleCTA = async () => {
 //   window.open('https://docs.comfy.org/installation/update_comfyui', '_blank')
@@ -165,10 +161,8 @@ defineExpose({
 <style scoped>
 /* Popup container - positioning handled by parent */
 .whats-new-popup-container {
-  --whats-new-popup-bottom: 1rem;
-
   position: absolute;
-  bottom: var(--whats-new-popup-bottom);
+  bottom: 1rem;
   z-index: 1000;
   pointer-events: auto;
 }
@@ -177,8 +171,8 @@ defineExpose({
 .help-center-arrow {
   position: absolute;
   bottom: calc(
-    var(--sidebar-width) * 2 + var(--sidebar-width) / 2
-  ); /* Position to center of help center icon (2 icons below + half icon height for center) */
+    var(--sidebar-width, 4rem) + 0.25rem
+  ); /* Position toward center of help center icon */
   transform: none;
   z-index: 999;
   pointer-events: none;
@@ -191,10 +185,7 @@ defineExpose({
 
 .whats-new-popup-container.sidebar-left.small-sidebar .help-center-arrow {
   left: -14px; /* Overlap with popup outline */
-  bottom: calc(
-    var(--sidebar-width) * 2 + var(--sidebar-icon-size) / 2 -
-      var(--whats-new-popup-bottom)
-  ); /* Position to center of help center icon (2 icons below + half icon height for center - whats new popup bottom position ) */
+  bottom: calc(2.5rem + 0.25rem); /* Adjust for small sidebar */
 }
 
 /* Sidebar positioning classes applied by parent */

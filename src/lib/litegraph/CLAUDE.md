@@ -9,9 +9,9 @@
 
 # Bash commands
 
-- `pnpm typecheck` Run the typechecker
-- `pnpm build` Build the project
-- `pnpm lint:fix` Run ESLint
+- `npm run typecheck` Run the typechecker
+- `npm run build` Build the project
+- `npm run lint:fix` Run ESLint
 
 # Code style
 
@@ -33,12 +33,12 @@
 
 ```typescript
 // ✅ CORRECT - Use barrel import
-import { LGraph, Subgraph, SubgraphNode } from "@/lib/litegraph/src/litegraph"
+import { LGraph, Subgraph, SubgraphNode } from "@/litegraph"
 
 // ❌ WRONG - Direct imports cause circular dependency
-import { LGraph } from "@/lib/litegraph/src/LGraph"
-import { Subgraph } from "@/lib/litegraph/src/subgraph/Subgraph" 
-import { SubgraphNode } from "@/lib/litegraph/src/subgraph/SubgraphNode"
+import { LGraph } from "@/LGraph"
+import { Subgraph } from "@/subgraph/Subgraph" 
+import { SubgraphNode } from "@/subgraph/SubgraphNode"
 ```
 
 **Root cause**: `LGraph` and `Subgraph` have a circular dependency:

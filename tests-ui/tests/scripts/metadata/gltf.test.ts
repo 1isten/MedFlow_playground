@@ -50,9 +50,9 @@ describe('GLTF binary metadata parser', () => {
     const jsonData = jsonToBinary(jsonContent)
     const { header, headerView } = createGLTFFileStructure()
 
-    setHeaders(headerView, jsonData.buffer)
+    setHeaders(headerView, jsonData)
 
-    const chunkHeader = createJSONChunk(jsonData.buffer)
+    const chunkHeader = createJSONChunk(jsonData)
 
     const fileContent = new Uint8Array(
       header.byteLength + chunkHeader.byteLength + jsonData.byteLength

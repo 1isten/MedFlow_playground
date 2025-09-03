@@ -16,7 +16,7 @@
       ref="scrollPanelRef"
       class="overflow-hidden no-drag"
       :pt:content="{
-        class: 'p-0 w-full flex',
+        class: 'p-0 w-full',
         onwheel: handleWheel
       }"
       pt:bar-x="h-1"
@@ -47,11 +47,6 @@
       class="overflow-arrow overflow-arrow-right"
       :disabled="!rightArrowEnabled"
       @mousedown="whileMouseDown($event, () => scroll(1))"
-    />
-    <WorkflowOverflowMenu
-      v-if="showOverflowArrows"
-      :workflows="workflowStore.openWorkflows"
-      :active-workflow="workflowStore.activeWorkflow"
     />
     <Button
       v-tooltip="{ value: $t('sideToolbar.newBlankWorkflow'), showDelay: 300 }"
@@ -89,8 +84,6 @@ import { useWorkflowStore } from '@/stores/workflowStore'
 import { useWorkspaceStore } from '@/stores/workspaceStore'
 import { isElectron } from '@/utils/envUtil'
 import { whileMouseDown } from '@/utils/mouseDownUtil'
-
-import WorkflowOverflowMenu from './WorkflowOverflowMenu.vue'
 
 interface WorkflowOption {
   value: string

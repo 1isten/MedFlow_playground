@@ -50,7 +50,6 @@ import {
   isVideoNode,
   migrateWidgetsValues
 } from '@/utils/litegraphUtil'
-import { getOrderedInputSpecs } from '@/utils/nodeDefOrderingUtil'
 
 import { useExtensionService } from './extensionService'
 
@@ -251,14 +250,9 @@ export const useLitegraphService = () => {
        * @internal Add inputs to the node.
        */
       #addInputs(inputs: Record<string, InputSpec>) {
-        // Use input_order if available to ensure consistent widget ordering
-        const nodeDefImpl = ComfyNode.nodeData as ComfyNodeDefImpl
-        const orderedInputSpecs = getOrderedInputSpecs(nodeDefImpl, inputs)
-
-        // Create sockets and widgets in the determined order
-        for (const inputSpec of orderedInputSpecs)
+        for (const inputSpec of Object.values(inputs))
           this.#addInputSocket(inputSpec)
-        for (const inputSpec of orderedInputSpecs)
+        for (const inputSpec of Object.values(inputs))
           this.#addInputWidget(inputSpec)
       }
 
@@ -527,14 +521,9 @@ export const useLitegraphService = () => {
        * @internal Add inputs to the node.
        */
       #addInputs(inputs: Record<string, InputSpec>) {
-        // Use input_order if available to ensure consistent widget ordering
-        const nodeDefImpl = ComfyNode.nodeData as ComfyNodeDefImpl
-        const orderedInputSpecs = getOrderedInputSpecs(nodeDefImpl, inputs)
-
-        // Create sockets and widgets in the determined order
-        for (const inputSpec of orderedInputSpecs)
+        for (const inputSpec of Object.values(inputs))
           this.#addInputSocket(inputSpec)
-        for (const inputSpec of orderedInputSpecs)
+        for (const inputSpec of Object.values(inputs))
           this.#addInputWidget(inputSpec)
       }
 

@@ -224,7 +224,7 @@ const cancelledWithoutResults = computed(() => {
 
 .task-item-details {
   position: absolute;
-  top: 0.5rem;
+  bottom: 0;
   padding: 0.6rem;
   display: flex;
   justify-content: space-between;

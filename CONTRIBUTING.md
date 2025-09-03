@@ -17,7 +17,7 @@ Have another idea? Drop into Discord or open an issue, and let's chat!
 ### Prerequisites & Technology Stack
 
 - **Required Software**:
-  - Node.js (v18 or later to build; v24 for vite dev server) and pnpm
+  - Node.js (v16 or later; v20/v22 strongly recommended) and npm
   - Git for version control
   - A running ComfyUI backend instance
   
@@ -39,7 +39,7 @@ Have another idea? Drop into Discord or open an issue, and let's chat!
 
 2. Install dependencies:
    ```bash
-   pnpm install
+   npm install
    ```
 
 3. Configure environment (optional):
@@ -57,13 +57,15 @@ python main.py --port 8188
 
 ### Git pre-commit hooks
 
-Run `pnpm prepare` to install Git pre-commit hooks. Currently, the pre-commit hook is used to auto-format code on commit.
+Run `npm run prepare` to install Git pre-commit hooks. Currently, the pre-commit hook is used to auto-format code on commit.
 
 ### Dev Server
 
+Note: The dev server will NOT load any extension from the ComfyUI server. Only core extensions will be loaded.
+
 - Start local ComfyUI backend at `localhost:8188`
-- Run `pnpm dev` to start the dev server
-- Run `pnpm dev:electron` to start the dev server with electron API mocked
+- Run `npm run dev` to start the dev server
+- Run `npm run dev:electron` to start the dev server with electron API mocked
 
 #### Access dev server on touch devices
 
@@ -86,10 +88,6 @@ After you start the dev server, you should see following logs:
 
 Make sure your desktop machine and touch device are on the same network. On your touch device,
 navigate to `http://<server_ip>:5173` (e.g. `http://192.168.2.20:5173` here), to access the ComfyUI frontend.
-
-> ⚠️ IMPORTANT:
-The dev server will NOT load JavaScript extensions from custom nodes. Only core extensions (built into the frontend) will be loaded. This is because the shim system that allows custom node JavaScript to import frontend modules only works in production builds. Python custom nodes still function normally. See [Extension Development Guide](docs/extensions/development.md) for details and workarounds. And See [Extension Overview](docs/extensions/README.md) for extensions overview.
-
 
 ## Development Workflow
 
@@ -155,7 +153,7 @@ For ComfyUI_frontend development, you can ask coding assistants to use Playwrigh
 
 ##### Setup for Claude Code
 
-After installing dependencies with `pnpm i`, the Playwright MCP server will be automatically available when you start Claude Code locally.
+After installing dependencies with `npm i`, the Playwright MCP server will be automatically available when you start Claude Code locally.
 
 Here's how Claude Code can use the Playwright MCP server to inspect the interface of the local development server (assuming you're running the dev server at `localhost:5173`):
 
@@ -210,14 +208,14 @@ Here's how Claude Code can use the Playwright MCP server to inspect the interfac
 
 ### Unit Tests
 
-- `pnpm i` to install all dependencies
-- `pnpm test:unit` to execute all unit tests
+- `npm i` to install all dependencies
+- `npm run test:unit` to execute all unit tests
 
 ### Component Tests
 
 Component tests verify Vue components in `src/components/`.
 
-- `pnpm test:component` to execute all component tests
+- `npm run test:component` to execute all component tests
 
 ### Playwright Tests
 
@@ -228,12 +226,12 @@ Playwright tests verify the whole app. See [browser_tests/README.md](browser_tes
 Before submitting a PR, ensure all tests pass:
 
 ```bash
-pnpm test:unit
-pnpm test:component
-pnpm test:browser
-pnpm typecheck
-pnpm lint
-pnpm format
+npm run test:unit
+npm run test:component
+npm run test:browser
+npm run typecheck
+npm run lint
+npm run format
 ```
 
 ## Code Style Guidelines
@@ -265,7 +263,7 @@ The project supports three types of icons, all with automatic imports (no manual
 2. **Iconify Icons** - 200,000+ icons from various libraries: `<i-lucide:settings />`, `<i-mdi:folder />`
 3. **Custom Icons** - Your own SVG icons: `<i-comfy:workflow />`
 
-Icons are powered by the unplugin-icons system, which automatically discovers and imports icons as Vue components. Custom icons are stored in `src/assets/icons/custom/` and processed by `build/customIconCollection.ts` with automatic validation.
+Icons are powered by the unplugin-icons system, which automatically discovers and imports icons as Vue components. Custom icons are stored in `src/assets/icons/custom/`.
 
 For detailed instructions and code examples, see [src/assets/icons/README.md](src/assets/icons/README.md).
 

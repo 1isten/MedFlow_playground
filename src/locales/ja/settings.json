@@ -32,7 +32,7 @@
   "Comfy_Canvas_NavigationMode": {
     "name": "キャンバスナビゲーションモード",
     "options": {
-      "Drag Navigation": "ドラッグナビゲーション",
+      "Left-Click Pan (Legacy)": "左クリックパン（レガシー）",
       "Standard (New)": "標準（新）"
     }
   },

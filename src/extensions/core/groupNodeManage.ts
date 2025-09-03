@@ -1,4 +1,3 @@
-import { PREFIX, SEPARATOR } from '@/constants/groupNodeConstants'
 import {
   type LGraphNode,
   type LGraphNodeConstructor,
@@ -14,6 +13,8 @@ import { GroupNodeConfig, GroupNodeHandler } from './groupNode'
 import './groupNodeManage.css'
 
 const ORDER: symbol = Symbol()
+const PREFIX = 'workflow'
+const SEPARATOR = '>'
 
 // @ts-expect-error fixme ts strict error
 function merge(target, source) {

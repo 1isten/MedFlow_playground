@@ -63,7 +63,6 @@ import { ExtensionManager } from '@/types/extensionTypes'
 import type { NodeExecutionId } from '@/types/nodeIdentification'
 import { ColorAdjustOptions, adjustColor } from '@/utils/colorUtil'
 import { graphToPrompt } from '@/utils/executionUtil'
-import { forEachNode } from '@/utils/graphTraversalUtil'
 import {
   getNodeByExecutionId,
   triggerCallbackOnAllNodes
@@ -919,7 +918,7 @@ export class ComfyApp {
         output_is_list: [],
         output_node: false,
         python_module: 'custom_nodes.frontend_only',
-        description: node.description ?? `Frontend only node for ${name}`
+        description: `Frontend only node for ${name}`
       } as ComfyNodeDefV1
     }
 
@@ -1304,7 +1303,8 @@ export class ComfyApp {
     const executionStore = useExecutionStore()
     executionStore.lastNodeErrors = null
 
-    let comfyOrgAuthToken = await useFirebaseAuthStore().getIdToken()
+    let comfyOrgAuthToken =
+      (await useFirebaseAuthStore().getIdToken()) ?? undefined
     let comfyOrgApiKey = useApiKeyAuthStore().getApiKey()
 
     try {
@@ -1703,13 +1703,12 @@ export class ComfyApp {
     for (const nodeId in defs) {
       this.registerNodeDef(nodeId, defs[nodeId])
     }
-    // Refresh combo widgets in all nodes including those in subgraphs
-    forEachNode(this.graph, (node) => {
+    for (const node of this.graph.nodes) {
       const def = defs[node.type]
       // Allow primitive nodes to handle refresh
       node.refreshComboInNode?.(defs)
 
-      if (!def?.input) return
+      if (!def?.input) continue
 
       if (node.widgets) {
         const nodeInputs = def.input
@@ -1736,7 +1735,7 @@ export class ComfyApp {
           }
         }
       }
-    })
+    }
 
     await useExtensionService().invokeExtensionsAsync(
       'refreshComboInNodes',

@@ -88,8 +88,7 @@ const emit = defineEmits<{
   close: []
 }>()
 
-const { userDisplayName, userEmail, userPhotoUrl, handleSignOut } =
-  useCurrentUser()
+const { userDisplayName, userEmail, userPhotoUrl } = useCurrentUser()
 const authActions = useFirebaseAuthActions()
 const dialogService = useDialogService()
 
@@ -104,7 +103,7 @@ const handleTopUp = () => {
 }
 
 const handleLogout = async () => {
-  await handleSignOut()
+  await authActions.logout()
   emit('close')
 }
 

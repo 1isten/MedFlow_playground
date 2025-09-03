@@ -1021,6 +1021,37 @@
     "output_node": false
   },
 
+  "plugin.smooth.smooth_test": {
+    "name": "plugin.smooth.smooth_test",
+    "category": "plugins/smooth",
+    "display_name": "Smooth",
+    "description": "v0.0.1\r\ntest plugin node",
+    "python_module": "custom_nodes.smooth.smooth_test",
+    "input": {
+      "required": {
+        "data": ["2D"]
+      },
+      "optional": {
+        "sigma": [
+          "FLOAT",
+          {
+            "default": 4,
+            "min": 0,
+            "max": 50,
+            "step": 0.1
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "required": ["data"],
+      "optional": ["sigma"]
+    },
+    "output": ["2D", "STRING"],
+    "output_name": ["data", "test_txt"],
+    "output_is_list": [false, false],
+    "output_node": false
+  },
   "plugin.tags_deident.main": {
     "name": "plugin.tags_deident.main",
     "category": "plugins/tags_deident",
@@ -1213,68 +1244,6 @@
     "output": ["2D"],
     "output_name": ["data"],
     "output_is_list": [false],
-    "output_node": false
-  },
-  "plugin.smooth.smooth_2d": {
-    "name": "plugin.smooth.smooth_2d",
-    "category": "plugins/smooth",
-    "display_name": "Smooth (2D)",
-    "description": "smooth 2D data",
-    "python_module": "custom_nodes.smooth.smooth_2d",
-    "input": {
-      "required": {
-        "data": ["2D"]
-      },
-      "optional": {
-        "sigma": [
-          "FLOAT",
-          {
-            "default": 4,
-            "min": 0,
-            "max": 50,
-            "step": 0.1
-          }
-        ]
-      }
-    },
-    "input_order": {
-      "required": ["data"],
-      "optional": ["sigma"]
-    },
-    "output": ["2D", "STRING"],
-    "output_name": ["data", "test_txt"],
-    "output_is_list": [false, false],
-    "output_node": false
-  },
-  "plugin.smooth.smooth_3d": {
-    "name": "plugin.smooth.smooth_3d",
-    "category": "plugins/smooth",
-    "display_name": "Smooth (3D)",
-    "description": "smooth 3D data",
-    "python_module": "custom_nodes.smooth.smooth_3d",
-    "input": {
-      "required": {
-        "data": ["3D"]
-      },
-      "optional": {
-        "sigma": [
-          "FLOAT",
-          {
-            "default": 4,
-            "min": 0,
-            "max": 50,
-            "step": 0.1
-          }
-        ]
-      }
-    },
-    "input_order": {
-      "required": ["data"],
-      "optional": ["sigma"]
-    },
-    "output": ["3D", "STRING"],
-    "output_name": ["data", "test_txt"],
-    "output_is_list": [false, false],
     "output_node": false
   },
   "plugin.multi_input_test.add_two2Ddata_together": {

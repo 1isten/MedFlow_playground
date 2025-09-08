@@ -58,17 +58,26 @@ useExtensionService().registerExtension({
 
       const _onAdded = node.onAdded
       node.onAdded = function (...args) {
-        if (node.inputs.length > 1 && node.inputs[0].type === '*') {
-          while (
-            node.inputs.length > 1 &&
-            node.inputs.find((i) => i.type !== '*' && !i.link)
-          ) {
-            node.removeInput(
-              node.inputs.findIndex((i) => i.type !== '*' && !i.link)
-            )
-          }
-        }
         requestAnimationFrame(() => {
+          if (node.inputs.length > 1 && node.inputs[0].type === '*') {
+            if (node.inputs.find((i) => i.type !== '*' && !!i.link)) {
+              while (
+                node.inputs.length > 1 &&
+                node.inputs.find((i) => !i.link)
+              ) {
+                node.removeInput(node.inputs.findIndex((i) => !i.link))
+              }
+            } else {
+              while (
+                node.inputs.length > 1 &&
+                node.inputs.find((i) => i.type !== '*' && !i.link)
+              ) {
+                node.removeInput(
+                  node.inputs.findIndex((i) => i.type !== '*' && !i.link)
+                )
+              }
+            }
+          }
           node.setSize([node.size[0] && 140, 76])
           node.setDirtyCanvas(true)
         })

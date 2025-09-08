@@ -8,5 +8,6 @@
   "Comfy.Workflow.ShowMissingNodesWarning": false,
   "Comfy.Window.UnloadConfirmation": false,
   "Comfy.Minimap.Visible": false,
+  "Comfy.VueNodes.Enabled": false,
   "Comfy.TutorialCompleted": true
 }

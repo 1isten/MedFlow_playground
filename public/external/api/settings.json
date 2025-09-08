@@ -1,0 +1,11 @@
+{
+  "Comfy.Locale": "en",
+  "Comfy.LinkRenderMode": 2,
+  "Comfy.ColorPalette": "dark",
+  "Comfy.UseNewMenu": "Disabled",
+  "Comfy.NodeSearchBoxImpl": "simple",
+  "Comfy.Workflow.WorkflowTabsPosition": "None",
+  "Comfy.Workflow.ShowMissingNodesWarning": false,
+  "Comfy.Window.UnloadConfirmation": false,
+  "Comfy.TutorialCompleted": true
+}

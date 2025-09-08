@@ -127,10 +127,12 @@ export function useConflictDetection() {
       }
 
       systemEnvironment.value = environment
+      /*
       console.log(
         '[ConflictDetection] System environment detection completed:',
         environment
       )
+      */
       return environment
     } catch (error) {
       console.warn(
@@ -188,9 +190,11 @@ export function useConflictDetection() {
         !installedPacks.value ||
         installedPacks.value.length === 0
       ) {
+        /*
         console.warn(
           '[ConflictDetection] No installed packages available from useInstalledPacks'
         )
+        */
         return []
       }
 
@@ -406,9 +410,11 @@ export function useConflictDetection() {
         !installedPacksWithVersions.value ||
         installedPacksWithVersions.value.length === 0
       ) {
+        /*
         console.warn(
           '[ConflictDetection] No installed packages available for import failure check'
         )
+        */
         return {}
       }
 
@@ -556,7 +562,9 @@ export function useConflictDetection() {
       detectionSummary.value = summary
       lastDetectionTime.value = new Date().toISOString()
 
+      /*
       console.log('[ConflictDetection] Conflict detection completed:', summary)
+      */
 
       // Store conflict results for later UI display
       // Dialog will be shown based on specific events, not on app mount

@@ -3507,6 +3507,8 @@ async function langchainChat(langchain_json) {
 </script>
 
 <style scoped>
+@reference '../../assets/css/style.css';
+
 .btn-pip {
   @apply truncate;
 }

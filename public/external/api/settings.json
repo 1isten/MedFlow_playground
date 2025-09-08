@@ -3,9 +3,10 @@
   "Comfy.LinkRenderMode": 2,
   "Comfy.ColorPalette": "dark",
   "Comfy.UseNewMenu": "Disabled",
-  "Comfy.NodeSearchBoxImpl": "simple",
+  "Comfy.NodeSearchBoxImpl": "litegraph (legacy)",
   "Comfy.Workflow.WorkflowTabsPosition": "None",
   "Comfy.Workflow.ShowMissingNodesWarning": false,
   "Comfy.Window.UnloadConfirmation": false,
+  "Comfy.Minimap.Visible": false,
   "Comfy.TutorialCompleted": true
 }

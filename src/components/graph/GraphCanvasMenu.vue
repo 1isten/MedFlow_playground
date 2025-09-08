@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-if="false">
     <ZoomControlsModal :visible="isModalVisible" />
 
     <!-- Backdrop -->
@@ -115,7 +115,47 @@
         </template>
       </Button>
     </ButtonGroup>
-  </div>  
+  </div>
+  <div v-else>
+    <ButtonGroup
+      class="p-buttongroup-vertical absolute bottom-[10px] right-[10px] z-[1000]"
+      @wheel="canvasInteractions.handleWheel"
+    >
+      <Button
+        severity="secondary"
+        icon="pi pi-plus"
+        :aria-label="$t('graphCanvasMenu.zoomIn')"
+        @mousedown="startRepeat('Comfy.Canvas.ZoomIn')"
+        @mouseup="stopRepeat"
+        @mouseleave="stopRepeat"
+      />
+      <Button
+        severity="secondary"
+        icon="pi pi-minus"
+        :aria-label="$t('graphCanvasMenu.zoomOut')"
+        @mousedown="startRepeat('Comfy.Canvas.ZoomOut')"
+        @mouseup="stopRepeat"
+        @mouseleave="stopRepeat"
+      />
+      <Button
+        severity="secondary"
+        icon="pi pi-expand"
+        :aria-label="$t('graphCanvasMenu.fitView')"
+        @click="() => commandStore.execute('Comfy.Canvas.FitView')"
+      />
+      <Button
+        severity="secondary"
+        :icon="canvasStore.canvas?.read_only ? 'pi pi-lock' : 'pi pi-lock-open'"
+        :aria-label="
+          t(
+            'graphCanvasMenu.' +
+              (canvasStore.canvas?.read_only ? 'panMode' : 'selectMode')
+          )
+        "
+        @click="() => commandStore.execute('Comfy.Canvas.ToggleLock')"
+      />
+    </ButtonGroup>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -266,12 +306,28 @@ onMounted(() => {
 onBeforeUnmount(() => {
   canvasStore.cleanupScaleSync()
 })
+
+// ---
+
+let interval: number | null = null
+const startRepeat = async (command: string) => {
+  if (interval) return
+  const cmd = () => commandStore.execute(command)
+  await cmd()
+  interval = window.setInterval(cmd, 100)
+}
+const stopRepeat = () => {
+  if (interval) {
+    clearInterval(interval)
+    interval = null
+  }
+}
 </script>
 
 <style scoped>
 .p-buttongroup-vertical {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   z-index: 1200;
   border-radius: var(--p-button-border-radius);
   overflow: hidden;

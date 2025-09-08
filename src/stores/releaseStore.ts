@@ -266,7 +266,7 @@ export const useReleaseStore = defineStore('release', () => {
 
   // Initialize store
   async function initialize(): Promise<void> {
-    await fetchReleases()
+    // await fetchReleases()
   }
 
   return {

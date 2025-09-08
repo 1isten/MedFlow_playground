@@ -63,6 +63,7 @@ const onIdle = () => {
 
   const ctor = node.constructor as { title_mode?: 0 | 1 | 2 | 3 }
   const nodeDef = nodeDefStore.nodeDefsByName[node.type ?? '']
+  if (!nodeDef) return
 
   if (
     ctor.title_mode !== LiteGraph.NO_TITLE &&

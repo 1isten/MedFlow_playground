@@ -1,0 +1,41 @@
+{
+	"plugin_name": "test_plugin_name",
+	"description": "test",
+	"version": "0.1.0",
+	"author": "PMT",
+	"functions": [
+		{
+			"function_name": "test_func",
+			"display_name": "test",
+			"description": "",
+			"input": {
+				"source": [
+					{
+						"name": "data",
+						"type": "3D",
+						"description": "3D data"
+					}
+				],
+				"args": [
+					{
+						"name": "txt",
+						"type": "STRING",
+						"description": ""
+					}
+				]
+			},
+			"output": [
+				{
+					"name": "data",
+					"type": "3D",
+					"description": ""
+				},
+				{
+					"name": "test_txt",
+					"type": "STRING",
+					"description": ""
+				}
+			]
+		}
+	]
+}

@@ -2,15 +2,15 @@
  * Vue node lifecycle management for LiteGraph integration
  * Provides event-driven reactivity with performance optimizations
  */
-import { nextTick, reactive, readonly } from 'vue'
+import { nextTick, reactive } from 'vue'
 
 import { useLayoutMutations } from '@/renderer/core/layout/operations/layoutMutations'
 import { LayoutSource } from '@/renderer/core/layout/types'
+import { type Bounds, QuadTree } from '@/renderer/core/spatial/QuadTree'
 import type { WidgetValue } from '@/types/simplifiedWidget'
 import type { SpatialIndexDebugInfo } from '@/types/spatialIndex'
 
 import type { LGraph, LGraphNode } from '../../lib/litegraph/src/litegraph'
-import { type Bounds, QuadTree } from '../../utils/spatial/QuadTree'
 
 export interface NodeState {
   visible: boolean
@@ -235,11 +235,15 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
     }
     if (typeof value === 'object') {
       // Check if it's a File array
-      if (Array.isArray(value) && value.every((item) => item instanceof File)) {
-        return value as File[]
+      if (
+        Array.isArray(value) &&
+        value.length > 0 &&
+        value.every((item): item is File => item instanceof File)
+      ) {
+        return value
       }
       // Otherwise it's a generic object
-      return value as object
+      return value
     }
     // If none of the above, return undefined
     console.warn(`Invalid widget value type: ${typeof value}`, value)
@@ -604,7 +608,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
     // Set up widget callbacks BEFORE extracting data (critical order)
     setupNodeWidgetCallbacks(node)
 
-    // Extract safe data for Vue (now with proper callbacks)
+    // Extract safe data for Vue
     vueNodeData.set(id, extractVueNodeData(node))
 
     // Set up reactive tracking state
@@ -789,16 +793,10 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
   }
 
   return {
-    vueNodeData: readonly(vueNodeData) as ReadonlyMap<string, VueNodeData>,
-    nodeState: readonly(nodeState) as ReadonlyMap<string, NodeState>,
-    nodePositions: readonly(nodePositions) as ReadonlyMap<
-      string,
-      { x: number; y: number }
-    >,
-    nodeSizes: readonly(nodeSizes) as ReadonlyMap<
-      string,
-      { width: number; height: number }
-    >,
+    vueNodeData,
+    nodeState,
+    nodePositions,
+    nodeSizes,
     getNode,
     setupEventListeners,
     cleanup,
@@ -807,7 +805,7 @@ export const useGraphNodeManager = (graph: LGraph): GraphNodeManager => {
     detectChangesInRAF,
     getVisibleNodeIds,
     performanceMetrics,
-    spatialMetrics: readonly(spatialMetrics),
+    spatialMetrics,
     getSpatialIndexDebugInfo: () => spatialIndex.getDebugInfo()
   }
 }

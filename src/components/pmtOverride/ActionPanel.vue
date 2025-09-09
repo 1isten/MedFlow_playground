@@ -996,7 +996,7 @@ onMounted(async () => {
             ? 'Reload Workflow'
             : 'Refresh Node Definitions',
           callback: async () => {
-            if (window.location.reload) {
+            if (window.location.reload && window.confirm('Reload workflow?')) {
               return window.location.reload()
             }
             await commandStore.execute('Comfy.RefreshNodeDefinitions')
@@ -3349,10 +3349,13 @@ function handleCreateManualSegmentation(payload) {
                 manualNode.setDirtyCanvas(true)
               }
             } else if (input.value || input.path) {
+              const value = input.value || input.path
               if (
-                (input.value || input.path) === oid ||
-                (input.value || input.path) ===
-                  decodeURIComponent(window.atob(oid))
+                Array.isArray(value)
+                  ? oid ===
+                    `[${window.btoa(value.map((path) => encodeURIComponent(path)).join(' '))}]`
+                  : value === oid ||
+                    value === decodeURIComponent(window.atob(oid))
               ) {
                 output.value = labelmap
                 manualNode.setDirtyCanvas(true)
@@ -3417,10 +3420,13 @@ function handleSaveQnAnswers(payload) {
                 manualNode.setDirtyCanvas(true)
               }
             } else if (input.value || input.path) {
+              const value = input.value || input.path
               if (
-                (input.value || input.path) === oid ||
-                (input.value || input.path) ===
-                  decodeURIComponent(window.atob(oid))
+                Array.isArray(value)
+                  ? oid ===
+                    `[${window.btoa(value.map((path) => encodeURIComponent(path)).join(' '))}]`
+                  : value === oid ||
+                    value === decodeURIComponent(window.atob(oid))
               ) {
                 output.value = answers
                 manualNode.setDirtyCanvas(true)

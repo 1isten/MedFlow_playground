@@ -234,6 +234,11 @@ useExtensionService().registerExtension({
               if (outputCount === inputCount) {
                 // pmt_fields.status = 'current'
                 pmt_fields.status = 'done'
+                if (pmt_fields.status_batch) {
+                  Object.keys(pmt_fields.status_batch).forEach((taskId) => {
+                    pmt_fields.status_batch[taskId].status = 'done'
+                  })
+                }
               }
               let res // resume
               if (pmt_fields.outputs_batch) {

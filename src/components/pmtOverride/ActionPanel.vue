@@ -2095,6 +2095,15 @@ watch(
     const btnRun = document.querySelector('#pmt-action-panel .btn-run')
     if (btnRun) {
       btnRun.continueRunBatch = (res) => {
+        updateBatchStatus(res.tasks)
+        res = JSON.parse(JSON.stringify(res))
+        res.tasks.forEach((task) => {
+          task.workflow.nodes.forEach((node) => {
+            if (node.pmt_fields?.status_batch) {
+              delete node.pmt_fields.status_batch
+            }
+          })
+        })
         const port = ports['batch-tasks-' + datasetId]
         if (port) {
           port.postMessage({
@@ -3053,13 +3062,17 @@ function handleRemovedBatchTasks({ taskIds }) {
   updateBatchStatus()
 }
 
-function updateBatchStatus() {
-  comfyApp.graph.nodes.forEach((node) => {
+function updateBatchStatus(tasks) {
+  ;[
+    ...comfyApp.graph.nodes,
+    ...(tasks ? tasks.flatMap((task) => task.workflow.nodes) : [])
+  ].forEach((node) => {
     if (node.pmt_fields?.status_batch) {
       const taskIds = Object.keys(node.pmt_fields.status_batch)
       const numOfTotal = taskIds.length
       let numOfError = 0
       let numOfWaiting = 0
+      let numOfPending = 0
       let numOfDone = 0
       taskIds.forEach((taskId) => {
         const { status, msg } = node.pmt_fields.status_batch[taskId]
@@ -3075,6 +3088,13 @@ function updateBatchStatus() {
             numOfWaiting++
             if (msg) {
               // console.warn({ taskId }, `Node ${node.id}:`)
+              // console.dir(msg)
+            }
+            break
+          case 'pending':
+            numOfPending++
+            if (msg) {
+              // console.info({ taskId }, `Node ${node.id}:`)
               // console.dir(msg)
             }
             break
@@ -3095,9 +3115,12 @@ function updateBatchStatus() {
       } else if (numOfWaiting) {
         status = 'waiting'
       } else if (numOfTotal > 0) {
-        if (numOfDone > 0) {
+        if (numOfPending > 0) {
           status = 'pending'
-          if (numOfDone === numOfTotal) {
+        } else if (numOfDone > 0) {
+          if (numOfDone < numOfTotal) {
+            status = 'pending'
+          } else {
             status = 'done'
           }
         }
@@ -3107,20 +3130,22 @@ function updateBatchStatus() {
           ...(node.pmt_fields || {}),
           status
         }
-        const statusWidget = node.widgets.find((w) => {
-          return w.name === 'status-float'
-        })
-        const countEl = statusWidget?.element?.querySelector('span')
-        if (countEl) {
-          countEl.textContent = `${numOfDone}/${numOfTotal}`
-          if (countEl.textContent === '0/0') {
-            countEl.style.visibility = 'hidden'
-          } else {
-            countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
-            countEl.style.visibility = 'visible'
+        if (node.widgets?.find) {
+          const statusWidget = node.widgets.find((w) => {
+            return w.name === 'status-float'
+          })
+          const countEl = statusWidget?.element?.querySelector('span')
+          if (countEl) {
+            countEl.textContent = `${numOfDone}/${numOfTotal}`
+            if (countEl.textContent === '0/0') {
+              countEl.style.visibility = 'hidden'
+            } else {
+              countEl.style.color = NODE_STATUS_COLOR[status] || 'inherit'
+              countEl.style.visibility = 'visible'
+            }
           }
+          node.setDirtyCanvas(true)
         }
-        node.setDirtyCanvas(true)
       }
     }
   })

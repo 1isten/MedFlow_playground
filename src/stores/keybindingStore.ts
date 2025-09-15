@@ -203,11 +203,14 @@ export const useKeybindingStore = defineStore('keybinding', () => {
     { existOk = false }: { existOk: boolean }
   ) {
     if (!existOk && keybinding.combo.serialize() in target.value) {
+      return
+      /*
       throw new Error(
         `Keybinding on ${keybinding.combo} already exists on ${
           target.value[keybinding.combo.serialize()].commandId
         }`
       )
+      */
     }
     target.value[keybinding.combo.serialize()] = keybinding
   }

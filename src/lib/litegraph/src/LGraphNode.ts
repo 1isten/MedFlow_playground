@@ -7,6 +7,7 @@ import {
 } from '@/renderer/core/canvas/litegraph/slotCalculations'
 import { useLayoutMutations } from '@/renderer/core/layout/operations/layoutMutations'
 import { LayoutSource } from '@/renderer/core/layout/types'
+import { clone } from '@/scripts/utils'
 
 import type { DragAndScale } from './DragAndScale'
 import type { LGraph } from './LGraph'
@@ -868,6 +869,9 @@ export class LGraphNode
       mode: this.mode,
       showAdvanced: this.showAdvanced
     }
+
+    // @ts-expect-error custom pmt_fields
+    if (this.pmt_fields) o.pmt_fields = clone(this.pmt_fields)
 
     // special case for when there were errors
     if (this.constructor === LGraphNode && this.last_serialization)

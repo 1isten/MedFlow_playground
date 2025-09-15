@@ -7,7 +7,6 @@ import {
 } from '@/renderer/core/canvas/litegraph/slotCalculations'
 import { useLayoutMutations } from '@/renderer/core/layout/operations/layoutMutations'
 import { LayoutSource } from '@/renderer/core/layout/types'
-import { clone } from '@/scripts/utils'
 
 import type { DragAndScale } from './DragAndScale'
 import type { LGraph } from './LGraph'
@@ -870,6 +869,12 @@ export class LGraphNode
       showAdvanced: this.showAdvanced
     }
 
+    const clone = <T>(obj: T): T => {
+      if (typeof structuredClone !== 'undefined') {
+        return structuredClone(obj)
+      }
+      return JSON.parse(JSON.stringify(obj))
+    }
     // @ts-expect-error custom pmt_fields
     if (this.pmt_fields) o.pmt_fields = clone(this.pmt_fields)
 

@@ -1890,15 +1890,36 @@
     "name": "converter.file_to_data.series_to_3d",
     "category": "coverters/file_to_data",
     "display_name": "Series to 3D",
-    "description": "Convert series files list to 3D data.",
+    "description": "Given a series of DICOM file, return it's 3-dimensional volume data as a 3-dimensional numpy.ndarray and its affine matrix.",
     "python_module": "custom_nodes.file_to_data.series_to_3d",
     "input": {
       "required": {
         "SERIES_FILE_LIST": ["SERIES_FILE_LIST"]
+      },
+      "optional": {
+        "resample": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "reorient": [
+          "BOOLEAN",
+          {
+            "default": true
+          }
+        ],
+        "keep_duplicate_slices": [
+          "BOOLEAN",
+          {
+            "default": false
+          }
+        ]
       }
     },
     "input_order": {
-      "required": ["SERIES_FILE_LIST"]
+      "required": ["SERIES_FILE_LIST"],
+      "optional": ["resample", "reorient", "keep_duplicate_slices"]
     },
     "output": ["3D", "2D"],
     "output_name": ["data", "affine"],

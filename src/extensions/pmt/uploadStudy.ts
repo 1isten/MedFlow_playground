@@ -52,10 +52,13 @@ useExtensionService().registerExtension({
         const cb = scalarWidget.callback
         scalarWidget.callback = function (...args) {
           const [value, canvas, node, pos, e] = args
-          if (value) {
-            scalarEnabled = true
-          } else {
-            scalarEnabled = false
+          scalarEnabled = !!value
+          node.pmt_fields = {
+            ...(node.pmt_fields || {}),
+            args: {
+              ...(node.pmt_fields?.args || {}),
+              scalar: scalarEnabled
+            }
           }
           return cb?.apply(this, args)
         }
@@ -68,7 +71,14 @@ useExtensionService().registerExtension({
         const cb = filterWidget.callback
         filterWidget.callback = function (...args) {
           const [value, canvas, node, pos, e] = args
-          filterEnabled = value
+          filterEnabled = !!value
+          node.pmt_fields = {
+            ...(node.pmt_fields || {}),
+            args: {
+              ...(node.pmt_fields?.args || {}),
+              filter: filterEnabled
+            }
+          }
           while (node.outputs.length > 0) {
             node.removeOutput(node.outputs.length - 1)
           }

@@ -2,11 +2,12 @@ import { until } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
-import { type ReleaseNote, useReleaseService } from '@/services/releaseService'
-import { useSettingStore } from '@/stores/settingStore'
+import { useSettingStore } from '@/platform/settings/settingStore'
 import { useSystemStatsStore } from '@/stores/systemStatsStore'
 import { isElectron } from '@/utils/envUtil'
 import { compareVersions, stringToLocale } from '@/utils/formatUtil'
+
+import { type ReleaseNote, useReleaseService } from './releaseService'
 
 // Store for managing release notes
 export const useReleaseStore = defineStore('release', () => {

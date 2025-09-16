@@ -1,0 +1,16 @@
+{
+  "Comfy.Locale": "en",
+  "Comfy.LinkRenderMode": 2,
+  "Comfy.ColorPalette": "dark",
+  "Comfy.UseNewMenu": "Disabled",
+  "Comfy.NodeSearchBoxImpl": "litegraph (legacy)",
+  "Comfy.NodeBadge.NodeIdBadgeMode": "Show all", 
+  "Comfy.NodeBadge.NodeSourceBadgeMode": "Hide built-in",
+  "Comfy.NodeBadge.NodeLifeCycleBadgeMode": "None",
+  "Comfy.Workflow.WorkflowTabsPosition": "None",
+  "Comfy.Workflow.ShowMissingNodesWarning": false,
+  "Comfy.Window.UnloadConfirmation": false,
+  "Comfy.Minimap.Visible": false,
+  "Comfy.VueNodes.Enabled": false,
+  "Comfy.TutorialCompleted": true
+}

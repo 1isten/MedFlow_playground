@@ -2989,7 +2989,26 @@ function handleBatchStreamChunk(chunk) {
       graphJson.forEach(({ id, pmt_fields }) => {
         const node = comfyApp.graph.getNodeById(id)
         if (node) {
-          const { status, outputs } = pmt_fields
+          const { type, status, inputs, outputs } = pmt_fields
+          if (type === 'manual' && inputs?.length > 0) {
+            if (!node.pmt_fields.outputs_batch) {
+              if (node.pmt_fields?.outputs?.length > 0) {
+                node.pmt_fields.outputs_batch = {}
+              }
+              if (!node.pmt_fields.outputs_batch[task]) {
+                node.pmt_fields.outputs_batch[task] =
+                  node.pmt_fields.outputs.map((o) => {
+                    return {
+                      oid: null,
+                      path: null,
+                      value: null
+                    }
+                  })
+              }
+            }
+            node.pmt_fields.inputs_manual = inputs
+            // TODO: getInputs_ from inputs_manual if available
+          }
           if (outputs && node.pmt_fields?.outputs?.length > 0) {
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs_batch) {

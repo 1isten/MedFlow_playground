@@ -2918,7 +2918,11 @@ function handleStreamChunk(chunk) {
         const result = { id, pmt_fields: JSON.parse(pmt_fields) }
         const node = comfyApp.graph.getNodeById(id)
         if (node && node.pmt_fields) {
-          const { outputs, status, type } = result.pmt_fields
+          const { type, status, inputs, outputs } = result.pmt_fields
+          if (type === 'manual' && inputs?.length > 0) {
+            node.pmt_fields.inputs_manual = inputs
+            // TODO: getInputs_ from inputs_manual if available
+          }
           if (outputs && node.pmt_fields.outputs?.length > 0) {
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs[o]) {
@@ -2992,7 +2996,7 @@ function handleBatchStreamChunk(chunk) {
           const { type, status, inputs, outputs } = pmt_fields
           if (type === 'manual' && inputs?.length > 0) {
             if (!node.pmt_fields.outputs_batch) {
-              if (node.pmt_fields?.outputs?.length > 0) {
+              if (node.pmt_fields.outputs?.length > 0) {
                 node.pmt_fields.outputs_batch = {}
               }
               if (!node.pmt_fields.outputs_batch[task]) {
@@ -3009,7 +3013,7 @@ function handleBatchStreamChunk(chunk) {
             node.pmt_fields.inputs_manual = inputs
             // TODO: getInputs_ from inputs_manual if available
           }
-          if (outputs && node.pmt_fields?.outputs?.length > 0) {
+          if (outputs && node.pmt_fields.outputs?.length > 0) {
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs_batch) {
                 node.pmt_fields.outputs_batch = {}

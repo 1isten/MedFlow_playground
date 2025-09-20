@@ -10,21 +10,28 @@ useExtensionService().registerExtension({
         const input = nodeData.input[t][inputName]
         if (input?.[0] === 'FILE' && input?.[1]?.file_upload === true) {
           const { file_upload, ...options } = input[1]
-          nodeData.input[t]['upload'] = ['FILEUPLOAD', { widget: inputName, options }]
+          nodeData.input[t]['upload'] = [
+            'FILEsUPLOAD',
+            { widget: inputName, options }
+          ]
         }
       })
     })
   },
   getCustomWidgets(app) {
     return {
-      FILEUPLOAD(node, inputName, inputData, app) {
+      FILEsUPLOAD(node, inputName, inputData, app) {
         const pmt_fields = node.pmt_fields as any
 
         const isOptional = inputData?.[1]?.isOptional === true
         const options = inputData?.[1]?.options || {}
-        const acceptedExtensions = options.extensions || []
+        const acceptedExtensions = Array.isArray(options.extensions)
+          ? options.extensions
+          : []
 
-        const input_slot = node.inputs.findIndex((i) => i.name === inputData?.[1]?.widget)
+        const input_slot = node.inputs.findIndex(
+          (i) => i.name === inputData?.[1]?.widget
+        )
         const input_name = node.inputs[input_slot]?.name ?? 'file'
 
         if (isOptional && input_slot !== -1) {
@@ -41,7 +48,7 @@ useExtensionService().registerExtension({
           input_name, // default value: 'file'
           () => {
             if (fileUploaded) {
-              uploadFile(null)
+              void uploadFile(null)
             }
             fileInput.click()
             requestAnimationFrame(() => {
@@ -56,13 +63,15 @@ useExtensionService().registerExtension({
 
         Object.assign(fileInput, {
           type: 'file',
-          accept: acceptedExtensions.length ? acceptedExtensions.join(',') : undefined,
+          accept: acceptedExtensions.length
+            ? acceptedExtensions.join(',')
+            : undefined,
           hidden: true,
           onchange: async () => {
             if (fileInput.files.length) {
               const file = fileInput.files[0]
               if (file) {
-                uploadFile(file)
+                void uploadFile(file)
               }
             }
           }
@@ -71,7 +80,10 @@ useExtensionService().registerExtension({
         async function uploadFile(file: File | null) {
           if (file !== null) {
             let value = ''
-            if (window.$electron && typeof window.$electron.getPathForFile === 'function') {
+            if (
+              window.$electron &&
+              typeof window.$electron.getPathForFile === 'function'
+            ) {
               const path = await window.$electron.getPathForFile(file)
               if (path) {
                 value = path

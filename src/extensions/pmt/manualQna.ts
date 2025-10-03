@@ -98,6 +98,24 @@ useExtensionService().registerExtension({
 
     const getInputs = () => {
       const inputs = []
+      const pmt_fields = node.pmt_fields as any
+      if (pmt_fields?.inputs_batch_manual) {
+        Object.entries(pmt_fields.inputs_batch_manual).forEach(
+          ([taskId, inputs_manual]) => {
+            inputs_manual.forEach((input) => {
+              input.taskId = taskId
+              inputs.push(input)
+            })
+          }
+        )
+        return inputs
+      }
+      if (pmt_fields?.inputs_manual) {
+        pmt_fields.inputs_manual.forEach((input) => {
+          inputs.push(input)
+        })
+        return inputs
+      }
       const inputNode = node.getInputNode(0)
       if (inputNode) {
         // @ts-expect-error custom pmt_fields
@@ -212,8 +230,12 @@ useExtensionService().registerExtension({
         const inputs = node['getInputs_']()
         const outputs = node['getOutputs_']()
 
-        const inputCount = inputs.filter((input) => !!input.value).length
-        const outputCount = outputs.filter((output) => !!output.value).length
+        const inputCount = inputs.filter(
+          (input) => !!(input.value || input.path)
+        ).length
+        const outputCount = outputs.filter(
+          (output) => !!(output.value || output.path)
+        ).length
 
         if (inputCount > 0) {
           countEl.textContent = `${outputCount}/${inputCount}`

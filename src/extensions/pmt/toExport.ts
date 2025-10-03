@@ -211,7 +211,7 @@ useExtensionService().registerExtension({
         node.onDrawBackground = function (...args) {
           const inputs = node['getInputs_']()
           const inputCount = inputs.filter(
-            (input) => !!input.value || !!input.path
+            (input) => !!(input.value || input.path)
           ).length
 
           if (inputCount > 0) {

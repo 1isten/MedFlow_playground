@@ -2,6 +2,8 @@
   "Comfy.Locale": "en",
   "Comfy.LinkRenderMode": 2,
   "Comfy.ColorPalette": "dark",
+  "Comfy.Canvas.LeftMouseClickBehavior": "panning",
+  "Comfy.Canvas.MouseWheelScroll": "zoom",
   "Comfy.UseNewMenu": "Disabled",
   "Comfy.NodeSearchBoxImpl": "litegraph (legacy)",
   "Comfy.NodeBadge.NodeIdBadgeMode": "Show all", 

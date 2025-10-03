@@ -5,10 +5,11 @@
   <div
     v-else
     class="lg-node-header p-4 rounded-t-2xl cursor-move"
+    :style="headerStyle"
     :data-testid="`node-header-${nodeData?.id || ''}`"
     @dblclick="handleDoubleClick"
   >
-    <div class="flex items-center justify-between relative">
+    <div class="flex items-center justify-between gap-2.5 relative">
       <!-- Collapse/Expand Button -->
       <button
         v-show="!readonly"
@@ -42,23 +43,21 @@
           data-testid="node-pin-indicator"
         />
       </div>
+      <div v-if="!readonly" class="flex items-center lod-toggle shrink-0">
+        <IconButton
+          v-if="isSubgraphNode"
+          size="sm"
+          type="transparent"
+          class="text-stone-200 dark-theme:text-slate-300"
+          data-testid="subgraph-enter-button"
+          title="Enter Subgraph"
+          @click.stop="handleEnterSubgraph"
+          @dblclick.stop
+        >
+          <i class="pi pi-external-link"></i>
+        </IconButton>
+      </div>
       <LODFallback />
-    </div>
-
-    <!-- Title Buttons -->
-    <div v-if="!readonly" class="flex items-center lod-toggle">
-      <IconButton
-        v-if="isSubgraphNode"
-        size="sm"
-        type="transparent"
-        class="text-stone-200 dark-theme:text-slate-300"
-        data-testid="subgraph-enter-button"
-        title="Enter Subgraph"
-        @click.stop="handleEnterSubgraph"
-        @dblclick.stop
-      >
-        <i class="pi pi-external-link"></i>
-      </IconButton>
     </div>
   </div>
 </template>
@@ -71,8 +70,11 @@ import EditableText from '@/components/common/EditableText.vue'
 import type { VueNodeData } from '@/composables/graph/useGraphNodeManager'
 import { useErrorHandling } from '@/composables/useErrorHandling'
 import { st } from '@/i18n'
+import { useSettingStore } from '@/platform/settings/settingStore'
 import { useNodeTooltips } from '@/renderer/extensions/vueNodes/composables/useNodeTooltips'
+import { applyLightThemeColor } from '@/renderer/extensions/vueNodes/utils/nodeStyleUtils'
 import { app } from '@/scripts/app'
+import { useColorPaletteStore } from '@/stores/workspace/colorPaletteStore'
 import { normalizeI18nKey } from '@/utils/formatUtil'
 import {
   getLocatorIdFromNodeData,
@@ -121,6 +123,23 @@ const tooltipConfig = computed(() => {
   }
   const description = getNodeDescription.value
   return createTooltipConfig(description)
+})
+
+const headerStyle = computed(() => {
+  const colorPaletteStore = useColorPaletteStore()
+
+  const opacity = useSettingStore().get('Comfy.Node.Opacity') ?? 1
+
+  if (!nodeData?.color) {
+    return { backgroundColor: '', opacity }
+  }
+
+  const headerColor = applyLightThemeColor(
+    nodeData.color,
+    Boolean(colorPaletteStore.completedActivePalette.light_theme)
+  )
+
+  return { backgroundColor: headerColor, opacity }
 })
 
 const resolveTitle = (info: VueNodeData | undefined) => {

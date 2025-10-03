@@ -1,11 +1,12 @@
 <template>
-  <div class="bg-black h-full w-full">
+  <div id="pm-terminal" class="bg-black h-full w-full p-2">
     <BaseTerminal @created="terminalCreated" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { type ITerminalAddon, Terminal } from '@xterm/xterm'
+import type { Terminal } from '@xterm/xterm'
+import type { ITerminalAddon } from '@xterm/xterm'
 import type { Raw, Ref } from 'vue'
 
 import BaseTerminal from '@/components/bottomPanel/tabs/terminal/BaseTerminal.vue'
@@ -57,5 +58,15 @@ const terminalCreated = (
 :deep(.p-terminal) .xterm-screen {
   background-color: black;
   overflow-y: hidden;
+}
+</style>
+
+<style>
+#pm-terminal {
+  min-height: 350px;
+}
+
+#pm-terminal .p-terminal {
+  padding: 0 !important;
 }
 </style>

@@ -2922,7 +2922,7 @@ function handleStreamChunk(chunk) {
           if (type === 'manual' && inputs?.length > 0) {
             node.pmt_fields.inputs_manual = inputs
           }
-          if (outputs && node.pmt_fields.outputs?.length > 0) {
+          if (outputs && node.pmt_fields?.outputs?.length > 0) {
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs[o]) {
                 return
@@ -2997,14 +2997,26 @@ function handleBatchStreamChunk(chunk) {
             if (!node.pmt_fields.inputs_batch_manual) {
               node.pmt_fields.inputs_batch_manual = {}
             }
-            if (!node.pmt_fields.inputs_batch_manual[task]) {
+            if (node.pmt_fields.inputs_batch_manual) {
               node.pmt_fields.inputs_batch_manual[task] = inputs
             }
+            inputs.forEach((input, i) => {
+              if (!node.pmt_fields.outputs_batch) {
+                node.pmt_fields.outputs_batch = {}
+              }
+              if (!node.pmt_fields.outputs_batch[task]) {
+                node.pmt_fields.outputs_batch[task] =
+                  node.pmt_fields.outputs.map((o) => {
+                    return {
+                      oid: null,
+                      path: null,
+                      value: null
+                    }
+                  })
+              }
+            })
           }
-          if (
-            ((type === 'manual' && inputs) || outputs) &&
-            node.pmt_fields.outputs?.length > 0
-          ) {
+          if (outputs && node.pmt_fields?.outputs?.length > 0) {
             outputs.forEach((output, o) => {
               if (!node.pmt_fields.outputs_batch) {
                 node.pmt_fields.outputs_batch = {}

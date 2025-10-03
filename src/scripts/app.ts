@@ -1780,9 +1780,8 @@ export class ComfyApp {
    * Clean current state
    */
   clean() {
-    this.nodeOutputs = {}
-    const { revokeAllPreviews } = useNodeOutputStore()
-    revokeAllPreviews()
+    const nodeOutputStore = useNodeOutputStore()
+    nodeOutputStore.resetAllOutputsAndPreviews()
     const executionStore = useExecutionStore()
     executionStore.lastNodeErrors = null
     executionStore.lastExecutionError = null

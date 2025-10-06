@@ -35,7 +35,7 @@
     id="graph-canvas"
     ref="canvasRef"
     tabindex="1"
-    class="align-top w-full h-full touch-none"
+    class="absolute inset-0 size-full touch-none"
   />
 
   <!-- TransformPane for Vue node rendering -->
@@ -50,7 +50,6 @@
       v-for="nodeData in allNodes"
       :key="nodeData.id"
       :node-data="nodeData"
-      :readonly="false"
       :error="
         executionStore.lastExecutionError?.node_id === nodeData.id
           ? 'Execution error'

@@ -68,7 +68,7 @@ export const useExtensionStore = defineStore('extension', () => {
     }
 
     if (disabledExtensionNames.value.has(extension.name)) {
-      console.log(`Extension ${extension.name} is disabled.`)
+      console.warn(`Extension ${extension.name} is disabled.`)
     }
 
     extensionByName.value[extension.name] = markRaw(extension)

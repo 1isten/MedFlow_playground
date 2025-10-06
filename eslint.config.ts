@@ -15,6 +15,7 @@ const extraFileExtensions = ['.vue']
 export default defineConfig([
   {
     ignores: [
+      'public/**/*.{js,css}',
       'src/scripts/*',
       'src/extensions/core/*',
       'src/types/vue-shim.d.ts',

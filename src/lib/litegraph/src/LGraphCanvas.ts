@@ -5194,10 +5194,9 @@ export class LGraphCanvas
     const color = node.renderingColor
     const bgcolor = node.renderingBgColor
 
-    const { low_quality, editor_alpha } = this
-    ctx.globalAlpha = editor_alpha
+    ctx.globalAlpha = this.getNodeModeAlpha(node)
 
-    if (this.render_shadows && !low_quality) {
+    if (this.render_shadows && !this.low_quality) {
       ctx.shadowColor = LiteGraph.DEFAULT_SHADOW_COLOR
       ctx.shadowOffsetX = 2 * this.ds.scale
       ctx.shadowOffsetY = 2 * this.ds.scale
@@ -5259,7 +5258,7 @@ export class LGraphCanvas
       }
     }
 
-    if (!low_quality) {
+    if (!this.low_quality) {
       node.drawBadges(ctx)
     }
 
@@ -5626,7 +5625,9 @@ export class LGraphCanvas
           const { link, inputNode, input } = resolved
           if (!inputNode || !input) continue
 
-          const endPos = inputNode.getInputPos(link.target_slot)
+          const endPos = LiteGraph.vueNodesMode
+            ? getSlotPosition(inputNode, link.target_slot, true)
+            : inputNode.getInputPos(link.target_slot)
 
           this.#renderAllLinkSegments(
             ctx,
@@ -5651,7 +5652,9 @@ export class LGraphCanvas
         const { link, outputNode, output } = resolved
         if (!outputNode || !output) continue
 
-        const startPos = outputNode.getOutputPos(link.origin_slot)
+        const startPos = LiteGraph.vueNodesMode
+          ? getSlotPosition(outputNode, link.origin_slot, false)
+          : outputNode.getOutputPos(link.origin_slot)
 
         this.#renderAllLinkSegments(
           ctx,
@@ -5691,6 +5694,14 @@ export class LGraphCanvas
       if (!this.pointer.isDown) reroute.drawSlots(ctx)
     }
     ctx.globalAlpha = 1
+  }
+
+  private getNodeModeAlpha(node: LGraphNode) {
+    return node.mode === LGraphEventMode.BYPASS
+      ? 0.2
+      : node.mode === LGraphEventMode.NEVER
+        ? 0.4
+        : this.editor_alpha
   }
 
   #renderFloatingLinks(
@@ -6044,7 +6055,7 @@ export class LGraphCanvas
   ): void {
     node.drawWidgets(ctx, {
       lowQuality: this.low_quality,
-      editorAlpha: this.editor_alpha
+      editorAlpha: this.getNodeModeAlpha(node)
     })
   }
 

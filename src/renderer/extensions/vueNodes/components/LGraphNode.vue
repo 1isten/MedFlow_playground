@@ -1,5 +1,5 @@
 <template>
-  <div v-if="renderError" class="node-error p-2 text-red-500 text-sm">
+  <div v-if="renderError" class="node-error p-2 text-sm text-red-500">
     {{ $t('Node Render Error') }}
   </div>
   <div
@@ -70,7 +70,7 @@
     />
 
     <template v-if="!isCollapsed">
-      <div class="mb-4 relative">
+      <div class="relative mb-4">
         <div :class="separatorClasses" />
         <!-- Progress bar for executing state -->
         <div
@@ -108,7 +108,7 @@
           <img
             :src="latestPreviewUrl"
             alt="preview"
-            class="w-full max-h-64 object-contain"
+            class="max-h-64 w-full object-contain"
           />
         </div>
       </div>
@@ -117,13 +117,14 @@
     <!-- Resize handle -->
     <div
       v-if="!isCollapsed"
-      class="absolute bottom-0 right-0 w-3 h-3 cursor-se-resize opacity-0 hover:opacity-20 hover:bg-white transition-opacity duration-200"
+      class="absolute right-0 bottom-0 h-3 w-3 cursor-se-resize opacity-0 transition-opacity duration-200 hover:bg-white hover:opacity-20"
       @pointerdown.stop="startResize"
     />
   </div>
 </template>
 
 <script setup lang="ts">
+import { whenever } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, inject, onErrorCaptured, onMounted, ref } from 'vue'
 
@@ -211,6 +212,7 @@ const hasAnyError = computed((): boolean => {
   )
 })
 
+const isCollapsed = computed(() => nodeData.flags?.collapsed ?? false)
 const bypassed = computed((): boolean => nodeData.mode === 4)
 const muted = computed((): boolean => nodeData.mode === 2) // NEVER mode
 
@@ -290,8 +292,12 @@ const { startResize } = useNodeResize(
   }
 )
 
-// Track collapsed state
-const isCollapsed = computed(() => nodeData.flags?.collapsed ?? false)
+whenever(isCollapsed, () => {
+  const element = nodeContainerRef.value
+  if (!element) return
+  element.style.width = ''
+  element.style.height = ''
+})
 
 // Check if node has custom content (like image/video outputs)
 const hasCustomContent = computed(() => {
@@ -395,5 +401,5 @@ const nodeMedia = computed(() => {
   return { type, urls } as const
 })
 
-const nodeContainerRef = ref()
+const nodeContainerRef = ref<HTMLDivElement>()
 </script>

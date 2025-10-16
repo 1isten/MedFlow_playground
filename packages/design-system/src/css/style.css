@@ -645,13 +645,10 @@ button.comfy-close-menu-btn {
 }
 
 span.drag-handle {
-  width: 10px;
-  height: 20px;
   display: inline-block;
   overflow: hidden;
   line-height: 5px;
   padding: 3px 4px;
-  cursor: move;
   vertical-align: middle;
   margin-top: -0.4em;
   margin-left: -0.2em;
@@ -1047,6 +1044,11 @@ audio.comfy-audio.empty-audio-widget {
   border-radius: 0;
   contain: layout style;
   transition: none;
+}
+
+.isLOD .lg-node-header {
+  border-radius: 0px;
+  pointer-events: none;
 }
 
 .isLOD .lg-node-widgets {

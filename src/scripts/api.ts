@@ -682,13 +682,14 @@ export class ComfyApi extends EventTarget {
           }
         }
         const order: Record<string, number> = {
-          basic: 0,
+          // basic: 0,
           input: 1,
-          manual: 2,
-          plugin: 3,
-          converter: 4,
-          preview: 5,
-          output: 6
+          math: 2,
+          manual: 3,
+          plugin: 4,
+          converter: 5,
+          preview: 6,
+          output: 7
         }
         objectInfoUnsafe = Object.fromEntries(
           Object.entries(objectInfoUnsafe).sort((a, b) => {

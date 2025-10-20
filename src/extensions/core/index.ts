@@ -1,3 +1,5 @@
+import { isCloud } from '@/platform/distribution/types'
+
 // import '../pmt/testUi'
 import '../pmt/manualQna'
 import '../pmt/manualSegmentation'
@@ -36,3 +38,7 @@ import './uploadAudio'
 import './uploadImage'
 import './webcamCapture'
 import './widgetInputs'
+
+if (isCloud) {
+  import('./cloudBadge')
+}

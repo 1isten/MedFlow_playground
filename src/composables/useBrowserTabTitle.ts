@@ -6,8 +6,8 @@ import { useSettingStore } from '@/platform/settings/settingStore'
 import { useWorkflowStore } from '@/platform/workflow/management/stores/workflowStore'
 import { useExecutionStore } from '@/stores/executionStore'
 
-const DEFAULT_TITLE = 'ComfyUI'
-const TITLE_SUFFIX = ' - ComfyUI'
+const DEFAULT_TITLE = 'ComfyUI'.replace('ComfyUI', 'MedFlow Playground')
+const TITLE_SUFFIX = ' - ComfyUI'.replace('ComfyUI', 'MedFlow Playground')
 
 export const useBrowserTabTitle = () => {
   const executionStore = useExecutionStore()

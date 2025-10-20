@@ -32,9 +32,10 @@ const DISTRIBUTION = (process.env.DISTRIBUTION || 'localhost') as
   | 'cloud'
 
 export default defineConfig({
-  base: '',
+  base: './',
   server: {
     host: VITE_REMOTE_DEV ? '0.0.0.0' : undefined,
+    port: 8044,
     watch: {
       ignored: [
         './browser_tests/**',

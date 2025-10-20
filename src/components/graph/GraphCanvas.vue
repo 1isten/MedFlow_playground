@@ -34,6 +34,9 @@
     <template v-if="showUI" #bottom-panel>
       <BottomPanel />
     </template>
+    <template v-else #bottom-panel>
+      <ActionPanel />
+    </template>
     <template #graph-canvas-panel>
       <GraphCanvasMenu v-if="canvasMenuEnabled" class="pointer-events-auto" />
       <MiniMap

@@ -92,7 +92,7 @@
   </div>
   <div v-else>
     <ButtonGroup
-      class="p-buttongroup-vertical absolute bottom-[10px] right-[10px] z-[1000]"
+      class="p-buttongroup-vertical absolute right-[10px] bottom-[10px] z-[1000]"
       @wheel="canvasInteractions.handleWheel"
     >
       <Button
@@ -278,3 +278,19 @@ const stopRepeat = () => {
   }
 }
 </script>
+
+<style scoped>
+.p-buttongroup-vertical {
+  display: flex;
+  flex-direction: column;
+  z-index: 1200;
+  border-radius: var(--p-button-border-radius);
+  overflow: hidden;
+  border: 1px solid var(--p-panel-border-color);
+}
+
+.p-buttongroup-vertical .p-button {
+  margin: 0;
+  border-radius: 0;
+}
+</style>

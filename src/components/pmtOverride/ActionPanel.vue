@@ -17,12 +17,12 @@
           @click="run"
           @contextmenu.prevent="
             !!pipelineId &&
-              !loading &&
-              !saving &&
-              !deleting &&
-              !running &&
-              !llmRunning &&
-              runMenu.show($event)
+            !loading &&
+            !saving &&
+            !deleting &&
+            !running &&
+            !llmRunning &&
+            runMenu.show($event)
           "
         />
         <Button
@@ -58,7 +58,7 @@
               <InputGroup>
                 <InputGroupAddon>
                   <label
-                    class="relative flex justify-center items-center overflow-hidden"
+                    class="relative flex items-center justify-center overflow-hidden"
                   >
                     <input
                       v-model="pipelineColor"
@@ -99,7 +99,7 @@
                 @click="confirmDelete"
               />
             </div>
-            <div class="flex items-start mt-2">
+            <div class="mt-2 flex items-start">
               <Textarea
                 v-model="pipelineDescription"
                 placeholder="Description..."
@@ -109,7 +109,7 @@
                 :readonly="false"
               />
             </div>
-            <div class="flex mt-2">
+            <div class="mt-2 flex">
               <Select
                 v-model="pipelineEnv"
                 :options="pythonKernels"
@@ -141,7 +141,7 @@
                 </template>
               </Select>
             </div>
-            <div class="flex items-center justify-end mt-3">
+            <div class="mt-3 flex items-center justify-end">
               <Button
                 class="ml-2"
                 :label="'Cancel'"
@@ -215,11 +215,11 @@
       <ConfirmPopup group="confirm_saving" />
     </Panel>
     <div
-      class="fixed top-0 right-0 pointer-events-none flex flex-col"
+      class="pointer-events-none fixed top-0 right-0 flex flex-col"
       :class="showTerminal ? 'shadow-md drop-shadow-md z-[9999]' : '-z-[1]'"
     >
       <PmTerminal
-        class="overflow-hidden border-black border-solid border-r border-l-4 border-b-0"
+        class="overflow-hidden border-r border-b-0 border-l-4 border-solid border-black"
         :class="
           showTerminal ? 'pointer-events-auto flex-auto' : 'invisible flex-none'
         "
@@ -227,23 +227,23 @@
       />
       <div
         v-if="false"
-        class="p-1 rounded-bl-lg border-0 border-t border-solid border-black bg-black"
+        class="rounded-bl-lg border-0 border-t border-solid border-black bg-black p-1"
       ></div>
       <div
         v-else-if="true"
         v-show="showTerminal"
-        class="pointer-events-auto h-10 p-1 w-full flex-none flex overflow-hidden rounded-bl-lg border-0 border-t border-solid border-neutral-900 bg-black"
+        class="pointer-events-auto flex h-10 w-full flex-none overflow-hidden rounded-bl-lg border-0 border-t border-solid border-neutral-900 bg-black p-1"
       >
         <span
-          class="inline-flex items-center px-2 text-sm font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-black text-neutral-500 cursor-default"
+          class="inline-flex h-full cursor-default items-center rounded-lg border-2 border-solid border-black bg-black px-2 font-mono text-sm font-bold text-neutral-500"
         >
           <i class="pi pi-search"></i>
         </span>
-        <div class="relative flex items-center flex-1 h-5/6 my-auto pr-1">
+        <div class="relative my-auto flex h-5/6 flex-1 items-center pr-1">
           <input
             v-model="termSearchKeyword"
             :placeholder="'Search...'"
-            class="block w-full h-full px-2 pr-20 border-0 border-b border-solid focus:outline-none text-sm font-mono border-b-neutral-700 focus:border-b-neutral-600 bg-black rounded-none"
+            class="block h-full w-full rounded-none border-0 border-b border-solid border-b-neutral-700 bg-black px-2 pr-20 font-mono text-sm focus:border-b-neutral-600 focus:outline-none"
             type="text"
             :readonly="running"
             :disabled="running"
@@ -256,14 +256,14 @@
           />
           <div
             v-if="termSearchResultCount > 0"
-            class="absolute right-0 inset-y-1 pl-2 pr-1 flex items-center bg-black"
+            class="absolute inset-y-1 right-0 flex items-center bg-black pr-1 pl-2"
           >
-            <code class="text-xs mr-1 opacity-60">
+            <code class="mr-1 text-xs opacity-60">
               {{ termSearchResultIndex + 1 }} /
               {{ termSearchResultCount }}
             </code>
             <button
-              class="inline-flex items-center justify-center p-1 border-0 rounded mb-0.5 ml-1 transition"
+              class="mb-0.5 ml-1 inline-flex items-center justify-center rounded border-0 p-1 transition"
               :class="
                 termSearchResultCount <= 1
                   ? 'pointer-events-none bg-neutral-950 opacity-50'
@@ -277,10 +277,10 @@
                 )
               "
             >
-              <i class="text-xs pi pi-angle-up"></i>
+              <i class="pi pi-angle-up text-xs"></i>
             </button>
             <button
-              class="inline-flex items-center justify-center p-1 border-0 rounded mb-0.5 ml-1 transition"
+              class="mb-0.5 ml-1 inline-flex items-center justify-center rounded border-0 p-1 transition"
               :class="
                 termSearchResultCount <= 1
                   ? 'pointer-events-none bg-neutral-950 opacity-50'
@@ -291,12 +291,12 @@
                 termSearchAddon.findNext(termSearchKeyword, termSearchOptions)
               "
             >
-              <i class="text-xs pi pi-angle-down"></i>
+              <i class="pi pi-angle-down text-xs"></i>
             </button>
           </div>
         </div>
         <button
-          class="inline-flex items-center justify-center px-2 border-2 border-solid border-black rounded-lg transition"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-solid border-black px-2 transition"
           :class="
             running
               ? 'pointer-events-none bg-neutral-950 opacity-50'
@@ -316,24 +316,24 @@
       <div
         v-else
         v-show="showTerminal"
-        class="pointer-events-auto h-10 p-1 w-full flex-none flex overflow-hidden rounded-bl-lg border-0 border-t border-solid border-neutral-900 bg-black"
+        class="pointer-events-auto flex h-10 w-full flex-none overflow-hidden rounded-bl-lg border-0 border-t border-solid border-neutral-900 bg-black p-1"
       >
         <span
-          class="inline-flex items-center px-2 text-sm font-bold font-mono h-full border-2 border-solid border-black rounded-lg bg-neutral-900 text-blue-600 cursor-default"
+          class="inline-flex h-full cursor-default items-center rounded-lg border-2 border-solid border-black bg-neutral-900 px-2 font-mono text-sm font-bold text-blue-600"
         >
           {{ 'LLM' }}
         </span>
         <input
           v-model="llmPrompt"
           :placeholder="llmRunning ? 'processing...' : 'prompt...'"
-          class="block flex-1 h-full px-2 border-2 border-solid focus:outline-none text-sm font-mono border-black rounded-lg"
+          class="block h-full flex-1 rounded-lg border-2 border-solid border-black px-2 font-mono text-sm focus:outline-none"
           type="text"
           :readonly="true"
           :disabled="llmRunning"
           @keyup.enter="llmRunPrompt"
         />
         <button
-          class="inline-flex items-center justify-center px-2 border-2 border-solid border-black rounded-lg transition"
+          class="inline-flex items-center justify-center rounded-lg border-2 border-solid border-black px-2 transition"
           :class="
             llmRunning
               ? 'pointer-events-none bg-black'
@@ -355,7 +355,7 @@
 </template>
 
 <script setup>
-/* eslint-disable @typescript-eslint/no-floating-promises */
+/* eslint-disable no-console, @typescript-eslint/no-floating-promises */
 import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
 import { merge } from 'es-toolkit/compat'
 import Button from 'primevue/button'
@@ -1090,6 +1090,8 @@ onMounted(async () => {
     return options
   }
 
+  const versionMismatchedNodes = Object.create(null)
+
   comfyApp.registerExtension({
     name: 'PMT.CustomExtension',
 
@@ -1116,6 +1118,32 @@ onMounted(async () => {
         return _onDblClick?.apply(this, args)
       }
       */
+
+      const _onConfigure = node.onConfigure
+      node.onConfigure = function (...args) {
+        const [serialisedNode] = args
+        const pmt_fields = serialisedNode?.pmt_fields
+        if (pmt_fields) {
+          if (pmt_fields.version) {
+            const nodeDef = nodeDefStore.nodeDefsByName[node.type]
+            if (
+              nodeDef?.PMT_VERSION &&
+              pmt_fields.version !== nodeDef.PMT_VERSION
+            ) {
+              if (!versionMismatchedNodes[node.type]) {
+                versionMismatchedNodes[node.type] = {
+                  title: node.title,
+                  version: pmt_fields.version,
+                  PMT_VERSION: nodeDef.PMT_VERSION
+                }
+              }
+              node.pmt_fields.status = 'conflict'
+              node.setDirtyCanvas(true)
+            }
+          }
+        }
+        return _onConfigure?.apply(this, args)
+      }
 
       setTimeout(() => {
         const _onDrawBackground = node.onDrawBackground
@@ -1412,6 +1440,24 @@ onMounted(async () => {
   })
 
   comfyApp.canvasEl.addEventListener('drop', onDrop)
+
+  setTimeout(() => {
+    let versionMismatchMsg = ''
+    let versionMismatchCount = 0
+    Object.keys(versionMismatchedNodes).forEach((type) => {
+      const { title, version, PMT_VERSION } = versionMismatchedNodes[type]
+      versionMismatchMsg += `${title} v${version} does not match registered version v${PMT_VERSION}.\n\n`
+      versionMismatchCount += 1
+    })
+    if (versionMismatchCount > 0) {
+      versionMismatchMsg += `Please re-add ${versionMismatchCount > 1 ? 'those nodes' : 'that node'}.`
+      toast.add({
+        severity: 'error',
+        summary: 'Node Version Mismatch',
+        detail: versionMismatchMsg
+      })
+    }
+  }, 500)
 
   if (pipelineId) {
     getPythonKernelList()
@@ -2285,6 +2331,13 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
     const pmt_fields = merge(
       node?.pmt_fields ? JSON.parse(JSON.stringify(node.pmt_fields)) : {},
       {
+        ...(node?.pmt_fields?.version
+          ? {
+              version: node.pmt_fields.version
+            }
+          : {
+              version: nodeDef.PMT_VERSION ?? undefined
+            }),
         type,
         plugin_name: plugin_name || null,
         function_name: function_name || null,

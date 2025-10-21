@@ -14,7 +14,7 @@ useExtensionService().registerExtension({
         0,
         -`@v${version}`.length
       )
-      nodeData.version = version
+      nodeData.PMT_VERSION = version
     }
   }
 })

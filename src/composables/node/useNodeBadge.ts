@@ -80,7 +80,7 @@ export const useNodeBadge = () => {
         const badge = computed(() => {
           const nodeDef = nodeDefStore.fromLGraphNode(node)
           // @ts-expect-error custom pmt version field
-          const version = nodeDef?.version as string | undefined
+          const version = node?.pmt_fields?.version ?? nodeDef?.PMT_VERSION
           return new LGraphBadge({
             text: _.truncate(
               [

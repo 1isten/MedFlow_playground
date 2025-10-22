@@ -1450,7 +1450,7 @@ onMounted(async () => {
       versionMismatchCount += 1
     })
     if (versionMismatchCount > 0) {
-      versionMismatchMsg += `Please re-add ${versionMismatchCount > 1 ? 'those nodes' : 'that node'}.`
+      versionMismatchMsg += `Please remove and re-add ${versionMismatchCount > 1 ? 'those nodes' : 'that node again'}.`
       toast.add({
         severity: 'error',
         summary: 'Node Version Mismatch',
@@ -1865,8 +1865,7 @@ async function fillInLoadNodeScalarValueIfNeeded(json, always = false) {
                   toast.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: err.message,
-                    life: 10000
+                    detail: err.message
                   })
                 }
                 pmt_fields.status = 'error'
@@ -2873,8 +2872,7 @@ function handlePythonMsg(msg) {
         toast.add({
           severity: 'error',
           summary: 'Error',
-          detail: tracebackErr,
-          life: 10000
+          detail: tracebackErr
         })
       }
       tracebackErr = ''
@@ -2944,8 +2942,7 @@ function handlePythonMsg(msg) {
             toast.add({
               severity: 'error',
               summary: msg1 && 'Error',
-              detail: msg2,
-              life: 10000
+              detail: msg2
             })
           }
         }

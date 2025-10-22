@@ -10,7 +10,7 @@ export const DATATYPE_COLOR = {
   JSON_FILE: '#b45309', // amber
 
   '2D': '#22d3ee', // cyan (Matrix, 2D np.NdArray)
-  DICOM_OBJ: '#2dd4bf', // teal
+  // DICOM_OBJ: '#2dd4bf', // teal
   DICOM_FILE: '#0f766e', // teal
 
   // DICOM_VOLUME_FILE: '#7d6e91', // teal+pink
@@ -19,7 +19,7 @@ export const DATATYPE_COLOR = {
   STUDY_FILE_LIST: '#8b5cf6', // violet
 
   '3D': '#e879f9', // fuchsia (Volume, 3D np.NdArray)
-  NIFTI_OBJ: '#db2777', // pink
+  // NIFTI_OBJ: '#db2777', // pink
   NIFTI_FILE: '#be185d', // pink
   // LABELMAP: '#86efac', // green
 

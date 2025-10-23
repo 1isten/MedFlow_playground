@@ -3259,9 +3259,9 @@ function handleGetPipeline(payload) {
     workflowStore.closeWorkflow(workflowStore.activeWorkflow).then(() => {
       workflowService.openWorkflow(workflow).then(() => {
         if (readonlyView.value) {
-          requestAnimationFrame(() => {
+          setTimeout(() => {
             commandStore.execute('Comfy.Canvas.FitView')
-          })
+          }, 250)
         }
       })
     })

@@ -201,7 +201,8 @@ useExtensionService().registerExtension({
           if (
             json &&
             json.oid &&
-            json.$typeName?.split('.').pop() === 'Study'
+            (json.$typeName?.split('.').pop() === 'Study' ||
+              json.$typeName?.split('.').pop() === 'MetaLabelingItem')
           ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
@@ -242,7 +243,8 @@ useExtensionService().registerExtension({
           if (
             json &&
             json.oid &&
-            json.$typeName?.split('.').pop() === 'Study'
+            (json.$typeName?.split('.').pop() === 'Study' ||
+              json.$typeName?.split('.').pop() === 'MetaLabelingItem')
           ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'

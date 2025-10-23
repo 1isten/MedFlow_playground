@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useExtensionService } from '@/services/extensionService'
@@ -108,7 +109,8 @@ useExtensionService().registerExtension({
           if (
             json &&
             json.oid &&
-            json.$typeName?.split('.').pop() === 'Instance'
+            (json.$typeName?.split('.').pop() === 'Instance' ||
+              json.$typeName?.split('.').pop() === 'MetaLabelingItem')
           ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
@@ -131,7 +133,8 @@ useExtensionService().registerExtension({
           if (
             json &&
             json.oid &&
-            json.$typeName?.split('.').pop() === 'Instance'
+            (json.$typeName?.split('.').pop() === 'Instance' ||
+              json.$typeName?.split('.').pop() === 'MetaLabelingItem')
           ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'

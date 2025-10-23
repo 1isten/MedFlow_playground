@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { ParsedLevel } from '@/constants/pmtCore'
@@ -456,7 +457,8 @@ useExtensionService().registerExtension({
           if (
             json &&
             json.oid &&
-            json.$typeName?.split('.').pop() === 'Series'
+            (json.$typeName?.split('.').pop() === 'Series' ||
+              json.$typeName?.split('.').pop() === 'MetaLabelingItem')
           ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
@@ -498,7 +500,8 @@ useExtensionService().registerExtension({
           if (
             json &&
             json.oid &&
-            json.$typeName?.split('.').pop() === 'Series'
+            (json.$typeName?.split('.').pop() === 'Series' ||
+              json.$typeName?.split('.').pop() === 'MetaLabelingItem')
           ) {
             const oidWidget = node.widgets.find((w) => {
               return w.name === 'oid'
@@ -658,16 +661,18 @@ useExtensionService().registerExtension({
               link_info && link_info.origin_id
                 ? app.graph.getNodeById(link_info.origin_id)
                 : null
-            if (inputNode) {
-              const oidWidget_ = inputNode.widgets.find((w) => {
-                return w.name === 'oid'
-              })
-              const _oidWidget = node.widgets.find((w) => {
-                return w.name === 'oid'
-              })
-              if (oidWidget_ && _oidWidget) {
-                if (oidWidget_.value !== _oidWidget.value) {
-                  _oidWidget.value = oidWidget_.value
+            const pmt_fields = inputNode?.pmt_fields as any
+            if (pmt_fields) {
+              const inputNodeOutput =
+                pmt_fields.outputs?.[link_info.origin_slot]
+              const oid_ = inputNodeOutput?.oid
+              if (oid_) {
+                const _oidWidget = node.widgets.find((w) => {
+                  return w.name === 'oid'
+                })
+                const _oid = _oidWidget?.value
+                if (oid_ !== _oid) {
+                  _oidWidget.value = oid_
                   oidChangeHandler(_oidWidget.value)
                   if (_oidWidget.value) {
                     const filter_params = inputNode.pmt_fields?.filter_params

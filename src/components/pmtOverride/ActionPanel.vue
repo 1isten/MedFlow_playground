@@ -3082,7 +3082,7 @@ function handleBatchStreamChunk(chunk) {
                   })
               }
               const out = node.pmt_fields.outputs_batch[task][o]
-              const { name, type, oid, path, value } = output
+              const { name, type, oid, path, value, to_export } = output
               if (oid) {
                 /*
                 out.oid = Array.isArray(out.oid)
@@ -3105,6 +3105,9 @@ function handleBatchStreamChunk(chunk) {
                     ? value
                     : [value]
                   : value
+              }
+              if (to_export) {
+                out.to_export = to_export
               }
             })
           }

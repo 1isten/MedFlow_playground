@@ -1,20 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-// import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.PreviewScalar',
-  beforeRegisterNodeDef(nodeType, nodeData) {
-    if (nodeData?.name === 'preview.json') {
-      if (window.$?.fn?.jsonViewer) {
-        nodeData.input['required'] = { JSON_FILE: ['JSON_FILE'] }
-        nodeData.input_order['required'] = ['JSON_FILE']
-      }
-    }
-  },
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     if (
       ![
         'preview.boolean',

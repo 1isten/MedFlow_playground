@@ -3,8 +3,9 @@
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
-  name: 'PMT.TestUi',
-  nodeCreated(node) {
+  name: 'PMT.TestUi'
+  /*
+  nodeCreated(node, app) {
     if (node?.comfyClass !== 'plugin.test_plugin_name.test_func') {
       return
     }
@@ -39,4 +40,5 @@ useExtensionService().registerExtension({
       return _onDrawBackground?.apply(this, args)
     }
   }
+  */
 })

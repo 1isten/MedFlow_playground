@@ -4,20 +4,6 @@ import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.UploadFile',
-  beforeRegisterNodeDef(nodeType, nodeData) {
-    Object.keys(nodeData?.input || {}).forEach((t) => {
-      Object.keys(nodeData.input[t]).forEach((inputName) => {
-        const input = nodeData.input[t][inputName]
-        if (input?.[0] === 'FILE' && input?.[1]?.file_upload === true) {
-          const { file_upload, ...options } = input[1]
-          nodeData.input[t]['upload'] = [
-            'FILEsUPLOAD',
-            { widget: inputName, options }
-          ]
-        }
-      })
-    })
-  },
   getCustomWidgets(app) {
     return {
       FILEsUPLOAD(node, inputName, inputData, app) {

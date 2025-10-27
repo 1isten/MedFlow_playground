@@ -4,25 +4,15 @@ import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.UploadImage2',
-  beforeRegisterNodeDef(nodeType, nodeData) {
-    Object.keys(nodeData?.input || {}).forEach((t) => {
-      Object.keys(nodeData.input[t]).forEach((inputName) => {
-        const input = nodeData.input[t][inputName]
-        if (input?.[1]?.image_upload2 === false) {
-          nodeData.input[t][inputName] = ['STRING'] // file path input
-        } else if (input?.[1]?.image_upload2 === true) {
-          nodeData.input[t]['upload'] = ['IMAGEUPLOAD2', { widget: inputName }]
-        }
-      })
-    })
-  },
-  nodeCreated(node) {
+  /*
+  nodeCreated(node, app) {
     if (node?.comfyClass !== 'input.load_image') {
       return
     }
 
     // ...
   },
+  */
   getCustomWidgets(app) {
     return {
       IMAGEUPLOAD2(node, inputName, inputData, app) {

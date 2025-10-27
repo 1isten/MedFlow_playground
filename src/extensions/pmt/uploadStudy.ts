@@ -5,7 +5,7 @@ import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.UploadStudy',
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     let filterEnabled = false
     let filterParams = null
 

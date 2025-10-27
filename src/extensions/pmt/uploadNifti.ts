@@ -3,24 +3,11 @@
 // @ts-nocheck
 import { ParsedLevel } from '@/constants/pmtCore'
 import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.UploadNifti',
-  beforeRegisterNodeDef(nodeType, nodeData) {
-    Object.keys(nodeData?.input || {}).forEach((t) => {
-      Object.keys(nodeData.input[t]).forEach((inputName) => {
-        const input = nodeData.input[t][inputName]
-        if (input?.[1]?.nifti_upload === false) {
-          nodeData.input[t][inputName] = ['STRING'] // oid text input
-        } else if (input?.[1]?.nifti_upload === true) {
-          nodeData.input[t]['upload'] = ['NIFTIUPLOAD', { widget: inputName }]
-        }
-      })
-    })
-  },
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     let [_w, _h] = node.size
     let scalarEnabled = false
     let filterEnabled = false

@@ -1,10 +1,11 @@
+/* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.PreviewVolView',
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     if (node?.comfyClass !== 'preview.volview') {
       return
     }

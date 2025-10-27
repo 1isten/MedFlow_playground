@@ -1,12 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.ManualSegmentation',
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     if (node?.comfyClass !== 'manual.segmentation') {
       return
     } else {

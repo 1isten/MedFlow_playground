@@ -1,12 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
-// import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.StatusFloat',
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     if (
       document.location.href.includes('projectId=') ||
       document.location.href.includes('pipelineEmbedded=embedded')

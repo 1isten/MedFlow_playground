@@ -1,9 +1,9 @@
 import { isCloud } from '@/platform/distribution/types'
 
 // import '../pmt/testUi'
+import '../pmt/bootPatchNodeDef'
 import '../pmt/manualQna'
 import '../pmt/manualSegmentation'
-import '../pmt/patchNodeDef'
 import '../pmt/previewScalar'
 import '../pmt/previewVolView'
 import '../pmt/statusFloat'

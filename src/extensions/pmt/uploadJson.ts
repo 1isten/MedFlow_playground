@@ -4,19 +4,8 @@ import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.UploadJson',
-  beforeRegisterNodeDef(nodeType, nodeData) {
-    Object.keys(nodeData?.input || {}).forEach((t) => {
-      Object.keys(nodeData.input[t]).forEach((inputName) => {
-        const input = nodeData.input[t][inputName]
-        if (input?.[1]?.json_upload === false) {
-          nodeData.input[t][inputName] = ['STRING'] // file path input
-        } else if (input?.[1]?.json_upload === true) {
-          nodeData.input[t]['upload'] = ['JSONUPLOAD', { widget: inputName }]
-        }
-      })
-    })
-  },
-  nodeCreated(node) {
+  /*
+  nodeCreated(node, app) {
     if (node?.comfyClass !== 'input.load_json') {
       if (node?.comfyClass === 'manual.qna') {
         // ...
@@ -38,6 +27,7 @@ useExtensionService().registerExtension({
 
     // ...
   },
+  */
   getCustomWidgets(app) {
     return {
       JSONUPLOAD(node, inputName, inputData, app) {

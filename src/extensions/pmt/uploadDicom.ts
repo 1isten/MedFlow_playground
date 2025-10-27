@@ -5,19 +5,7 @@ import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.UploadDicom',
-  beforeRegisterNodeDef(nodeType, nodeData) {
-    Object.keys(nodeData?.input || {}).forEach((t) => {
-      Object.keys(nodeData.input[t]).forEach((inputName) => {
-        const input = nodeData.input[t][inputName]
-        if (input?.[1]?.dicom_upload === false) {
-          nodeData.input[t][inputName] = ['STRING'] // oid text input
-        } else if (input?.[1]?.dicom_upload === true) {
-          nodeData.input[t]['upload'] = ['DICOMUPLOAD', { widget: inputName }]
-        }
-      })
-    })
-  },
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     if (node?.comfyClass !== 'input.load_dicom') {
       return
     }

@@ -1,12 +1,12 @@
+/* eslint-disable no-console */
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-nocheck
 import { LiteGraph } from '@/lib/litegraph/src/litegraph'
-import { app } from '@/scripts/app'
 import { useExtensionService } from '@/services/extensionService'
 
 useExtensionService().registerExtension({
   name: 'PMT.ToExport',
-  nodeCreated(node) {
+  nodeCreated(node, app) {
     if (node?.comfyClass === 'output.export') {
       const _inputs = node.inputs.map((i) => {
         i.localized_name = `* ${i.name}`
@@ -230,6 +230,8 @@ useExtensionService().registerExtension({
       return
     }
 
+    /*
+
     if (
       !node ||
       node.comfyClass.startsWith('rag_llm.') ||
@@ -416,5 +418,7 @@ useExtensionService().registerExtension({
       })
       return _onOutputRemoved?.apply(this, args)
     }
+
+    */
   }
 })

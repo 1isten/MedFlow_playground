@@ -10,7 +10,7 @@
     <div class="mb-2 flex items-center justify-between gap-4 px-2">
       <label
         v-if="widget.name"
-        class="min-w-[4em] truncate text-xs opacity-80"
+        class="text-secondary min-w-[4em] truncate text-xs"
         >{{ widget.name }}</label
       >
       <!-- Group select and folder button together on the right -->
@@ -25,7 +25,8 @@
           class="max-w-[20em] min-w-[8em] text-xs"
           size="small"
           :pt="{
-            option: 'text-xs'
+            option: 'text-xs',
+            dropdownIcon: 'text-button-icon'
           }"
         />
         <Button
@@ -81,7 +82,7 @@
     <div class="mb-2 flex items-center justify-between gap-4 px-2">
       <label
         v-if="widget.name"
-        class="min-w-[4em] truncate text-xs opacity-80"
+        class="text-secondary min-w-[4em] truncate text-xs"
         >{{ widget.name }}</label
       >
       <!-- Group select and folder button together on the right -->
@@ -95,7 +96,8 @@
           class="max-w-[20em] min-w-[8em] text-xs"
           size="small"
           :pt="{
-            option: 'text-xs'
+            option: 'text-xs',
+            dropdownIcon: 'text-button-icon'
           }"
         />
         <Button

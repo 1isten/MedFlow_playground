@@ -9,11 +9,11 @@ export default {
   ]
 }
 
-function formatAndEslint(files) {
-  const fileNames = micromatch.not(files, ['**/public/**/*.{js,css}'])
-  if (fileNames.length === 0) return []
+function formatAndEslint(fileNames) {
+  // Convert absolute paths to relative paths for better ESLint resolution
+  const relativePaths = fileNames.map((f) => f.replace(process.cwd() + '/', ''))
   return [
-    `pnpm exec eslint --cache --fix ${fileNames.join(' ')}`,
-    `pnpm exec prettier --cache --write ${fileNames.join(' ')}`
+    `pnpm exec eslint --cache --fix ${relativePaths.join(' ')}`,
+    `pnpm exec prettier --cache --write ${relativePaths.join(' ')}`
   ]
 }

@@ -768,9 +768,10 @@ export class ComfyApi extends EventTarget {
       if (objectInfoPlugins) {
         for (const key in objectInfoUnsafe) {
           if (
-            key.startsWith('plugin.') ||
+            key.startsWith('rag_llm.') ||
+            key.startsWith('math.') ||
             // ...
-            key.startsWith('rag_llm.')
+            key.startsWith('plugin.')
           ) {
             delete objectInfoUnsafe[key]
           }
@@ -785,14 +786,12 @@ export class ComfyApi extends EventTarget {
           }
         }
         const order: Record<string, number> = {
-          // basic: 0,
           input: 1,
-          math: 2,
+          converter: 2,
           manual: 3,
           plugin: 4,
-          converter: 5,
-          preview: 6,
-          output: 7
+          preview: 5,
+          output: 6
         }
         objectInfoUnsafe = Object.fromEntries(
           Object.entries(objectInfoUnsafe).sort((a, b) => {

@@ -1,3 +1,5 @@
+import micromatch from 'micromatch'
+
 export default {
   './**/*.js': (stagedFiles) => formatAndEslint(stagedFiles),
 

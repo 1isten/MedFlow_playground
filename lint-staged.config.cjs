@@ -1,0 +1,19 @@
+const micromatch = require('micromatch')
+
+module.exports = {
+  './**/*.js': (stagedFiles) => formatAndEslint(stagedFiles),
+
+  './**/*.{ts,tsx,vue,mts}': (stagedFiles) => [
+    ...formatAndEslint(stagedFiles),
+    'vue-tsc --noEmit'
+  ]
+}
+
+function formatAndEslint(files) {
+  const fileNames = micromatch.not(files, ['**/public/**/*.{js,css}'])
+  if (fileNames.length === 0) return []
+  return [
+    `eslint --fix ${fileNames.join(' ')}`,
+    `prettier --write ${fileNames.join(' ')}`
+  ]
+}

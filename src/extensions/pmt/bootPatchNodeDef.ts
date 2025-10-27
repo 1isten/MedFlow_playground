@@ -79,22 +79,26 @@ useExtensionService().registerExtension({
           return
         }
 
-        // ...
-
-        // TODO: handle Any type ...
-
-        // TODO: handle Multi type ...
+        // handle Any / Multi type
+        if (t === 'required') {
+          if (input?.[0] === 'Any') {
+            input[0] = '*'
+          }
+        }
 
         // ...
       })
 
       nodeData.output?.forEach((outputType, o) => {
-        // ...
-        // TODO: handle Any type ...
-        // TODO: handle Multi type ...
+        // handle Any / Multi type
+        if (outputType === 'Any') {
+          nodeData.output[o] = '*'
+        }
+
         // ...
       })
     })
+
     // for PMT.PreviewScalar extension
     if (nodeData?.name === 'preview.json') {
       if (window.$?.fn?.jsonViewer) {
@@ -115,7 +119,121 @@ useExtensionService().registerExtension({
       return
     }
 
+    const getNodeDefOutputType = (outputSlot) => {
+      return nodeDef.output?.[outputSlot]
+    }
+    const getNodeDefInputType = (inputName, required = true) => {
+      return nodeDef.input?.[required ? 'required' : 'optional']?.[
+        inputName
+      ]?.[0]
+    }
+    const getNodeDefInputAcceptTypes = (inputName, required = true) => {
+      return nodeDef.input?.[required ? 'required' : 'optional']?.[
+        inputName
+      ]?.[1]?.acceptTypes
+    }
+
     // console.log(nodeDef.name, nodeDef)
+
+    // handle Any / Multi type
+    if (node.comfyClass.startsWith('plugin.')) {
+      let hasAnyTypeInputOrOutput = false
+
+      node.inputs.forEach((input, i) => {
+        if (input.type === '*' || getNodeDefInputType(input.name) === '*') {
+          const acceptTypes = getNodeDefInputAcceptTypes(input.name)
+          if (acceptTypes?.length) {
+            input.localized_name = `* ${input.name} [${acceptTypes.join(', ')}]`
+          } else {
+            input.localized_name = `* ${input.name}`
+          }
+          hasAnyTypeInputOrOutput = true
+        }
+      })
+
+      node.outputs.forEach((output, o) => {
+        if (output.type === '*' || getNodeDefOutputType(o) === '*') {
+          output.localized_name = `* ${output.name}`
+          hasAnyTypeInputOrOutput = true
+        }
+      })
+
+      if (hasAnyTypeInputOrOutput) {
+        const _onConnectionsChange = node.onConnectionsChange
+        node.onConnectionsChange = function (...args) {
+          const [type, index, isConnected, link_info, inputOrOutput] = args
+          if (link_info) {
+            switch (type) {
+              case LiteGraph.INPUT: {
+                if (isConnected) {
+                  if (getNodeDefInputType(inputOrOutput?.name) === '*') {
+                    const inputNode = app.graph.getNodeById(link_info.origin_id)
+                    const inputNodeOutput = inputNode?.getOutputInfo(
+                      link_info.origin_slot
+                    )
+                    if (inputNodeOutput?.type) {
+                      const input = node.inputs[link_info.target_slot]
+                      const acceptTypes = getNodeDefInputAcceptTypes(input.name)
+                      if (
+                        acceptTypes?.length &&
+                        acceptTypes.indexOf(inputNodeOutput.type) === -1
+                      ) {
+                        node.disconnectInput(index)
+                        break
+                      }
+                      input.localized_name = input.name
+                      input.type = inputNodeOutput.type
+                    }
+                    const firstAnyTypeSlot = node.inputs.findIndex(
+                      (input) => getNodeDefInputType(input.name) === '*'
+                    )
+                    if (
+                      firstAnyTypeSlot !== -1 &&
+                      node.inputs[firstAnyTypeSlot]?.type !== '*'
+                    ) {
+                      node.outputs.forEach((output, o) => {
+                        if (getNodeDefOutputType(o) === '*') {
+                          output.localized_name = output.name
+                          output.type = node.inputs[firstAnyTypeSlot].type
+                          if (output.isConnected) {
+                            node.disconnectOutput(o)
+                          }
+                        }
+                      })
+                    }
+                  }
+                } else {
+                  if (getNodeDefInputType(inputOrOutput?.name) === '*') {
+                    const input = node.inputs[link_info.target_slot]
+                    const acceptTypes = getNodeDefInputAcceptTypes(input.name)
+                    if (acceptTypes?.length) {
+                      input.localized_name = `* ${input.name} [${acceptTypes.join(', ')}]`
+                    } else {
+                      input.localized_name = `* ${input.name}`
+                    }
+                    input.type = '*'
+                    node.outputs.forEach((output, o) => {
+                      if (getNodeDefOutputType(o) === '*') {
+                        output.localized_name = `* ${output.name}`
+                        output.type = '*'
+                        if (output.isConnected) {
+                          node.disconnectOutput(o)
+                        }
+                      }
+                    })
+                  }
+                }
+                break
+              }
+              case LiteGraph.OUTPUT: {
+                break
+              }
+            }
+          }
+          return _onConnectionsChange?.apply(this, args)
+        }
+      }
+    }
 
     // ...
   }

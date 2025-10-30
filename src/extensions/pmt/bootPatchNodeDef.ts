@@ -26,13 +26,25 @@ useExtensionService().registerExtension({
       Object.keys(nodeData.input[t]).forEach((inputName) => {
         const input = nodeData.input[t][inputName]
 
-        // for PMT.UploadFile extension
-        if (input?.[0] === 'FILE' && input?.[1]?.file_upload === true) {
-          const { file_upload, ...options } = input[1]
-          nodeData.input[t]['upload'] = [
-            'FILEsUPLOAD',
-            { widget: inputName, options }
-          ]
+        if (input?.[0] === 'FILE') {
+          // for PMT.SelectStatics extension
+          if (input?.[1]?.statics === true) {
+            const { statics, ...options } = input[1]
+            nodeData.input[t]['statics_select'] = [
+              'STATICSLIST',
+              { widget: inputName, options }
+            ]
+            return
+          }
+          // for PMT.UploadFile extension
+          if (input?.[1]?.file_upload === true) {
+            const { file_upload, ...options } = input[1]
+            nodeData.input[t]['upload'] = [
+              'FILEsUPLOAD',
+              { widget: inputName, options }
+            ]
+            return
+          }
           return
         }
 

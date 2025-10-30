@@ -939,6 +939,7 @@ onMounted(async () => {
   }, 500)
 
   const hideTypes = [
+    'input.statics',
     'input.file',
     'input.load_json',
     'input.load_image',

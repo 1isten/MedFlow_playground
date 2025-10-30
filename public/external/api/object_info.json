@@ -634,6 +634,30 @@
     "output_is_list": [false],
     "output_node": false
   },
+  "input.statics": {
+    "name": "input.statics",
+    "category": "input/Scalar",
+    "display_name": "Statics",
+    "description": "FILE",
+    "python_module": "nodes",
+    "input": {
+      "optional": {
+        "static_file": [
+          "FILE",
+          {
+            "statics": true
+          }
+        ]
+      }
+    },
+    "input_order": {
+      "optional": ["static_file"]
+    },
+    "output": ["FILE"],
+    "output_name": ["FILE"],
+    "output_is_list": [false],
+    "output_node": false
+  },
   "input.file": {
     "name": "input.file",
     "category": "input/Scalar",

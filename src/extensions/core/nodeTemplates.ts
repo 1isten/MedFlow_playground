@@ -348,6 +348,8 @@ const ext: ComfyExtension = {
   getCanvasMenuItems(_canvas: LGraphCanvas): IContextMenuValue[] {
     const items: IContextMenuValue[] = []
 
+    if (items.length === 0) return items
+
     // @ts-expect-error fixme ts strict error
     items.push(null)
     items.push({

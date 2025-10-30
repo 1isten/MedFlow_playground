@@ -2357,10 +2357,14 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
           }
         }),
         args: (node.widgets || []).reduce((args, w) => {
+          const { type, name, value, element } = w
           if (w instanceof DOMWidgetImpl) {
+            // multiline STRING
+            if (type === 'customtext' && element?.tagName === 'TEXTAREA') {
+              args[name] = value
+            }
             return args
           }
-          const { type, name, value, element } = w
           if (type === 'converted-widget') {
             return args
           }

@@ -1,0 +1,56 @@
+name: Build & Upload dist.zip to Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'pnpm'
+
+      - name: Cache tool outputs
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache
+            tsconfig.tsbuildinfo
+          key: release-tools-cache-${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            release-tools-cache-${{ runner.os }}-
+
+      - name: Install dependencies
+        env:
+          # SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+          # ALGOLIA_APP_ID: ${{ secrets.ALGOLIA_APP_ID }}
+          # ALGOLIA_API_KEY: ${{ secrets.ALGOLIA_API_KEY }}
+          USE_PROD_CONFIG: 'true'
+        run: pnpm install --frozen-lockfile
+
+      - name: Build project
+        run: pnpm build
+
+      - name: Create version file in dist
+        run: echo "${{ github.ref_name }}" | sed 's/^PMT-v//' > dist/version
+
+      - name: Zip dist folder
+        run: pnpm zipdist
+
+      - name: Upload dist.zip to release
+        uses: softprops/action-gh-release@v2.3.3
+        with:
+          files: dist.zip
+          tag_name: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

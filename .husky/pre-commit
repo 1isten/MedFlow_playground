@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-pnpm exec lint-staged
+pnpm exec lint-staged --config lint-staged.config.cjs
 pnpm exec tsx scripts/check-unused-i18n-keys.ts

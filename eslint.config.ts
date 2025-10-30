@@ -48,6 +48,8 @@ const commonParserOptions = {
 export default defineConfig([
   {
     ignores: [
+      'public/**/*.{js,css}',
+
       '.i18nrc.cjs',
       'components.d.ts',
       'lint-staged.config.js',

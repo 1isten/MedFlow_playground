@@ -1,0 +1,16 @@
+{
+  "system": {
+    "os": "",
+    "ram_total": 0,
+    "ram_free": 0,
+    "comfyui_version": "0.0.0",
+    "required_frontend_version": "1.28.7",
+    "installed_templates_version": "0.0.0",
+    "required_templates_version": "0.0.0",
+    "python_version": "",
+    "pytorch_version": "",
+    "embedded_python": false,
+    "argv": []
+  },
+  "devices": []
+}

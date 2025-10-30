@@ -54,9 +54,10 @@ const cloudProxyConfig =
   DISTRIBUTION === 'cloud' ? { secure: false, changeOrigin: true } : {}
 
 export default defineConfig({
-  base: '',
+  base: './',
   server: {
     host: VITE_REMOTE_DEV ? '0.0.0.0' : undefined,
+    port: 8044,
     watch: {
       ignored: [
         './browser_tests/**',

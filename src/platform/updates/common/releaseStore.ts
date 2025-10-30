@@ -221,6 +221,10 @@ export const useReleaseStore = defineStore('release', () => {
 
   // Fetch releases from API
   async function fetchReleases(): Promise<void> {
+    if (releases.value) {
+      return
+    }
+
     if (isLoading.value) {
       return
     }

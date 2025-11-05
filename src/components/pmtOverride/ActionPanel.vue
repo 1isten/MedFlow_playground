@@ -2767,8 +2767,14 @@ onMounted(async () => {
               handleDeletePipeline(payload)
               break
             }
+            case 'resize-workflow': {
+              if (payload && payload.pipelineId === pipelineId) {
+                resizeWorkflow()
+              }
+              break
+            }
             case 'reload-workflow': {
-              if (window.location.reload) {
+              if (payload && payload.pipelineId === pipelineId) {
                 window.location.reload()
               }
               break
@@ -3268,8 +3274,8 @@ function handleGetPipeline(payload) {
       workflowService.openWorkflow(workflow).then(() => {
         if (readonlyView.value) {
           setTimeout(() => {
-            commandStore.execute('Comfy.Canvas.FitView')
-          }, 250)
+            resizeWorkflow()
+          }, 150)
         }
       })
     })
@@ -3280,6 +3286,18 @@ function handleGetPipeline(payload) {
   }
   pipeline.value.readonly = !!payload.readonly
   loading.value = false
+}
+
+let isResizing = false
+function resizeWorkflow() {
+  if (isResizing) {
+    return
+  }
+  isResizing = true
+  commandStore.execute('Comfy.Canvas.FitView')
+  setTimeout(() => {
+    isResizing = false
+  }, 350) // https://github.com/1isten/MedFlow_playground/blob/296e1a2b0ddf5004b9b86e53700bfd1ded84c441/src/lib/litegraph/src/DragAndScale.ts#L229
 }
 
 function createPipeline(payload) {

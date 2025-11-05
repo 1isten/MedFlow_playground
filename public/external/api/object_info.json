@@ -1924,13 +1924,13 @@
         "resample": [
           "BOOLEAN",
           {
-            "default": true
+            "default": false
           }
         ],
         "reorient": [
           "BOOLEAN",
           {
-            "default": true
+            "default": false
           }
         ],
         "keep_duplicate_slices": [

@@ -1480,6 +1480,10 @@ onMounted(async () => {
   if (window.$electron) {
     window.VOLVIEW_URL = await window.$electron.getVolViewUrl()
     window.MAIN_INDEX = await window.$electron.getMainUrl()
+
+    window.$getPipelineSampleCases = getPipelineSampleCases
+    window.$putPipelineSampleCase = putPipelineSampleCase
+    window.$deletePipelineSampleCase = deletePipelineSampleCase
   }
   window.__session_id__ = `${Date.now()}`
   window['driverObjs'] = []
@@ -3565,6 +3569,171 @@ function handleSaveQnAnswers(payload) {
     }
   }
   return handleGetManualList({ pipelineId: payload.pipelineId, manualNodeId })
+}
+
+// --- Sample Case ---
+
+async function getPipelineSampleCases() {
+  if (pipelineId) {
+    console.log('get sample cases for pipeline...', pipelineId)
+  } else {
+    return
+  }
+  return fetch(`h3://localhost/api/pipelines/${pipelineId}/sample-cases`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(async (res) => {
+      if (res.ok) {
+        return res.json()
+      } else {
+        const err = await res.json()
+        if (err?.statusMessage) {
+          return console.error(err.statusCode, err.statusMessage)
+        }
+        throw new Error('Failed to get pipeline sample cases', pipelineId)
+      }
+    })
+    .then((res) => {
+      const { data, error, message } = res || {}
+      if (error) {
+        throw new Error(message)
+      }
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      // if (err.message) {
+      //   toast.add({
+      //     severity: 'error',
+      //     summary: 'Error',
+      //     detail: err.message
+      //   })
+      // }
+    })
+}
+async function putPipelineSampleCase(caseName) {
+  let { json } = exportJson(false)
+  json = await fillInLoadNodeScalarValueIfNeeded(json, true)
+  json.nodes.forEach((node) => {
+    delete node.pmt_fields.checkpoint
+    delete node.pmt_fields.startpoint
+  })
+  const validationResult = await validatePipelineGraphJson(json)
+  if (validationResult) {
+    // make sure input node's unlinked output value to be null
+    json.nodes.forEach((node) => {
+      if (node.pmt_fields?.type === 'input') {
+        node.pmt_fields.outputs.forEach((out, o) => {
+          const output = node.outputs[o]
+          if (out.linked === false || !output?.links?.length) {
+            out.path = null
+            out.value = null
+            // node.pmt_fields.outputs[o] = null
+          }
+        })
+      }
+    })
+  } else {
+    console.error('validation failed')
+    return
+  }
+  const formData = {
+    workflow: JSON.stringify(json),
+    caseName
+  }
+  if (pipelineId && caseName) {
+    console.log('put sample case for pipeline...', pipelineId, formData)
+  } else {
+    return
+  }
+  return fetch(`h3://localhost/api/pipelines/${pipelineId}/sample-cases`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(formData)
+  })
+    .then(async (res) => {
+      if (res.ok) {
+        return res.json()
+      } else {
+        const err = await res.json()
+        if (err?.statusMessage) {
+          return console.error(err.statusCode, err.statusMessage)
+        }
+        throw new Error(
+          'Failed to put pipeline sample case',
+          pipelineId,
+          formData.caseName
+        )
+      }
+    })
+    .then((res) => {
+      const { data, error, message } = res || {}
+      if (error) {
+        throw new Error(message)
+      }
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      // if (err.message) {
+      //   toast.add({
+      //     severity: 'error',
+      //     summary: 'Error',
+      //     detail: err.message
+      //   })
+      // }
+    })
+}
+async function deletePipelineSampleCase(caseNames = []) {
+  if (pipelineId && caseNames.length > 0) {
+    console.log('delete sample cases for pipeline...', pipelineId, caseNames)
+  } else {
+    return
+  }
+  return fetch(`h3://localhost/api/pipelines/${pipelineId}/sample-cases`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ caseNames })
+  })
+    .then(async (res) => {
+      if (res.ok) {
+        return res.json()
+      } else {
+        const err = await res.json()
+        if (err?.statusMessage) {
+          return console.error(err.statusCode, err.statusMessage)
+        }
+        throw new Error(
+          'Failed to delete pipeline sample cases',
+          pipelineId,
+          caseNames
+        )
+      }
+    })
+    .then((res) => {
+      const { data, error, message } = res || {}
+      if (error) {
+        throw new Error(message)
+      }
+      return data
+    })
+    .catch((err) => {
+      console.error(err)
+      // if (err.message) {
+      //   toast.add({
+      //     severity: 'error',
+      //     summary: 'Error',
+      //     detail: err.message
+      //   })
+      // }
+    })
 }
 
 // ---

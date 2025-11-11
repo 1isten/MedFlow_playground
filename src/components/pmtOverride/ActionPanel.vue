@@ -2158,7 +2158,7 @@ watch(
         if (port) {
           port.postMessage({
             type: 'continue-run-batch',
-            payload: { ...res, ts: Date.now() }
+            payload: { pipelineId, ...res, ts: Date.now() }
           })
         }
       }
@@ -3277,6 +3277,11 @@ function handleGetPipeline(payload) {
     workflowStore.closeWorkflow(workflowStore.activeWorkflow).then(() => {
       workflowService.openWorkflow(workflow).then(() => {
         if (readonlyView.value) {
+          if (embeddedView.value) {
+            setTimeout(() => {
+              restoreRunBatchStatus()
+            }, 100)
+          }
           setTimeout(() => {
             resizeWorkflow()
           }, 150)
@@ -3302,6 +3307,16 @@ function resizeWorkflow() {
   setTimeout(() => {
     isResizing = false
   }, 350) // https://github.com/1isten/MedFlow_playground/blob/296e1a2b0ddf5004b9b86e53700bfd1ded84c441/src/lib/litegraph/src/DragAndScale.ts#L229
+}
+
+function restoreRunBatchStatus() {
+  const port = ports['batch-tasks-' + datasetId]
+  if (port) {
+    port.postMessage({
+      type: 'request-restore-run-batch-status',
+      payload: { pipelineId, ts: Date.now() }
+    })
+  }
 }
 
 function createPipeline(payload) {

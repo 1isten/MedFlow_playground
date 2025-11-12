@@ -376,10 +376,7 @@
       header="Sample Cases"
       :style="{ width: '25rem' }"
       @show="getPipelineSampleCases"
-      @after-hide="
-        selectedSampleCase = null
-        newSampleCaseName = ''
-      "
+      @after-hide="afterHideSnapshotsDialog"
     >
       <Listbox
         v-model="selectedSampleCase"
@@ -1770,6 +1767,10 @@ const saveMenuItems = computed(() => [
     }
   }
 ])
+const afterHideSnapshotsDialog = () => {
+  selectedSampleCase.value = null
+  newSampleCaseName.value = ''
+}
 
 const pipOver = ref()
 function togglePipOver(e) {

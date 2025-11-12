@@ -373,7 +373,7 @@
       v-model:visible="snapshotsDialog"
       modal
       dismissable-mask
-      header="Sample Cases"
+      header="Sample Case Snapshots"
       :style="{ width: '25rem' }"
       @show="getPipelineSampleCases"
       @after-hide="afterHideSnapshotsDialog"
@@ -382,7 +382,7 @@
         v-model="selectedSampleCase"
         :options="sampleCases"
         :option-label="'caseName'"
-        :empty-message="'No saved sample cases yet.'"
+        :empty-message="'No sample case snapshots yet.'"
         class="w-full"
         pt:option="cursor-default"
         @update:model-value="onSelectSampleCase"
@@ -1757,7 +1757,7 @@ const snapshotsDialog = ref(false)
 const saveMenu = ref()
 const saveMenuItems = computed(() => [
   {
-    label: 'Sample Cases',
+    label: 'Sample Cases Snapshots',
     icon: 'pi pi-bookmark',
     class: 'text-sm',
     disabled:
@@ -3783,6 +3783,9 @@ async function putPipelineSampleCase(caseName) {
           }
         })
       }
+      if (node.pmt_fields?.status) {
+        node.pmt_fields.status = null
+      }
     })
   } else {
     console.error('validation failed')
@@ -3911,10 +3914,18 @@ const selectedSampleCase = ref(null)
 const onSelectSampleCase = (sampleCase) => {
   // console.log(sampleCase)
   if (sampleCase.workflow?.startsWith('{')) {
-    const workflow = JSON.parse(sampleCase.workflow)
-    console.log(workflow)
-    // TODO: patch current graph with workflow
-    // ...
+    const pipelineJson = JSON.parse(sampleCase.workflow)
+    const workflow = workflowStore.createTemporary(
+      `pmt/${sampleCase}_sample_data`,
+      pipelineJson
+    )
+    workflowStore.closeWorkflow(workflowStore.activeWorkflow).then(() => {
+      workflowService.openWorkflow(workflow).then(() => {
+        setTimeout(() => {
+          resizeWorkflow()
+        }, 150)
+      })
+    })
   }
   snapshotsDialog.value = false
 }

@@ -184,7 +184,7 @@ useExtensionService().registerExtension({
       }
       node['getInputs_'] = getInputs
 
-      const handleShowItemInFolder = (inputs) => {
+      function showItemInFolder(inputs) {
         const path = inputs[0].value || inputs[0].path
         return fetch(`h3://localhost/api/showItemInFolder`, {
           method: 'POST',
@@ -215,8 +215,7 @@ useExtensionService().registerExtension({
           ).length
 
           if (inputCount > 0) {
-            openFolderEl['showItemInFolder'] = (e) =>
-              handleShowItemInFolder(inputs)
+            openFolderEl['showItemInFolder'] = (e) => showItemInFolder(inputs)
             openFolderEl.onclick = openFolderEl['showItemInFolder']
             openFolderEl.style.visibility = 'visible'
           } else {

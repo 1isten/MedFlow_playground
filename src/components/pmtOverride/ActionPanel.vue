@@ -172,13 +172,20 @@
           class="btn-term"
           size="small"
           :aria-label="'Terminal'"
+          :aria-haspopup="true"
+          :aria-controls="'btn-term-menu'"
           :icon="llmRunning ? 'pi pi-spin pi-spinner' : 'pi pi-code'"
           :severity="showTerminal ? 'primary' : 'secondary'"
           :loading="false"
           :disabled="loading || deleting"
           @click="toggleTerminal()"
           @contextmenu.prevent="
-            !!pipelineId && !running && !llmRunning && termMenu.show($event)
+            !!pipelineId &&
+            !loading &&
+            !deleting &&
+            !running &&
+            !llmRunning &&
+            termMenu.show($event)
           "
         />
         <Menu id="btn-term-menu" ref="termMenu" :model="termMenuItems" popup />
@@ -187,13 +194,24 @@
           class="btn-sav"
           size="small"
           :aria-label="'Save'"
+          :aria-haspopup="true"
+          :aria-controls="'btn-save-menu'"
           icon="pi pi-save"
           severity="secondary"
           :loading="saving"
           :disabled="loading || running || deleting || pipeline.readonly"
           @click="confirmSave"
-          @contextmenu.prevent.stop
+          @contextmenu.prevent="
+            !!pipelineId &&
+            !loading &&
+            !saving &&
+            !deleting &&
+            !running &&
+            !llmRunning &&
+            saveMenu.show($event)
+          "
         />
+        <Menu id="btn-save-menu" ref="saveMenu" :model="saveMenuItems" popup />
         <Button
           v-if="!loading"
           class="btn-exp"
@@ -351,6 +369,73 @@
         </button>
       </div>
     </div>
+    <Dialog
+      v-model:visible="snapshotsDialog"
+      modal
+      dismissable-mask
+      header="Sample Cases"
+      :style="{ width: '25rem' }"
+      @show="getPipelineSampleCases"
+      @after-hide="
+        selectedSampleCase = null
+        newSampleCaseName = ''
+      "
+    >
+      <Listbox
+        v-model="selectedSampleCase"
+        :options="sampleCases"
+        :option-label="'caseName'"
+        :empty-message="'No saved sample cases yet.'"
+        class="w-full"
+        pt:option="cursor-default"
+        @update:model-value="onSelectSampleCase"
+      >
+        <template #option="slotProps">
+          <div class="w-full flex items-center gap-4 hover:cursor-default">
+            <div class="flex-1">{{ slotProps.option.caseName }}</div>
+            <i
+              class="pi pi-folder-open text-text-secondary hover:text-white hover:cursor-pointer transition"
+              @click.prevent.stop="openCaseFolder(slotProps.option)"
+            ></i>
+            <i
+              class="pi pi-trash text-text-secondary hover:text-[var(--p-red-400)] hover:cursor-pointer transition"
+              @click.prevent.stop="
+                deletePipelineSampleCase([slotProps.option.caseName])
+              "
+            ></i>
+          </div>
+        </template>
+      </Listbox>
+      <template #footer>
+        <div class="w-full flex items-start">
+          <div class="flex flex-col flex-1 gap-2">
+            <InputText
+              v-model.trim="newSampleCaseName"
+              placeholder="New case name"
+              :invalid="duplicatedCaseName"
+              :disabled="savingSampleCase"
+            />
+            <Message
+              v-if="duplicatedCaseName"
+              size="small"
+              severity="error"
+              variant="simple"
+              >Duplicate case name.</Message
+            >
+          </div>
+          <Button
+            class="ml-2"
+            :aria-label="'Snapshot'"
+            icon="pi pi-bookmark"
+            text
+            severity="secondary"
+            :loading="savingSampleCase"
+            :disabled="!newSampleCaseName || duplicatedCaseName"
+            @click="putPipelineSampleCase(newSampleCaseName)"
+          />
+        </div>
+      </template>
+    </Dialog>
   </teleport>
 </template>
 
@@ -362,10 +447,13 @@ import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'
 import ConfirmDialog from 'primevue/confirmdialog'
 import ConfirmPopup from 'primevue/confirmpopup'
+import Dialog from 'primevue/dialog'
 import InputGroup from 'primevue/inputgroup'
 import InputGroupAddon from 'primevue/inputgroupaddon'
 import InputText from 'primevue/inputtext'
+import Listbox from 'primevue/listbox'
 import Menu from 'primevue/menu'
+import Message from 'primevue/message'
 import Panel from 'primevue/panel'
 import Popover from 'primevue/popover'
 import Select from 'primevue/select'
@@ -1480,10 +1568,6 @@ onMounted(async () => {
   if (window.$electron) {
     window.VOLVIEW_URL = await window.$electron.getVolViewUrl()
     window.MAIN_INDEX = await window.$electron.getMainUrl()
-
-    window.$getPipelineSampleCases = getPipelineSampleCases
-    window.$putPipelineSampleCase = putPipelineSampleCase
-    window.$deletePipelineSampleCase = deletePipelineSampleCase
   }
   window.__session_id__ = `${Date.now()}`
   window['driverObjs'] = []
@@ -1670,6 +1754,21 @@ const termMenuItems = computed(() => [
     }
   }
   */
+])
+
+const snapshotsDialog = ref(false)
+const saveMenu = ref()
+const saveMenuItems = computed(() => [
+  {
+    label: 'Sample Cases',
+    icon: 'pi pi-bookmark',
+    class: 'text-sm',
+    disabled:
+      isNewPipeline.value || saving.value || deleting.value || running.value,
+    command: () => {
+      snapshotsDialog.value = true
+    }
+  }
 ])
 
 const pipOver = ref()
@@ -2055,6 +2154,9 @@ async function save() {
   })
 }
 const confirmSave = (e) => {
+  if (saveMenu.value) {
+    saveMenu.value.hide()
+  }
   if (running.value) {
     return
   }
@@ -3588,18 +3690,35 @@ function handleSaveQnAnswers(payload) {
 
 // --- Sample Case ---
 
+const sampleCases = shallowRef([])
+const newSampleCaseName = ref('')
+const duplicatedCaseName = computed(() => {
+  if (newSampleCaseName.value) {
+    return (
+      sampleCases.value.findIndex(({ caseName }) => {
+        return caseName === newSampleCaseName.value
+      }) !== -1
+    )
+  }
+  return false
+})
+const savingSampleCase = ref(false)
+
 async function getPipelineSampleCases() {
   if (pipelineId) {
-    console.log('get sample cases for pipeline...', pipelineId)
+    selectedSampleCase.value = null
   } else {
     return
   }
-  return fetch(`h3://localhost/api/pipelines/${pipelineId}/sample-cases`, {
-    method: 'GET',
-    headers: {
-      'Content-Type': 'application/json'
+  const data = await fetch(
+    `h3://localhost/api/pipelines/${pipelineId}/sample-cases`,
+    {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
     }
-  })
+  )
     .then(async (res) => {
       if (res.ok) {
         return res.json()
@@ -3614,6 +3733,10 @@ async function getPipelineSampleCases() {
     .then((res) => {
       const { data, error, message } = res || {}
       if (error) {
+        if (Array.isArray(data)) {
+          console.warn(message)
+          return data
+        }
         throw new Error(message)
       }
       return data
@@ -3628,8 +3751,17 @@ async function getPipelineSampleCases() {
       //   })
       // }
     })
+  sampleCases.value = data || []
+  return sampleCases.value
 }
 async function putPipelineSampleCase(caseName) {
+  if (!caseName || duplicatedCaseName.value) {
+    return
+  }
+  if (savingSampleCase.value) {
+    return
+  }
+  savingSampleCase.value = true
   let { json } = exportJson(false)
   json = await fillInLoadNodeScalarValueIfNeeded(json, true)
   json.nodes.forEach((node) => {
@@ -3653,6 +3785,7 @@ async function putPipelineSampleCase(caseName) {
     })
   } else {
     console.error('validation failed')
+    savingSampleCase.value = false
     return
   }
   const formData = {
@@ -3660,17 +3793,20 @@ async function putPipelineSampleCase(caseName) {
     caseName
   }
   if (pipelineId && caseName) {
-    console.log('put sample case for pipeline...', pipelineId, formData)
+    selectedSampleCase.value = null
   } else {
     return
   }
-  return fetch(`h3://localhost/api/pipelines/${pipelineId}/sample-cases`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(formData)
-  })
+  const data = await fetch(
+    `h3://localhost/api/pipelines/${pipelineId}/sample-cases`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(formData)
+    }
+  )
     .then(async (res) => {
       if (res.ok) {
         return res.json()
@@ -3689,6 +3825,10 @@ async function putPipelineSampleCase(caseName) {
     .then((res) => {
       const { data, error, message } = res || {}
       if (error) {
+        if (Array.isArray(data)) {
+          console.warn(message)
+          return data
+        }
         throw new Error(message)
       }
       return data
@@ -3703,20 +3843,29 @@ async function putPipelineSampleCase(caseName) {
       //   })
       // }
     })
+    .finally(() => {
+      newSampleCaseName.value = ''
+      savingSampleCase.value = false
+    })
+  sampleCases.value = data || []
+  return sampleCases.value
 }
 async function deletePipelineSampleCase(caseNames = []) {
   if (pipelineId && caseNames.length > 0) {
-    console.log('delete sample cases for pipeline...', pipelineId, caseNames)
+    selectedSampleCase.value = null
   } else {
     return
   }
-  return fetch(`h3://localhost/api/pipelines/${pipelineId}/sample-cases`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ caseNames })
-  })
+  const data = await fetch(
+    `h3://localhost/api/pipelines/${pipelineId}/sample-cases`,
+    {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ caseNames })
+    }
+  )
     .then(async (res) => {
       if (res.ok) {
         return res.json()
@@ -3735,6 +3884,10 @@ async function deletePipelineSampleCase(caseNames = []) {
     .then((res) => {
       const { data, error, message } = res || {}
       if (error) {
+        if (Array.isArray(data)) {
+          console.warn(message)
+          return data
+        }
         throw new Error(message)
       }
       return data
@@ -3748,6 +3901,54 @@ async function deletePipelineSampleCase(caseNames = []) {
       //     detail: err.message
       //   })
       // }
+    })
+  sampleCases.value = data || []
+  return sampleCases.value
+}
+
+const selectedSampleCase = ref(null)
+const onSelectSampleCase = (sampleCase) => {
+  // console.log(sampleCase)
+  if (sampleCase.workflow?.startsWith('{')) {
+    const workflow = JSON.parse(sampleCase.workflow)
+    console.log(workflow)
+    // TODO: patch current graph with workflow
+    // ...
+  }
+  snapshotsDialog.value = false
+}
+
+function openCaseFolder(sampleCase) {
+  const pipelineJson = sampleCase.files.find((file) => {
+    return !file.isFolder && file.name === 'pipeline.json'
+  })
+  if (pipelineJson) {
+    showItemInFolder(pipelineJson.path)
+  } else {
+    showItemInFolder(sampleCase.casePath)
+  }
+}
+
+// ---
+
+function showItemInFolder(path) {
+  return fetch(`h3://localhost/api/showItemInFolder`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ fullPath: path })
+  })
+    .then((res) => {
+      if (res.ok) {
+        return res.json()
+      }
+    })
+    .then((res) => {
+      // console.log({ path: res?.path || '' })
+    })
+    .catch((err) => {
+      console.error(err)
     })
 }
 
@@ -3857,7 +4058,9 @@ async function langchainChat(langchain_json) {
   border-radius: 0 !important;
 }
 
-#btn-run-menu {
+#btn-run-menu,
+#btn-term-menu,
+#btn-save-menu {
   margin-top: -5px !important;
 }
 

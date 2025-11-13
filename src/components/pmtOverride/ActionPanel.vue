@@ -433,13 +433,17 @@
         </div>
       </template>
     </Dialog>
+    <Toast group="plugin-sync-alert" @close="showPluginSyncAlert = false" />
   </teleport>
 </template>
 
 <script setup>
 /* eslint-disable no-console, @typescript-eslint/no-floating-promises */
 import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
-import { merge } from 'es-toolkit/compat'
+import {
+  // isEqual,
+  merge
+} from 'es-toolkit/compat'
 import Button from 'primevue/button'
 import ButtonGroup from 'primevue/buttongroup'
 import ConfirmDialog from 'primevue/confirmdialog'
@@ -455,8 +459,18 @@ import Panel from 'primevue/panel'
 import Popover from 'primevue/popover'
 import Select from 'primevue/select'
 import Textarea from 'primevue/textarea'
+import Toast from 'primevue/toast'
 import { useConfirm } from 'primevue/useconfirm'
-import { computed, onMounted, onUnmounted, ref, shallowRef, watch } from 'vue'
+import { useToast } from 'primevue/usetoast'
+import {
+  computed,
+  nextTick,
+  onMounted,
+  onUnmounted,
+  ref,
+  shallowRef,
+  watch
+} from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 import { CORE_KEYBINDINGS } from '@/constants/coreKeybindings'
@@ -533,7 +547,8 @@ const abortList = []
 const loading = ref(!!pipeline.value?.id)
 
 const confirm = useConfirm()
-const toast = useToastStore()
+const toast = useToast()
+const toastStore = useToastStore()
 
 const nodesSelected = shallowRef([])
 const nodesSelectedCount = computed(() => nodesSelected.value.length)
@@ -1072,7 +1087,7 @@ onMounted(async () => {
         {
           content: 'Reset All Nodes',
           callback: () => {
-            toast.removeAll()
+            toastStore.removeAll()
             removeChatHistory()
             resetNodeById(-1)
           }
@@ -1092,7 +1107,7 @@ onMounted(async () => {
         {
           content: 'Clear Workflow',
           callback: async () => {
-            toast.removeAll()
+            toastStore.removeAll()
             removeChatHistory()
             await commandStore.execute('Comfy.ClearWorkflow')
           }
@@ -1537,7 +1552,7 @@ onMounted(async () => {
     })
     if (versionMismatchCount > 0) {
       versionMismatchMsg += `Please remove and re-add ${versionMismatchCount > 1 ? 'those nodes' : 'that node again'}.`
-      toast.add({
+      toastStore.add({
         severity: 'error',
         summary: 'Node Version Mismatch',
         detail: versionMismatchMsg
@@ -1576,6 +1591,8 @@ onMounted(async () => {
     decodeMultiStream = window.MessagePack.decodeMultiStream
   }
   window.addEventListener('beforeunload', (e) => {
+    document.body.removeEventListener('mouseenter', handleMouseEnterTab)
+    document.body.removeEventListener('mouseleave', handleMouseLeaveTab)
     abortList.forEach((ab) => {
       if (ab?.signal?.aborted) {
         return
@@ -1967,7 +1984,7 @@ async function fillInLoadNodeScalarValueIfNeeded(json, always = false) {
               .catch((err) => {
                 console.error(err)
                 if (err.message) {
-                  toast.add({
+                  toastStore.add({
                     severity: 'error',
                     summary: 'Error',
                     detail: err.message
@@ -2147,7 +2164,7 @@ async function save() {
     sessionStorage.setItem('workflow', JSON.stringify(json))
   }
   saving.value = false
-  toast.add({
+  toastStore.add({
     severity: 'success',
     summary: 'Saved',
     detail: 'Changes have been saved',
@@ -2858,6 +2875,10 @@ onMounted(async () => {
               }
               break
             }
+            case 'got-plugins': {
+              handleGetPlugins(payload)
+              break
+            }
             case 'got-pipeline': {
               handleGetPipeline(payload)
               break
@@ -2923,6 +2944,129 @@ onMounted(async () => {
   }
 })
 
+let mouseEnteredTab = undefined
+function handleMouseEnterTab() {
+  if (mouseEnteredTab === false) {
+    getLatestPluginsList()
+  }
+  mouseEnteredTab = true
+}
+function handleMouseLeaveTab() {
+  mouseEnteredTab = false
+}
+
+function getLatestPluginsList() {
+  if (
+    // llmRunning.value ||
+    running.value ||
+    loading.value ||
+    saving.value ||
+    deleting.value
+  ) {
+    return
+  }
+  const port = ports['mod-plugins']
+  if (port) {
+    port.postMessage({
+      type: 'get-plugins',
+      payload: { pipelineId, ts: Date.now() }
+    })
+  }
+}
+const showPluginSyncAlert = ref(false)
+async function handleGetPlugins(payload) {
+  if (
+    // llmRunning.value ||
+    running.value ||
+    loading.value ||
+    saving.value ||
+    deleting.value
+  ) {
+    return
+  }
+  if (payload?.pipelineId !== pipelineId || !payload?.data) {
+    return
+  }
+  const created = []
+  const updated = []
+  const deleted = []
+  for (const plugin of payload.data) {
+    const metadata = plugin.metadata ? JSON.parse(plugin.metadata) : null
+    const pluginConfig = (!metadata?.error && metadata?.data) || null
+    const nodeDefs = pluginConfig
+      ? // eslint-disable-next-line no-undef
+        $pluginConfig2ComfyNodeDefs(pluginConfig, false)
+      : null
+    if (nodeDefs) {
+      Object.entries(nodeDefs).forEach(([nodeType, nodeData]) => {
+        const nodeDef = nodeDefStore.nodeDefsByName[nodeType]
+        if (nodeDef) {
+          const PMT_VERSION = nodeDef?.PMT_VERSION
+          const version = nodeData?.display_name?.split('@v').slice(1).pop()
+          if (version && PMT_VERSION) {
+            if (version !== PMT_VERSION) {
+              updated.push([nodeType, nodeData, nodeDef])
+            }
+          }
+        } else {
+          created.push([nodeType, nodeData, null])
+        }
+      })
+    }
+  }
+  Object.entries(nodeDefStore.nodeDefsByName).forEach(([nodeType, nodeDef]) => {
+    if (nodeType?.startsWith('plugin.')) {
+      const plugin_name = nodeType.split('.')[1]
+      if (
+        payload.data.findIndex((plugin) => plugin.name === plugin_name) === -1
+      ) {
+        deleted.push([nodeType, null, nodeDef])
+      }
+    }
+  })
+  if (showPluginSyncAlert.value) {
+    //
+  } else if (
+    created.length === 0 &&
+    updated.length === 0 &&
+    deleted.length === 0
+  ) {
+    // eslint-disable-next-line no-constant-condition
+  } else if (false) {
+    // await comfyApp.registerNodes(nodeDefs)
+    // await commandStore.execute('Comfy.RefreshNodeDefinitions')
+    // workflowService.reloadCurrentWorkflow()
+  } else {
+    if (created.length > 0) {
+      toast.add({
+        group: 'plugin-sync-alert',
+        severity: 'success',
+        summary: `${created.length} Plugin Node${created.length !== 1 ? 's' : ''} Installed`,
+        detail: 'You need to reload the workflow to take effect.'
+      })
+      showPluginSyncAlert.value = true
+    }
+    if (updated.length > 0) {
+      toast.add({
+        group: 'plugin-sync-alert',
+        severity: 'warn',
+        summary: `${updated.length} Plugin Node${updated.length !== 1 ? 's' : ''} Updated`,
+        detail: 'You need to reload the workflow to take effect.'
+      })
+      showPluginSyncAlert.value = true
+    }
+    if (deleted.length > 0) {
+      toast.add({
+        group: 'plugin-sync-alert',
+        severity: 'error',
+        summary: `${deleted.length} Plugin Node${deleted.length !== 1 ? 's' : ''} Deleted`,
+        detail: 'You need to reload the workflow to take effect.'
+      })
+      showPluginSyncAlert.value = true
+    }
+  }
+}
+
 function openMainPy(pluginName, functionName) {
   const port = ports['mod-pipelines']
   if (port) {
@@ -2987,7 +3131,7 @@ function handlePythonMsg(msg) {
     pluginErrorTraceback = false
     if (tracebackErr) {
       if (!showTerminal.value) {
-        toast.add({
+        toastStore.add({
           severity: 'error',
           summary: 'Error',
           detail: tracebackErr
@@ -3044,7 +3188,7 @@ function handlePythonMsg(msg) {
     switch (logLevel) {
       case 'WARNING':
         if (!showTerminal.value) {
-          toast.add({
+          toastStore.add({
             severity: 'warn',
             summary: msg1 && 'Warning',
             detail: msg2,
@@ -3057,7 +3201,7 @@ function handlePythonMsg(msg) {
       case 'ERROR':
         if (!pluginErrorTraceback) {
           if (!showTerminal.value) {
-            toast.add({
+            toastStore.add({
               severity: 'error',
               summary: msg1 && 'Error',
               detail: msg2
@@ -3398,6 +3542,16 @@ function handleGetPipeline(payload) {
   }
   pipeline.value.readonly = !!payload.readonly
   loading.value = false
+  nextTick(() => {
+    if (window.$electron && !isNewPipeline.value && !embeddedView.value) {
+      window.$electron.requestMessagePort({
+        peer1: 'mod-plugins',
+        peer2: peerId
+      })
+      document.body.addEventListener('mouseenter', handleMouseEnterTab)
+      document.body.addEventListener('mouseleave', handleMouseLeaveTab)
+    }
+  })
 }
 
 let isResizing = false
@@ -3454,7 +3608,7 @@ function handleCreatePipeline(payload) {
     pipelineEnv.value = pipeline.value.env
   }
   saving.value = false
-  toast.add({
+  toastStore.add({
     severity: 'success',
     summary: 'Saved',
     detail: 'Pipeline created!',
@@ -3494,7 +3648,7 @@ function handleUpdatePipeline(payload) {
     pipelineEnv.value = pipeline.value.env
   }
   saving.value = false
-  toast.add({
+  toastStore.add({
     severity: 'success',
     summary: 'Saved',
     detail: 'Pipeline updated!',
@@ -3745,7 +3899,7 @@ async function getPipelineSampleCases() {
     .catch((err) => {
       console.error(err)
       // if (err.message) {
-      //   toast.add({
+      //   toastStore.add({
       //     severity: 'error',
       //     summary: 'Error',
       //     detail: err.message
@@ -3840,7 +3994,7 @@ async function putPipelineSampleCase(caseName) {
     .catch((err) => {
       console.error(err)
       // if (err.message) {
-      //   toast.add({
+      //   toastStore.add({
       //     severity: 'error',
       //     summary: 'Error',
       //     detail: err.message
@@ -3899,7 +4053,7 @@ async function deletePipelineSampleCase(caseNames = []) {
     .catch((err) => {
       console.error(err)
       // if (err.message) {
-      //   toast.add({
+      //   toastStore.add({
       //     severity: 'error',
       //     summary: 'Error',
       //     detail: err.message

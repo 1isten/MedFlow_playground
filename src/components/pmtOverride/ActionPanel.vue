@@ -1591,14 +1591,14 @@ onMounted(async () => {
     decodeMultiStream = window.MessagePack.decodeMultiStream
   }
   window.addEventListener('beforeunload', (e) => {
-    document.body.removeEventListener('mouseenter', handleMouseEnterTab)
-    document.body.removeEventListener('mouseleave', handleMouseLeaveTab)
     abortList.forEach((ab) => {
       if (ab?.signal?.aborted) {
         return
       }
       ab.abort()
     })
+    document.body.removeEventListener('mouseenter', handleMouseEnterTab)
+    document.body.removeEventListener('mouseleave', handleMouseLeaveTab)
   })
 })
 

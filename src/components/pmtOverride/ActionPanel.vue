@@ -52,8 +52,55 @@
           @click="togglePipOver"
           @contextmenu.prevent.stop
         />
-        <Popover ref="pipOver">
+        <Popover ref="pipOver" @show="onPipOverShow">
           <div class="flex flex-col">
+            <div class="mb-2 flex items-center">
+              <InputGroup>
+                <Select
+                  v-model="pipelineEnv"
+                  :options="pythonKernels"
+                  option-label="name"
+                  option-value="path"
+                  :placeholder="
+                    loadingPythonKernels
+                      ? 'Listing python kernels...'
+                      : 'Specify python kernel'
+                  "
+                  :loading="loadingPythonKernels"
+                  class="w-full"
+                >
+                  <template #value="slotProps">
+                    <span class="text-sm text-muted">
+                      {{ slotProps.value || slotProps.placeholder }}
+                    </span>
+                  </template>
+                  <template #option="slotProps">
+                    <div class="flex flex-col space-y-1">
+                      <code class="font-mono text-sm">
+                        {{
+                          slotProps.option.name +
+                          (slotProps.option.isActive ? ' *' : '')
+                        }}
+                      </code>
+                      <small class="text-xs text-muted">
+                        {{ slotProps.option.path }}
+                      </small>
+                    </div>
+                  </template>
+                </Select>
+              </InputGroup>
+              <Button
+                v-if="!pipeline.readonly"
+                class="ml-2"
+                :aria-label="'Reload'"
+                icon="pi pi-refresh"
+                text
+                :severity="'secondary'"
+                :loading="false"
+                :disabled="loadingPythonKernels || saving || deleting"
+                @click="getPythonKernelList"
+              />
+            </div>
             <div class="flex items-center">
               <InputGroup>
                 <InputGroupAddon>
@@ -108,38 +155,6 @@
                 :rows="2"
                 :readonly="false"
               />
-            </div>
-            <div class="mt-2 flex">
-              <Select
-                v-model="pipelineEnv"
-                :options="pythonKernels"
-                option-label="name"
-                option-value="path"
-                :placeholder="
-                  loadingPythonKernels
-                    ? 'Listing python kernels...'
-                    : 'Specify python kernel'
-                "
-                :loading="loadingPythonKernels"
-                class="w-full"
-              >
-                <template #value="slotProps">
-                  <span class="text-sm text-muted">{{
-                    slotProps.value || slotProps.placeholder
-                  }}</span>
-                </template>
-                <template #option="slotProps">
-                  <div class="flex flex-col space-y-1">
-                    <code class="font-mono text-sm"
-                      >{{ slotProps.option.name
-                      }}{{ slotProps.option.isActive ? ' *' : '' }}</code
-                    >
-                    <small class="text-xs text-muted">{{
-                      slotProps.option.path
-                    }}</small>
-                  </div>
-                </template>
-              </Select>
             </div>
             <div class="mt-3 flex items-center justify-end">
               <Button
@@ -1561,7 +1576,11 @@ onMounted(async () => {
   }, 500)
 
   if (pipelineId) {
-    getPythonKernelList()
+    if (readonlyView.value || embeddedView.value) {
+      //
+    } else {
+      // getPythonKernelList()
+    }
   } else {
     const workflowData =
       workflow_name && workflow_name in presets
@@ -1790,6 +1809,11 @@ const afterHideSnapshotsDialog = () => {
 }
 
 const pipOver = ref()
+const onPipOverShow = () => {
+  if (pipelineId && pythonKernels.value.length === 0) {
+    getPythonKernelList()
+  }
+}
 function togglePipOver(e) {
   pipelineName.value = pipeline.value.name
   pipelineDescription.value = pipeline.value.description

@@ -188,7 +188,8 @@ useExtensionService().registerExtension({
                       const acceptTypes = getNodeDefInputAcceptTypes(input.name)
                       if (
                         acceptTypes?.length &&
-                        acceptTypes.indexOf(inputNodeOutput.type) === -1
+                        acceptTypes.indexOf(inputNodeOutput.type) === -1 &&
+                        inputNodeOutput.type !== '*'
                       ) {
                         node.disconnectInput(index)
                         break
@@ -196,6 +197,7 @@ useExtensionService().registerExtension({
                       input.localized_name = input.name
                       input.type = inputNodeOutput.type
                     }
+                    /*
                     const firstAnyTypeSlot = node.inputs.findIndex(
                       (input) => getNodeDefInputType(input.name) === '*'
                     )
@@ -213,6 +215,7 @@ useExtensionService().registerExtension({
                         }
                       })
                     }
+                    */
                   }
                 } else {
                   if (getNodeDefInputType(inputOrOutput?.name) === '*') {
@@ -229,7 +232,7 @@ useExtensionService().registerExtension({
                         output.localized_name = `* ${output.name}`
                         output.type = '*'
                         if (output.isConnected) {
-                          node.disconnectOutput(o)
+                          // node.disconnectOutput(o)
                         }
                       }
                     })

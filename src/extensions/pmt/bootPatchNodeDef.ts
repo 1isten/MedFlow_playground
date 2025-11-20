@@ -196,6 +196,10 @@ useExtensionService().registerExtension({
                       }
                       input.localized_name = input.name
                       input.type = inputNodeOutput.type
+                      if (input.type === '*') {
+                        // input.localized_name = inputNodeOutput.name
+                        inputNodeOutput.localized_name = inputNodeOutput.name
+                      }
                     }
                     /*
                     const firstAnyTypeSlot = node.inputs.findIndex(
@@ -219,6 +223,13 @@ useExtensionService().registerExtension({
                   }
                 } else {
                   if (getNodeDefInputType(inputOrOutput?.name) === '*') {
+                    const inputNode = app.graph.getNodeById(link_info.origin_id)
+                    const inputNodeOutput = inputNode?.getOutputInfo(
+                      link_info.origin_slot
+                    )
+                    if (inputNodeOutput?.type === '*') {
+                      inputNodeOutput.localized_name = `* ${inputNodeOutput.name}`
+                    }
                     const input = node.inputs[link_info.target_slot]
                     const acceptTypes = getNodeDefInputAcceptTypes(input.name)
                     if (acceptTypes?.length) {
@@ -247,6 +258,10 @@ useExtensionService().registerExtension({
           }
           return _onConnectionsChange?.apply(this, args)
         }
+        requestAnimationFrame(() => {
+          node.setSize(node.computeSize())
+          node.setDirtyCanvas(true)
+        })
       }
     }
 

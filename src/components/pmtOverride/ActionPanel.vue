@@ -525,6 +525,8 @@ const {
   pipelineId,
   pipelineEmbedded,
   pipelineReadonly,
+  blackboxTaskId,
+  blackboxFunctionId,
   // ...
   workflow_name
 } = route.query
@@ -3552,6 +3554,10 @@ function handleGetPipeline(payload) {
             setTimeout(() => {
               restoreRunBatchStatus()
             }, 100)
+          } else if (blackboxTaskId) {
+            setTimeout(() => {
+              restoreRunBlackboxStatus(blackboxTaskId)
+            }, 100)
           }
           setTimeout(() => {
             resizeWorkflow()
@@ -3598,6 +3604,60 @@ function restoreRunBatchStatus() {
       payload: { pipelineId, ts: Date.now() }
     })
   }
+}
+
+function restoreRunBlackboxStatus(blackboxTaskId) {
+  return fetch(`h3://localhost/api/blackbox/list?taskId=${blackboxTaskId}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+    .then(async (res) => {
+      if (res.ok) {
+        return res.json()
+      } else {
+        const err = await res.json()
+        if (err?.statusMessage) {
+          return console.error(err.statusCode, err.statusMessage)
+        }
+        throw new Error('Failed to get blackbox task', blackboxTaskId)
+      }
+    })
+    .then((res) => {
+      const { data, error, message } = res || {}
+      if (error) {
+        if (Array.isArray(data)) {
+          console.warn(message)
+          return data[0] || null
+        }
+        throw new Error(message)
+      }
+      return (data || [])[0] || null
+    })
+    .then((data) => {
+      if (data?.status?.startsWith('{')) {
+        const status = JSON.parse(data.status)
+        status.pipelines?.forEach(({ nodes }) => {
+          handleStreamChunk({
+            graphJson: nodes.map((node) => ({
+              id: node.id,
+              pmtFields: JSON.stringify(node.pmt_fields)
+            }))
+          })
+        })
+      }
+    })
+    .catch((err) => {
+      console.error(err)
+      // if (err.message) {
+      //   toastStore.add({
+      //     severity: 'error',
+      //     summary: 'Error',
+      //     detail: err.message
+      //   })
+      // }
+    })
 }
 
 function createPipeline(payload) {

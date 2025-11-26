@@ -84,7 +84,9 @@ useExtensionService().registerExtension({
       let search = `?manualType=qna&drawer=hidden`
       // search += '&heatmap=true'
       const pipelineId = query.get('pipelineId')
+      const blackboxTaskId = query.get('blackboxTaskId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''
+      search += blackboxTaskId ? `&blackboxTaskId=${blackboxTaskId}` : ''
       if (
         pipelineId &&
         document.location.href.includes('pipelineEmbedded=embedded')

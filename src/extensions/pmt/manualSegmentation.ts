@@ -91,7 +91,9 @@ useExtensionService().registerExtension({
       let search = `?manualType=segmentation&drawer=permanent&defaultTool=Paint&labelmapFormat=${labelmapFormat}&roi=true`
       // search += '&heatmap=true'
       const pipelineId = query.get('pipelineId')
+      const blackboxTaskId = query.get('blackboxTaskId')
       search += pipelineId ? `&pipelineId=${pipelineId}` : ''
+      search += blackboxTaskId ? `&blackboxTaskId=${blackboxTaskId}` : ''
       if (
         pipelineId &&
         document.location.href.includes('pipelineEmbedded=embedded')

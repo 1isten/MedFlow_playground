@@ -2843,8 +2843,8 @@ async function validatePipelineGraphJson(json) {
 
 const peerId =
   `comfyui-${pipelineId || '*'}` +
-  (embeddedView.value ? '-embedded' : '') +
-  (taskId ? `-for-task-${taskId}` : '')
+  (blackboxFunctionId ? '-blackbox' : embeddedView.value ? '-embedded' : '') +
+  ((blackboxTaskId ?? taskId) ? `-for-task-${blackboxTaskId ?? taskId}` : '')
 const ports = Object.create(null)
 onMounted(async () => {
   // window['__ports__'] = ports;
@@ -3766,7 +3766,7 @@ function handleDeletePipeline(payload) {
 
 function handleGetManualList(payload) {
   if (payload?.pipelineId === pipeline.value.id) {
-    //
+    // console.log('[handleGetManualList]:', payload)
   } else {
     return
   }
@@ -3798,9 +3798,8 @@ function handleGetManualList(payload) {
   }
   const port =
     ports[
-      embeddedView.value
-        ? `tab-volview-${payload.pipelineId}-embedded-manual-${manualNodeId}`
-        : `tab-volview-${payload.pipelineId}-manual-${manualNodeId}`
+      peerId.replace('comfyui-', 'tab-volview-') +
+        (manualNodeId ? `-manual-${manualNodeId}` : '')
     ]
   if (port) {
     port.postMessage({
@@ -3858,7 +3857,7 @@ function handleCreateManualSegmentation(payload) {
 
 function handleGetManualQnA(payload) {
   if (payload?.pipelineId === pipeline.value.id) {
-    //
+    // console.log('[handleGetManualQnA]:', payload)
   } else {
     return
   }
@@ -3869,9 +3868,8 @@ function handleGetManualQnA(payload) {
   }
   const port =
     ports[
-      embeddedView.value
-        ? `tab-volview-${payload.pipelineId}-embedded-manual-${manualNodeId}`
-        : `tab-volview-${payload.pipelineId}-manual-${manualNodeId}`
+      peerId.replace('comfyui-', 'tab-volview-') +
+        (manualNodeId ? `-manual-${manualNodeId}` : '')
     ]
   if (port) {
     port.postMessage({

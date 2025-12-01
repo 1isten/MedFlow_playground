@@ -525,8 +525,8 @@ const {
   pipelineId,
   pipelineEmbedded,
   pipelineReadonly,
-  blackboxTaskId,
   blackboxFunctionId,
+  blackboxTaskId,
   // ...
   workflow_name
 } = route.query
@@ -2843,7 +2843,11 @@ async function validatePipelineGraphJson(json) {
 
 const peerId =
   `comfyui-${pipelineId || '*'}` +
-  (blackboxFunctionId ? '-blackbox' : embeddedView.value ? '-embedded' : '') +
+  (blackboxTaskId && blackboxFunctionId
+    ? '-blackbox'
+    : embeddedView.value
+      ? '-embedded'
+      : '') +
   ((blackboxTaskId ?? taskId) ? `-for-task-${blackboxTaskId ?? taskId}` : '')
 const ports = Object.create(null)
 onMounted(async () => {

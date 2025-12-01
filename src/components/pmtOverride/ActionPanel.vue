@@ -3140,10 +3140,20 @@ function lineWrap(str = '') {
   }
   return str
 }
+let pluginSandboxPrinting = undefined
 let pluginPrintListening = false
 let pluginErrorTraceback = false
 let tracebackErr = ''
 function handlePythonMsg(msg) {
+  if (msg?.toUpperCase().includes('[Sandbox]'.toUpperCase())) {
+    pluginSandboxPrinting = true
+    term?.write(`\x1B[0;94m${lineWrap(msg)}\x1B[0m`)
+    return
+  }
+  if (pluginSandboxPrinting === true) {
+    pluginSandboxPrinting = false
+    term?.write('\r\n')
+  }
   const stepOff =
     msg && msg.trim().startsWith('[STEP ') && msg.trim().endsWith(' OFF]')
   if (

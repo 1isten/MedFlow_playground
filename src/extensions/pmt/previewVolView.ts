@@ -168,7 +168,7 @@ useExtensionService().registerExtension({
           } else if (niftiPath.endsWith('.nii.gz')) {
             ext = 'nii.gz'
           }
-          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[h3://localhost/file/${encodeURIComponent(niftiPath)}]&layoutName=${'Quad View'}`
+          let imageUrl = `${VOLVIEW_URL}&names=[file.${ext}]&urls=[h3://localhost/file/${encodeURIComponent(niftiPath)}]&layoutName=${'Axial Primary'}`
           imageUrl = new URL(imageUrl).href
           if (iframe.src !== imageUrl) {
             if (pmt_fields.status !== 'done') {

@@ -454,7 +454,12 @@
 
 <script setup>
 /* eslint-disable no-console, @typescript-eslint/no-floating-promises */
-import { useElementHover, useLocalStorage, useThrottleFn } from '@vueuse/core'
+import {
+  useDebounceFn,
+  useElementHover,
+  useLocalStorage,
+  useThrottleFn
+} from '@vueuse/core'
 import {
   // isEqual,
   merge
@@ -1271,7 +1276,7 @@ onMounted(async () => {
         }
 
         const _onConnectionsChange = node.onConnectionsChange
-        node.onConnectionsChange = function (...args) {
+        node.onConnectionsChange = useDebounceFn(function (...args) {
           const [type, index, isConnected, link_info, inputOrOutput] = args
           switch (type) {
             case LiteGraph.INPUT: {
@@ -1283,7 +1288,7 @@ onMounted(async () => {
             }
           }
           return _onConnectionsChange?.apply(this, args)
-        }
+        }, 100)
 
         if (node?.comfyClass.startsWith('input.')) {
           const oidWidget = node.widgets.find((w) => {
@@ -2442,8 +2447,17 @@ function getWorkflowJson(stringify = false, keepStatus = true) {
   const state = workflowStore.activeWorkflow.activeState
   const workflow = JSON.parse(JSON.stringify(state))
   workflow.nodes.sort((a, b) => a.order - b.order)
-  workflow.nodes.forEach(({ id, inputs, outputs }, i, nodes) => {
+  workflow.nodes.forEach((n, i, nodes) => {
+    if (!n) {
+      delete workflow.nodes[i]
+      return
+    }
+    const { id, inputs, outputs } = n
     const node = comfyApp.graph.getNodeById(id)
+    if (!node) {
+      delete workflow.nodes[i]
+      return
+    }
     const nodeDef = nodeDefStore.nodeDefsByName[node.type]
     const [type, subtype] = node.type.split('.')
     if (type === 'rag_llm') {
